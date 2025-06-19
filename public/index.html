@@ -8,34 +8,43 @@
 </head>
 <body>
 
-  <h1>Monevo</h1>
+  <div class="container">
+    <h1>Monevo</h1>
 
-  <form id="login-form">
-    <label for="login-email">E-mail</label>
-    <input type="email" id="login-email" required />
+    <!-- Tela de Login -->
+    <form id="login-form" class="card">
+      <h2>Login</h2>
 
-    <label for="login-senha">Senha</label>
-    <input type="password" id="login-senha" required />
+      <label for="login-email">E-mail</label>
+      <input type="email" id="login-email" required />
 
-    <button type="submit">Fazer Login</button>
-    <button type="button" id="btn-esqueci-senha" class="link-btn">Esqueci a senha</button>
-    <button type="button" id="btn-cadastrar-toggle" class="link-btn">Cadastrar Conta</button>
-  </form>
+      <label for="login-senha">Senha</label>
+      <input type="password" id="login-senha" required />
 
-  <form id="cadastro">
-    <label for="cad-nome">Nome</label>
-    <input type="text" id="cad-nome" required />
+      <button type="submit">Fazer Login</button>
+      <button type="button" id="btn-esqueci-senha" class="link-btn">Esqueci a senha</button>
+      <button type="button" id="btn-cadastrar-toggle" class="link-btn">Cadastrar Conta</button>
+    </form>
 
-    <label for="cad-email">E-mail</label>
-    <input type="email" id="cad-email" required />
+    <!-- Tela de Cadastro -->
+    <form id="cadastro-form" class="card hidden">
+      <h2>Criar Conta</h2>
 
-    <label for="cad-senha">Senha</label>
-    <input type="password" id="cad-senha" required />
+      <label for="cad-nome">Nome</label>
+      <input type="text" id="cad-nome" required />
 
-    <button type="button" id="btn-criar-conta">Criar Conta</button>
-  </form>
+      <label for="cad-email">E-mail</label>
+      <input type="email" id="cad-email" required />
 
-  <p id="mensagem"></p>
+      <label for="cad-senha">Senha</label>
+      <input type="password" id="cad-senha" required />
+
+      <button type="button" id="btn-criar-conta">Criar Conta</button>
+      <button type="button" id="btn-voltar-login" class="link-btn">Voltar para login</button>
+    </form>
+
+    <p id="mensagem"></p>
+  </div>
 
   <script src="auth.js"></script>
 </body>

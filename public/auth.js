@@ -1,3 +1,18 @@
+const loginForm = document.getElementById("login-form");
+const cadastroForm = document.getElementById("cadastro-form");
+
+document.getElementById("btn-cadastrar-toggle").addEventListener("click", () => {
+  loginForm.classList.add("hidden");
+  cadastroForm.classList.remove("hidden");
+  msg.innerText = "";
+});
+
+document.getElementById("btn-voltar-login").addEventListener("click", () => {
+  cadastroForm.classList.add("hidden");
+  loginForm.classList.remove("hidden");
+  msg.innerText = "";
+});
+
 const apiBase = "/api/usuarios";
 const msg = document.getElementById("mensagem");
 
