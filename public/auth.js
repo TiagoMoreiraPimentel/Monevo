@@ -1,6 +1,11 @@
+const apiBase = "/api/usuarios";
+const msg = document.getElementById("mensagem");
+
+// Elementos da interface
 const loginForm = document.getElementById("login-form");
 const cadastroForm = document.getElementById("cadastro-form");
 
+// Troca de telas
 document.getElementById("btn-cadastrar-toggle").addEventListener("click", () => {
   loginForm.classList.add("hidden");
   cadastroForm.classList.remove("hidden");
@@ -13,161 +18,133 @@ document.getElementById("btn-voltar-login").addEventListener("click", () => {
   msg.innerText = "";
 });
 
-const apiBase = "/api/usuarios";
-const msg = document.getElementById("mensagem");
+// SUBMIT LOGIN
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-window.addEventListener("DOMContentLoaded", () => {
-  const cadastroDiv = document.getElementById("cadastro");
+  const email = document.getElementById("login-email").value.trim();
+  const senha = document.getElementById("login-senha").value.trim();
+  msg.innerText = "Verificando...";
 
-  // Mostrar formulário de cadastro
-  const toggleBtn = document.getElementById("btn-cadastrar-toggle");
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      cadastroDiv.style.display = "block";
-    });
+  try {
+    const res = await fetch(apiBase);
+    const usuarios = await res.json();
+    const usuario = usuarios.find(u => u.email === email);
+
+    if (!usuario) {
+      msg.innerText = "Usuário não cadastrado.";
+      return;
+    }
+
+    if (usuario.senha_hash !== senha) {
+      msg.innerText = "Senha incorreta.";
+      return;
+    }
+
+    if (usuario.nivel_acesso === "Verificar") {
+      msg.innerText = "Seu cadastro está aguardando aprovação.";
+      return;
+    }
+
+    if (usuario.nivel_acesso === "COLABORADOR") {
+      msg.innerText = "Login realizado com sucesso. Perfil: COLABORADOR.";
+      return;
+    }
+
+    if (usuario.nivel_acesso === "ADMINISTRADOR") {
+      msg.innerText = "Login realizado com sucesso. Perfil: ADMINISTRADOR.";
+      return;
+    }
+
+    msg.innerText = `Acesso não autorizado: ${usuario.nivel_acesso}`;
+  } catch (err) {
+    msg.innerText = "Erro ao conectar com o servidor.";
+    console.error("Erro no login:", err);
+  }
+});
+
+// CADASTRO
+document.getElementById("btn-criar-conta").addEventListener("click", async () => {
+  const nome = document.getElementById("cad-nome").value.trim();
+  const email = document.getElementById("cad-email").value.trim();
+  const senha = document.getElementById("cad-senha").value.trim();
+
+  if (!nome || !email || !senha) {
+    msg.innerText = "Preencha todos os campos.";
+    return;
   }
 
-  // Submeter login
-  const loginForm = document.getElementById("login-form");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  const novoUsuario = {
+    nome: nome.slice(0, 50),
+    email: email.slice(0, 50),
+    senha_hash: senha.slice(0, 200),
+    nivel_acesso: "Verificar",
+    data_cadastro: new Date().toISOString()
+  };
 
-      const email = document.getElementById("login-email").value.trim();
-      const senha = document.getElementById("login-senha").value.trim();
-      msg.innerText = "Verificando...";
-
-      try {
-        const res = await fetch(apiBase);
-        const usuarios = await res.json();
-
-        const usuario = usuarios.find(u => u.email === email);
-
-        if (!usuario) {
-          msg.innerText = "Usuário não cadastrado.";
-          return;
-        }
-
-        if (usuario.senha_hash !== senha) {
-          msg.innerText = "Senha incorreta.";
-          return;
-        }
-
-        if (usuario.nivel_acesso === "Verificar") {
-          msg.innerText = "Seu cadastro está aguardando aprovação.";
-          return;
-        }
-
-        if (usuario.nivel_acesso === "COLABORADOR") {
-          msg.innerText = "Login realizado com sucesso. Perfil: COLABORADOR.";
-          return;
-        }
-
-        if (usuario.nivel_acesso === "ADMINISTRADOR") {
-          msg.innerText = "Login realizado com sucesso. Perfil: ADMINISTRADOR.";
-          return;
-        }
-
-        msg.innerText = `Acesso não autorizado. Nível desconhecido: ${usuario.nivel_acesso}`;
-      } catch (err) {
-        msg.innerText = "Erro ao conectar com o servidor.";
-        console.error("Erro na requisição de login:", err);
-      }
+  try {
+    const res = await fetch(apiBase, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(novoUsuario)
     });
+
+    if (res.ok) {
+      msg.innerText = "Conta criada com sucesso! Aguarde aprovação.";
+      cadastroForm.reset();
+      cadastroForm.classList.add("hidden");
+      loginForm.classList.remove("hidden");
+    } else {
+      const texto = await res.text();
+      msg.innerText = "Erro ao cadastrar: " + texto;
+      console.error("Erro no cadastro:", texto);
+    }
+  } catch (err) {
+    msg.innerText = "Erro ao enviar dados.";
+    console.error("Erro no cadastro:", err);
   }
+});
 
-  // Criar nova conta
-  const cadastrarBtn = document.getElementById("btn-criar-conta");
-  if (cadastrarBtn) {
-    cadastrarBtn.addEventListener("click", async () => {
-      const nome = document.getElementById("cad-nome").value.trim();
-      const email = document.getElementById("cad-email").value.trim();
-      const senha = document.getElementById("cad-senha").value.trim();
+// ESQUECI A SENHA
+document.getElementById("btn-esqueci-senha").addEventListener("click", async () => {
+  const email = prompt("Informe seu e-mail cadastrado:");
+  if (!email) return;
 
-      if (!nome || !email || !senha) {
-        msg.innerText = "Preencha todos os campos.";
-        return;
-      }
+  msg.innerText = "Verificando...";
 
-      const novoUsuario = {
-        nome: nome.slice(0, 50),
-        email: email.slice(0, 50),
-        senha_hash: senha.slice(0, 200),
-        nivel_acesso: "Verificar",
-        data_cadastro: new Date().toISOString()
-      };
+  try {
+    const res = await fetch(apiBase);
+    const usuarios = await res.json();
+    const usuario = usuarios.find(u => u.email === email.trim());
 
-      try {
-        const res = await fetch(apiBase, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(novoUsuario)
-        });
+    if (!usuario) {
+      msg.innerText = "E-mail não encontrado.";
+      return;
+    }
 
-        if (res.ok) {
-          msg.innerText = "Conta criada com sucesso! Aguarde aprovação.";
-          document.getElementById("cad-nome").value = "";
-          document.getElementById("cad-email").value = "";
-          document.getElementById("cad-senha").value = "";
-          cadastroDiv.style.display = "none";
-        } else {
-          const texto = await res.text();
-          msg.innerText = "Erro ao cadastrar: " + texto;
-          console.error("Erro no cadastro:", texto);
-        }
-      } catch (err) {
-        msg.innerText = "Erro ao enviar dados.";
-        console.error("Erro na requisição de cadastro:", err);
-      }
+    const envio = await fetch("/api/enviarEmail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: usuario.email,
+        assunto: "Recuperação de senha - Monevo",
+        corpo: `
+          <p>Olá, ${usuario.nome},</p>
+          <p>Você solicitou a recuperação da sua senha.</p>
+          <p><strong>Sua senha atual é:</strong> ${usuario.senha_hash}</p>
+          <p>Recomendamos alterá-la assim que possível.</p>
+        `
+      })
     });
-  }
 
-  // Esqueci a senha - envio por e-mail (Resend)
-  const btnEsqueci = document.getElementById("btn-esqueci-senha");
-  if (btnEsqueci) {
-    btnEsqueci.addEventListener("click", async () => {
-      const email = prompt("Informe o e-mail cadastrado:");
-      if (!email) return;
-
-      msg.innerText = "Verificando...";
-
-      try {
-        const res = await fetch(apiBase);
-        const usuarios = await res.json();
-
-        const usuario = usuarios.find(u => u.email === email.trim());
-
-        if (!usuario) {
-          msg.innerText = "E-mail não encontrado.";
-          return;
-        }
-
-        // Enviar a senha atual por e-mail usando o endpoint do Resend
-        const envio = await fetch("/api/enviarEmail", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: usuario.email,
-            assunto: "Recuperação de senha - Monevo",
-            corpo: `
-              <p>Olá, ${usuario.nome},</p>
-              <p>Você solicitou a recuperação da sua senha.</p>
-              <p><strong>Sua senha atual é:</strong> ${usuario.senha_hash}</p>
-              <p>Recomendamos alterá-la assim que possível.</p>
-            `
-          })
-        });
-
-        if (envio.ok) {
-          msg.innerText = "E-mail enviado com sua senha.";
-        } else {
-          msg.innerText = "Erro ao enviar o e-mail.";
-          console.error("Erro no envio:", await envio.text());
-        }
-      } catch (err) {
-        msg.innerText = "Erro ao recuperar senha.";
-        console.error("Erro:", err);
-      }
-    });
+    if (envio.ok) {
+      msg.innerText = "E-mail com a senha enviado com sucesso.";
+    } else {
+      msg.innerText = "Erro ao enviar e-mail.";
+      console.error("Erro envio:", await envio.text());
+    }
+  } catch (err) {
+    msg.innerText = "Erro ao recuperar senha.";
+    console.error("Erro:", err);
   }
 });
