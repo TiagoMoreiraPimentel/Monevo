@@ -4,7 +4,7 @@ const msg = document.getElementById("mensagem");
 window.addEventListener("DOMContentLoaded", () => {
   const cadastroDiv = document.getElementById("cadastro");
 
-  // Mostrar o formulário de cadastro
+  // Mostrar formulário de cadastro ao clicar no botão
   const toggleBtn = document.getElementById("btn-cadastrar-toggle");
   if (toggleBtn) {
     toggleBtn.addEventListener("click", () => {
@@ -26,20 +26,36 @@ window.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(apiBase);
         const usuarios = await res.json();
 
-        const usuario = usuarios.find(
-          (u) => u.email === email && u.senha_hash === senha
-        );
+        const usuario = usuarios.find(u => u.email === email);
 
         if (!usuario) {
-          msg.innerText = "E-mail ou senha inválidos.";
-        } else if (usuario.nivel_acesso === "Verificar") {
-          msg.innerText = "Acesso pendente de aprovação.";
-        } else {
-          msg.innerText = `Bem-vindo(a), ${usuario.nome}!`;
-          // redirecionar futuramente
+          msg.innerText = "Usuário não cadastrado.";
+          return;
         }
+
+        if (usuario.senha_hash !== senha) {
+          msg.innerText = "Senha incorreta.";
+          return;
+        }
+
+        if (usuario.nivel_acesso === "Verificar") {
+          msg.innerText = "Seu cadastro está aguardando aprovação.";
+          return;
+        }
+
+        if (usuario.nivel_acesso === "COLABORADOR") {
+          msg.innerText = "Login realizado com sucesso. Perfil: COLABORADOR.";
+          return;
+        }
+
+        if (usuario.nivel_acesso === "ADMINISTRADOR") {
+          msg.innerText = "Login realizado com sucesso. Perfil: ADMINISTRADOR.";
+          return;
+        }
+
+        msg.innerText = `Acesso não autorizado. Nível desconhecido: ${usuario.nivel_acesso}`;
       } catch (err) {
-        msg.innerText = "Erro ao conectar.";
+        msg.innerText = "Erro ao conectar com o servidor.";
         console.error("Erro na requisição de login:", err);
       }
     });
@@ -66,8 +82,6 @@ window.addEventListener("DOMContentLoaded", () => {
         data_cadastro: new Date().toISOString()
       };
 
-      console.log("Enviando para o backend:", novoUsuario);
-
       try {
         const res = await fetch(apiBase, {
           method: "POST",
@@ -75,16 +89,16 @@ window.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(novoUsuario)
         });
 
-        const texto = await res.text();
-        console.log("Resposta:", res.status, texto);
-
         if (res.ok) {
           msg.innerText = "Conta criada com sucesso! Aguarde aprovação.";
           document.getElementById("cad-nome").value = "";
           document.getElementById("cad-email").value = "";
           document.getElementById("cad-senha").value = "";
+          cadastroDiv.style.display = "none";
         } else {
+          const texto = await res.text();
           msg.innerText = "Erro ao cadastrar: " + texto;
+          console.error("Erro no cadastro:", texto);
         }
       } catch (err) {
         msg.innerText = "Erro ao enviar dados.";
