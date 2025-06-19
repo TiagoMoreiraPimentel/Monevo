@@ -59,14 +59,12 @@ window.addEventListener("DOMContentLoaded", () => {
       }
 
       const novoUsuario = {
-        id: crypto.randomUUID(),                         // VARCHAR2(36)
-        nome: nome.slice(0, 50),                         // VARCHAR2(50)
-        email: email.slice(0, 50),                       // VARCHAR2(50)
-        senha_hash: senha.slice(0, 200),                 // VARCHAR2(200)
-        nivel_acesso: "Verificar",                       // VARCHAR2(20)
-        data_cadastro: new Date().toISOString()          // DATE (formato ISO 8601)
+        nome: nome.slice(0, 50),
+        email: email.slice(0, 50),
+        senha_hash: senha.slice(0, 200),
+        nivel_acesso: "Verificar",
+        data_cadastro: new Date().toISOString()
       };
-
 
       console.log("Enviando para o backend:", novoUsuario);
 
