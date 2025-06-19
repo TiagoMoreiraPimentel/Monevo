@@ -4,7 +4,7 @@ const msg = document.getElementById("mensagem");
 window.addEventListener("DOMContentLoaded", () => {
   const cadastroDiv = document.getElementById("cadastro");
 
-  // Mostrar formulário de cadastro ao clicar no botão
+  // Mostrar formulário de cadastro
   const toggleBtn = document.getElementById("btn-cadastrar-toggle");
   if (toggleBtn) {
     toggleBtn.addEventListener("click", () => {
@@ -103,6 +103,55 @@ window.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         msg.innerText = "Erro ao enviar dados.";
         console.error("Erro na requisição de cadastro:", err);
+      }
+    });
+  }
+
+  // Esqueci a senha - envio por e-mail (Resend)
+  const btnEsqueci = document.getElementById("btn-esqueci-senha");
+  if (btnEsqueci) {
+    btnEsqueci.addEventListener("click", async () => {
+      const email = prompt("Informe o e-mail cadastrado:");
+      if (!email) return;
+
+      msg.innerText = "Verificando...";
+
+      try {
+        const res = await fetch(apiBase);
+        const usuarios = await res.json();
+
+        const usuario = usuarios.find(u => u.email === email.trim());
+
+        if (!usuario) {
+          msg.innerText = "E-mail não encontrado.";
+          return;
+        }
+
+        // Enviar a senha atual por e-mail usando o endpoint do Resend
+        const envio = await fetch("/api/enviarEmail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: usuario.email,
+            assunto: "Recuperação de senha - Monevo",
+            corpo: `
+              <p>Olá, ${usuario.nome},</p>
+              <p>Você solicitou a recuperação da sua senha.</p>
+              <p><strong>Sua senha atual é:</strong> ${usuario.senha_hash}</p>
+              <p>Recomendamos alterá-la assim que possível.</p>
+            `
+          })
+        });
+
+        if (envio.ok) {
+          msg.innerText = "E-mail enviado com sua senha.";
+        } else {
+          msg.innerText = "Erro ao enviar o e-mail.";
+          console.error("Erro no envio:", await envio.text());
+        }
+      } catch (err) {
+        msg.innerText = "Erro ao recuperar senha.";
+        console.error("Erro:", err);
       }
     });
   }

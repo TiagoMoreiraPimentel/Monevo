@@ -2,37 +2,41 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Monevo - Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Monevo</h1>
 
-    <form id="login-form">
-      <input type="email" id="login-email" placeholder="E-mail" required />
-      <input type="password" id="login-senha" placeholder="Senha" required />
-      <button type="submit">Entrar</button>
-    </form>
+  <h1>Monevo</h1>
 
-    <div class="actions">
-      <button id="btn-cadastrar-toggle">Criar Conta</button>
-      <button id="btn-recuperar">Esqueci a Senha</button>
-    </div>
+  <form id="login-form">
+    <label for="login-email">E-mail</label>
+    <input type="email" id="login-email" required />
 
-    <div id="cadastro" style="display: none; margin-top: 2rem;">
-      <h2>Cadastro</h2>
-      <input type="text" id="cad-nome" placeholder="Nome completo" required />
-      <input type="email" id="cad-email" placeholder="E-mail" required />
-      <input type="password" id="cad-senha" placeholder="Senha" required />
-      <button id="btn-criar-conta">Cadastrar</button>
-    </div>
+    <label for="login-senha">Senha</label>
+    <input type="password" id="login-senha" required />
 
-    <p id="mensagem"></p>
-  </div>
+    <button type="submit">Fazer Login</button>
+    <button type="button" id="btn-esqueci-senha" class="link-btn">Esqueci a senha</button>
+    <button type="button" id="btn-cadastrar-toggle" class="link-btn">Cadastrar Conta</button>
+  </form>
 
-  <script type="module" src="auth.js"></script>
+  <form id="cadastro">
+    <label for="cad-nome">Nome</label>
+    <input type="text" id="cad-nome" required />
 
+    <label for="cad-email">E-mail</label>
+    <input type="email" id="cad-email" required />
+
+    <label for="cad-senha">Senha</label>
+    <input type="password" id="cad-senha" required />
+
+    <button type="button" id="btn-criar-conta">Criar Conta</button>
+  </form>
+
+  <p id="mensagem"></p>
+
+  <script src="auth.js"></script>
 </body>
 </html>
