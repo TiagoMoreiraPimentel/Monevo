@@ -36,11 +36,11 @@ window.addEventListener("DOMContentLoaded", () => {
           msg.innerText = "Acesso pendente de aprovação.";
         } else {
           msg.innerText = `Bem-vindo(a), ${usuario.nome}!`;
-          // redirecionamento futuro
+          // redirecionar futuramente
         }
       } catch (err) {
         msg.innerText = "Erro ao conectar.";
-        console.error(err);
+        console.error("Erro na requisição de login:", err);
       }
     });
   }
@@ -67,6 +67,8 @@ window.addEventListener("DOMContentLoaded", () => {
         data_cadastro: new Date().toISOString().split("T")[0]
       };
 
+      console.log("Enviando para o backend:", novoUsuario);
+
       try {
         const res = await fetch(apiBase, {
           method: "POST",
@@ -75,6 +77,7 @@ window.addEventListener("DOMContentLoaded", () => {
         });
 
         const texto = await res.text();
+        console.log("Resposta:", res.status, texto);
 
         if (res.ok) {
           msg.innerText = "Conta criada com sucesso! Aguarde aprovação.";
@@ -86,7 +89,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       } catch (err) {
         msg.innerText = "Erro ao enviar dados.";
-        console.error(err);
+        console.error("Erro na requisição de cadastro:", err);
       }
     });
   }
