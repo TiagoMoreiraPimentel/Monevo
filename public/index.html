@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monevo - Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Monevo</h1>
+
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="E-mail" required />
+      <input type="password" id="login-senha" placeholder="Senha" required />
+      <button type="submit">Entrar</button>
+    </form>
+
+    <div class="actions">
+      <button id="btn-cadastrar-toggle">Criar Conta</button>
+      <button id="btn-recuperar">Esqueci a Senha</button>
+    </div>
+
+    <div id="cadastro" style="display: none; margin-top: 2rem;">
+      <h2>Cadastro</h2>
+      <input type="text" id="cad-nome" placeholder="Nome completo" required />
+      <input type="email" id="cad-email" placeholder="E-mail" required />
+      <input type="password" id="cad-senha" placeholder="Senha" required />
+      <button id="btn-criar-conta">Cadastrar</button>
+    </div>
+
+    <p id="mensagem"></p>
+  </div>
+
+  <script type="module" src="../src/auth.js"></script>
+</body>
+</html>
