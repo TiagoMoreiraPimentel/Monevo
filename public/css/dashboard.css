@@ -200,19 +200,19 @@ footer {
 
   .header-bar {
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     text-align: center;
+    padding-top: 1.5rem;
   }
 
   .logo-header {
-    height: 150px;
-    margin: 0 auto 0.5rem auto;
+    height: 60px;
+    margin: 0 auto;
   }
 
   #saudacao {
-    margin: 0 auto;
-    font-size: 1rem;
-    color: var(--cor-texto);
+    position: static;
+    margin-top: 0.5rem;
+    padding: 0;
   }
 }
