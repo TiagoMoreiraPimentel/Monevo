@@ -7,29 +7,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  if (usuario.nivel_acesso !== "ADMINISTRADOR") {
-    alert("Acesso restrito a administradores.");
-    window.location.href = "/telas/dashboard.html";
-    return;
-  }
-
   const saudacao = document.getElementById("saudacao");
   if (saudacao) {
     saudacao.textContent = `Olá, ${usuario.nome}`;
   }
 
   const botaoAdmin = document.getElementById("admin-only");
-  if (usuario.nivel_acesso !== "ADMINISTRADOR" && botaoAdmin) {
+
+  if (usuario.nivel_acesso === "ADMINISTRADOR" && botaoAdmin) {
+    botaoAdmin.classList.remove("hidden");
+
+    botaoAdmin.addEventListener("click", () => {
+      window.location.href = "../telas/admin-usuarios.html";
+    });
+  } else if (botaoAdmin) {
     botaoAdmin.style.display = "none";
   }
 });
-
-function toggleSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  sidebar.classList.toggle("expanded");
-}
-
-function logout() {
-  localStorage.removeItem("usuarioLogado");
-  window.location.href = "../telas/login.html";
-}
