@@ -27,6 +27,13 @@ p {
 
 .logo-header {
   height: 80px;
+  margin: 1rem auto;
+  max-width: 140px;
+  display: none;
+}
+
+.menu-lateral.expandido .logo-header {
+  display: block;
 }
 
 .header-bar {
@@ -55,9 +62,9 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 1rem;
   z-index: 1000;
   overflow-x: hidden;
+  padding-top: 1rem;
 }
 
 .menu-lateral.expandido {
@@ -66,18 +73,11 @@ p {
   padding-left: 1rem;
 }
 
-.menu-lateral img.logo-header {
-  margin: 1rem auto;
-  max-width: 140px;
+.menu-lateral .menu-opcoes {
   display: none;
 }
 
-.menu-lateral.expandido img.logo-header {
-  display: block;
-}
-
-.menu-opcoes {
-  margin-top: 2rem;
+.menu-lateral.expandido .menu-opcoes {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -90,7 +90,7 @@ p {
   font-weight: bold;
   border: none;
   padding: 0.6rem 1rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -104,14 +104,28 @@ p {
 #toggle-menu {
   position: absolute;
   top: 1rem;
-  right: -15px;
+  left: 100%;
+  transform: translateX(-50%);
   background: var(--cor-primaria);
   color: white;
   border: none;
   padding: 0.4rem 0.6rem;
-  border-radius: 4px 0 0 4px;
+  border-radius: 0 4px 4px 0;
   cursor: pointer;
   z-index: 1100;
+}
+
+#menu-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--cor-clara);
+  color: var(--cor-primaria);
+  font-weight: bold;
+  border: 1px solid var(--cor-primaria);
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  display: none;
 }
 
 .menu-mobile {
@@ -144,16 +158,6 @@ p {
   background-color: var(--cor-hover);
 }
 
-#menu-toggle {
-  background: var(--cor-clara);
-  color: var(--cor-primaria);
-  font-weight: bold;
-  border: 1px solid var(--cor-primaria);
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  display: none;
-}
-
 .conteudo {
   padding: 2rem;
   max-width: 900px;
@@ -171,6 +175,7 @@ footer {
   margin-top: 2rem;
 }
 
+/* Responsivo */
 @media (max-width: 768px) {
   .menu-lateral {
     display: none;
