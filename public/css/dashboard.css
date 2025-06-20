@@ -33,14 +33,13 @@ body, html {
 }
 
 #saudacao {
-  margin-left: auto;
-  font-weight: bold;
-  color: var(--cor-texto);
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
   position: absolute;
   top: 0.5rem;
   right: 1rem;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: var(--cor-texto);
+  margin: 0;
 }
 
 /* Botão do menu (mobile) */
@@ -200,19 +199,22 @@ footer {
 
   .header-bar {
     flex-direction: column;
+    justify-content: center;
     align-items: center;
     text-align: center;
-    padding-top: 1.5rem;
+    padding-top: 1rem;
   }
 
   .logo-header {
-    height: 60px;
-    margin: 0 auto;
+    height: 150px;
+    margin: 0 auto 0.5rem auto;
   }
 
   #saudacao {
     position: static;
-    margin-top: 0.5rem;
+    font-size: 1rem;
+    margin: 0 auto;
     padding: 0;
+    text-align: center;
   }
 }
