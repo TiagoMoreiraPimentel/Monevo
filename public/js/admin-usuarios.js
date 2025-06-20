@@ -4,6 +4,8 @@ async function carregarUsuarios() {
   const res = await fetch("/api/usuarios");
   const usuarios = await res.json();
 
+  console.log("Usuários recebidos:", usuarios);
+
   tabela.innerHTML = "";
 
   usuarios.forEach(u => {
