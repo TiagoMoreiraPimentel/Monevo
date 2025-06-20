@@ -7,6 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  if (usuario.nivel_acesso !== "ADMINISTRADOR") {
+    alert("Acesso restrito a administradores.");
+    window.location.href = "/telas/dashboard.html";
+    return;
+  }
+
   const saudacao = document.getElementById("saudacao");
   if (saudacao) {
     saudacao.textContent = `Olá, ${usuario.nome}`;

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administração de Usuários - Monevo</title>
+  <link rel="stylesheet" href="/css/admin-usuarios.css" />
+</head>
+<body>
+  <header>
+    <h1>Administração de Usuários</h1>
+  </header>
+
+  <main>
+    <table id="tabela-usuarios">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Nível de Acesso</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpo-tabela">
+        <!-- Linhas serão inseridas via JS -->
+      </tbody>
+    </table>
+  </main>
+
+  <script type="module" src="/js/admin-usuarios.js"></script>
+</body>
+</html>

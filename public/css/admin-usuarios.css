@@ -1,0 +1,44 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  background-color: #f8f8f8;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  color: #008b65;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #008b65;
+  color: white;
+}
+
+select, button {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button.salvar {
+  background-color: #008b65;
+  color: white;
+  cursor: pointer;
+}
+
+button.salvar:hover {
+  background-color: #006e50;
+}
