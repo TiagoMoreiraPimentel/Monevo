@@ -22,17 +22,19 @@ p {
   border-bottom: 1px solid #ddd;
 }
 
+.menu-bar button {
+    flex: 1 1 auto;
+    min-width: 150px; /* ou o valor que funcionar melhor para você */
+    text-align: center;
+  }
+
 .logo-header {
   height: 100px;
 }
 
 .menu-bar {
-  background-color: var(--cor-primaria);
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
+    align-items: stretch;
+  }
 
 .menu-toggle {
   background: white;
@@ -86,11 +88,12 @@ footer {
 }
 
 /* Responsivo */
-@media (max-width: 600px) {
-  .header-bar {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+@media (min-width: 601px) {
+  .menu-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .header-bar h1 {
