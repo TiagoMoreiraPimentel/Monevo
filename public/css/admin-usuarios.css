@@ -42,3 +42,19 @@ button.salvar {
 button.salvar:hover {
   background-color: #006e50;
 }
+
+#btn-voltar-dashboard {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #008b65;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#btn-voltar-dashboard:hover {
+  background-color: #006e50;
+}
+

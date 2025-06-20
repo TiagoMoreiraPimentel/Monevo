@@ -1,6 +1,7 @@
 const tabela = document.getElementById("corpo-tabela");
-const usuariosPorId = {}; // Armazena todos os usuários para montar o PUT corretamente
+const usuariosPorId = {};
 
+// Função principal para montar a tabela
 async function carregarUsuarios() {
   const res = await fetch("/api/usuarios");
   const usuarios = await res.json();
@@ -9,29 +10,24 @@ async function carregarUsuarios() {
 
   usuarios.forEach(u => {
     const id = u.id;
-    usuariosPorId[id] = u; // Guarda o usuário original para montar o PUT depois
-
-    const nome = u.nome;
-    const email = u.email;
-    const nivel_acesso = u.nivel_acesso;
-    const status = u.status;
+    usuariosPorId[id] = u;
 
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${nome}</td>
-      <td>${email}</td>
+      <td>${u.nome}</td>
+      <td>${u.email}</td>
       <td>
         <select data-id="${id}" data-campo="nivel_acesso">
-          <option value="VERIFICAR" ${nivel_acesso === "VERIFICAR" ? "selected" : ""}>Verificar</option>
-          <option value="COLABORADOR" ${nivel_acesso === "COLABORADOR" ? "selected" : ""}>Colaborador</option>
-          <option value="ADMINISTRADOR" ${nivel_acesso === "ADMINISTRADOR" ? "selected" : ""}>Administrador</option>
+          <option value="VERIFICAR" ${u.nivel_acesso === "VERIFICAR" ? "selected" : ""}>Verificar</option>
+          <option value="COLABORADOR" ${u.nivel_acesso === "COLABORADOR" ? "selected" : ""}>Colaborador</option>
+          <option value="ADMINISTRADOR" ${u.nivel_acesso === "ADMINISTRADOR" ? "selected" : ""}>Administrador</option>
         </select>
       </td>
       <td>
         <select data-id="${id}" data-campo="status">
-          <option value="Ativo" ${status === "Ativo" ? "selected" : ""}>Ativo</option>
-          <option value="Inativo" ${status === "Inativo" ? "selected" : ""}>Inativo</option>
+          <option value="Ativo" ${u.status === "Ativo" ? "selected" : ""}>Ativo</option>
+          <option value="Inativo" ${u.status === "Inativo" ? "selected" : ""}>Inativo</option>
         </select>
       </td>
       <td>
@@ -42,7 +38,6 @@ async function carregarUsuarios() {
     tabela.appendChild(tr);
   });
 
-  // Evento de clique em todos os botões "Salvar"
   document.querySelectorAll(".salvar").forEach(botao => {
     botao.addEventListener("click", async () => {
       const id = botao.dataset.id;
@@ -75,5 +70,10 @@ async function carregarUsuarios() {
   });
 }
 
-// Inicia o carregamento dos usuários ao abrir a tela
+// Executa tudo ao carregar
 carregarUsuarios();
+
+// 🎯 Fora da função principal
+document.getElementById("btn-voltar-dashboard").addEventListener("click", () => {
+  window.location.href = "/telas/dashboard.html";
+});
