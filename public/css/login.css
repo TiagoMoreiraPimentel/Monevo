@@ -1,33 +1,10 @@
-:root {
-  --cor-primaria: #00B37E;
-  --cor-primaria-hover: #008B65;
-  --cor-erro: #dc3545;
-  --cor-fundo: #e9ecef;
-  --cor-texto: #1C1C1C;
-}
 
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: var(--cor-fundo);
-  color: var(--cor-texto);
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-}
-
-header {
-  background-color: #fff;
-  padding: 1rem;
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-}
-
-header img {
-  max-height: 50px;
+  justify-content: flex-start;
 }
 
 .logo {
@@ -48,12 +25,6 @@ header img {
   max-width: 400px;
   width: 100%;
   padding: 1rem;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--cor-texto);
 }
 
 .card {
@@ -93,9 +64,6 @@ button {
   background-color: var(--cor-primaria);
   color: white;
   border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s ease-in-out;
 }
 
 button:hover {
@@ -119,19 +87,4 @@ button:hover {
   text-align: center;
   color: var(--cor-erro);
   font-weight: bold;
-}
-
-.hidden {
-  display: none;
-}
-
-footer {
-  background-color: #f1f1f1;
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: #666;
-  text-align: center;
-  margin-top: auto;
-  width: 100%;
-  border-top: 1px solid #ddd;
 }

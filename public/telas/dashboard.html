@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monevo - Painel Principal</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+</head>
+<body>
+
+  <!-- Cabeçalho com logotipo -->
+  <header class="header-bar">
+    <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
+    <span id="saudacao">Olá, usuário</span>
+  </header>
+
+  <!-- Barra de menu -->
+  <nav class="menu-bar">
+    <button onclick="alert('Tela de Dashboard ainda não criada')">Dashboard</button>
+    <button onclick="alert('Tela de Transações ainda não criada')">Transações</button>
+    <button onclick="alert('Tela de Planejamento ainda não criada')">Planejamento</button>
+    <button onclick="alert('Tela de Categorias ainda não criada')">Categorias</button>
+    <button id="admin-only" onclick="alert('Gestão de Usuários (Admin)')">Gerenciar Usuários</button>
+    <button onclick="logout()">Sair</button>
+  </nav>
+
+  <!-- Conteúdo principal -->
+  <main class="conteudo">
+    <h2>Resumo Financeiro</h2>
+    <p>Em breve, você verá aqui uma visão geral das suas receitas, despesas e limites de planejamento financeiro.</p>
+  </main>
+
+  <!-- Rodapé -->
+  <footer>
+    &copy; 2025 Monevo. Todos os direitos reservados.
+  </footer>
+
+  <script src="../js/dashboard.js"></script>
+  <script>
+    function logout() {
+      localStorage.removeItem("usuarioLogado");
+      window.location.href = "../telas/login.html";
+    }
+  </script>
+</body>
+</html>

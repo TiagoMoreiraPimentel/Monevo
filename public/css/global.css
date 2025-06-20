@@ -1,0 +1,26 @@
+
+:root {
+  --cor-primaria: #00B37E;
+  --cor-primaria-hover: #008B65;
+  --cor-erro: #dc3545;
+  --cor-fundo: #e9ecef;
+  --cor-texto: #1C1C1C;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  margin: 0;
+  padding: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+}
