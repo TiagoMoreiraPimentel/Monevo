@@ -7,22 +7,35 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Saudação com nome e nível
   const saudacao = document.getElementById("saudacao");
-  saudacao.textContent = `Olá, ${usuario.nome} (${usuario.nivel_acesso})`;
-
-  // Ocultar itens da tela principal para COLABORADOR
-  const botaoAdmin = document.getElementById("admin-only");
-  if (usuario.nivel_acesso !== "ADMINISTRADOR") {
-    botaoAdmin.classList.add("hidden");
+  if (saudacao) {
+    saudacao.textContent = `Olá, ${usuario.nome} (${usuario.nivel_acesso})`;
   }
 
-  // Comportamento do botão "☰ Menu" para dispositivos móveis
-  const toggle = document.getElementById("menu-toggle");
-  const opcoes = document.getElementById("menu-opcoes");
+  // Ocultar botão admin se não for ADMINISTRADOR
+  const botaoAdmin = document.getElementById("admin-only");
+  if (usuario.nivel_acesso !== "ADMINISTRADOR" && botaoAdmin) {
+    botaoAdmin.style.display = "none";
+  }
 
-  if (toggle && opcoes) {
-    toggle.addEventListener("click", () => {
-      opcoes.classList.toggle("ativo");
+  // Menu lateral (desktop)
+  const toggleMenu = document.getElementById("toggle-menu");
+  const menuLateral = document.querySelector(".menu-lateral");
+
+  if (toggleMenu && menuLateral) {
+    toggleMenu.addEventListener("click", () => {
+      menuLateral.classList.toggle("expandido");
+    });
+  }
+
+  // Menu suspenso (mobile)
+  const mobileToggle = document.getElementById("menu-toggle");
+  const mobileMenu = document.querySelector(".menu-mobile");
+
+  if (mobileToggle && mobileMenu) {
+    mobileToggle.addEventListener("click", () => {
+      mobileMenu.classList.toggle("ativo");
     });
   }
 });

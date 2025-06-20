@@ -1,3 +1,4 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,45 +7,36 @@
   <title>Monevo - Painel Principal</title>
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="../js/dashboard.js" defer></script>
 </head>
 <body>
-
-  <!-- Cabeçalho com logotipo -->
-  <header class="header-bar">
-    <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
-    <span id="saudacao">Olá, usuário</span>
-  </header>
-
-  <!-- Barra de menu -->
-  <nav class="menu-bar">
-    <button id="menu-toggle" class="menu-toggle">☰</button>
-    <div id="menu-opcoes" class="menu-opcoes">
-      <button onclick="alert('Tela de Dashboard ainda não criada')">Dashboard</button>
-      <button onclick="alert('Tela de Transações ainda não criada')">Transações</button>
-      <button onclick="alert('Tela de Planejamento ainda não criada')">Planejamento</button>
-      <button onclick="alert('Tela de Categorias ainda não criada')">Categorias</button>
-      <button id="admin-only" onclick="alert('Gestão de Usuários (Admin)')">Gerenciar Usuários</button>
+  <aside class="sidebar" id="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()">▶</button>
+    <nav class="menu-opcoes">
+      <button onclick="alert('Dashboard')">Dashboard</button>
+      <button onclick="alert('Transações')">Transações</button>
+      <button onclick="alert('Planejamento')">Planejamento</button>
+      <button onclick="alert('Categorias')">Categorias</button>
+      <button id="admin-only" onclick="alert('Gestão de Usuários')">Gerenciar Usuários</button>
       <button onclick="logout()">Sair</button>
-    </div>
-  </nav>
+    </nav>
+  </aside>
 
-  <!-- Conteúdo principal -->
-  <main class="conteudo">
-    <h2>Resumo Financeiro</h2>
-    <p>Em breve, você verá aqui uma visão geral das suas receitas, despesas e limites de planejamento financeiro.</p>
+  <main class="main-content">
+    <header class="header-bar">
+      <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
+      <span id="saudacao">Olá, usuário</span>
+      <button class="mobile-toggle" onclick="toggleMobileMenu()">☰</button>
+    </header>
+
+    <section class="conteudo">
+      <h2>Resumo Financeiro</h2>
+      <p>Em breve, você verá aqui uma visão geral das suas receitas, despesas e limites de planejamento financeiro.</p>
+    </section>
+
+    <footer>
+      &copy; 2025 Monevo. Todos os direitos reservados.
+    </footer>
   </main>
-
-  <!-- Rodapé -->
-  <footer>
-    &copy; 2025 Monevo. Todos os direitos reservados.
-  </footer>
-
-  <script src="../js/dashboard.js"></script>
-  <script>
-    function logout() {
-      localStorage.removeItem("usuarioLogado");
-      window.location.href = "../telas/login.html";
-    }
-  </script>
 </body>
 </html>

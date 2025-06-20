@@ -1,8 +1,20 @@
+:root {
+  --cor-primaria: #007bff;
+  --cor-clara: #ffffff;
+  --cor-texto: #333;
+  --cor-fundo: #f5f5f5;
+  --cor-hover: #f0f0f0;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--cor-fundo);
   overflow-x: hidden;
 }
 
@@ -13,64 +25,117 @@ p {
   margin-bottom: 1rem;
 }
 
+.logo-header {
+  height: 80px;
+}
+
 .header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff;
+  background-color: var(--cor-clara);
   padding: 1rem;
   border-bottom: 1px solid #ddd;
+  position: relative;
 }
 
-.logo-header {
-  height: 100px;
-}
-
-.menu-bar {
+.menu-lateral {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 60px;
+  background-color: var(--cor-primaria);
+  transition: width 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--cor-primaria);
-  padding: 0.5rem;
+  padding-top: 100px;
+  z-index: 1000;
 }
 
-.menu-toggle {
-  background: white;
+.menu-lateral.expandido {
+  width: 200px;
+  align-items: flex-start;
+  padding-left: 1rem;
+}
+
+.menu-lateral button {
+  background: var(--cor-clara);
   color: var(--cor-primaria);
   font-weight: bold;
   border: none;
+  margin: 0.5rem 0;
   padding: 0.6rem 1rem;
   border-radius: 6px;
-  margin-bottom: 0.5rem;
-  display: none; /* aparece apenas no mobile */
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
 }
 
-.menu-opcoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
+.menu-lateral button:hover {
+  background-color: var(--cor-hover);
 }
 
-.menu-opcoes button {
-  background: white;
+#toggle-menu {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--cor-clara);
+  color: var(--cor-primaria);
+  border: 1px solid var(--cor-primaria);
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.menu-mobile {
+  display: none;
+  flex-direction: column;
+  background-color: var(--cor-clara);
+  position: absolute;
+  top: 60px;
+  right: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 1001;
+}
+
+.menu-mobile button {
+  border: none;
+  background: var(--cor-clara);
+  padding: 0.6rem 1rem;
+  text-align: left;
+  color: var(--cor-primaria);
+  border-bottom: 1px solid #eee;
+}
+
+.menu-mobile button:hover {
+  background-color: var(--cor-hover);
+}
+
+#menu-toggle {
+  background: var(--cor-clara);
   color: var(--cor-primaria);
   font-weight: bold;
-  border: none;
+  border: 1px solid var(--cor-primaria);
   padding: 0.6rem 1rem;
   border-radius: 6px;
-}
-
-.menu-opcoes button:hover {
-  background: #f0f0f0;
+  align-self: flex-end;
+  margin: 0.5rem 1rem;
+  display: none;
 }
 
 .conteudo {
   padding: 2rem;
-  width: 100%;
+  margin-left: 60px;
   max-width: 900px;
-  margin: auto;
-  overflow-wrap: break-word;
+}
+
+.menu-lateral.expandido ~ .conteudo {
+  margin-left: 200px;
 }
 
 footer {
@@ -79,66 +144,25 @@ footer {
   font-size: 0.9rem;
   color: #666;
   text-align: center;
-  margin-top: auto;
   width: 100%;
   border-top: 1px solid #ddd;
 }
 
-/* DESKTOP */
-@media (min-width: 601px) {
-  .menu-toggle {
+@media (max-width: 768px) {
+  .menu-lateral {
     display: none;
   }
 
-  .menu-opcoes {
-    display: flex !important;
-    flex-direction: row;
+  #toggle-menu {
+    display: none;
   }
 
-  .menu-opcoes button {
-    flex: 1 1 150px;
-    min-width: 150px;
-    max-width: 200px;
-    text-align: center;
-  }
-}
-
-/* MOBILE */
-@media (max-width: 600px) {
-  .header-bar {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .header-bar h1 {
-    font-size: 1.2rem;
-    margin-top: 0.5rem;
-  }
-
-  .menu-toggle {
+  #menu-toggle {
     display: block;
   }
 
-  .menu-opcoes {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .menu-opcoes.ativo {
-    display: flex;
-  }
-
-  .menu-opcoes button {
-    width: 100%;
-  }
-
   .conteudo {
+    margin-left: 0;
     padding: 1rem;
-  }
-
-  footer {
-    font-size: 0.8rem;
   }
 }
