@@ -8,6 +8,16 @@
   border-bottom: 1px solid #ddd;
 }
 
+body, html {
+  overflow-x: hidden;
+}
+
+p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
 .logo-header {
   height: 100px;
 }
