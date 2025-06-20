@@ -22,3 +22,8 @@ function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   sidebar.classList.toggle("expanded");
 }
+
+function logout() {
+  localStorage.removeItem("usuarioLogado");
+  window.location.href = "../telas/login.html";
+}
