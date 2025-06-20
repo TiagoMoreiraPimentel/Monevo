@@ -86,13 +86,14 @@ body, html {
   display: none;
   flex-direction: column;
   padding: 0 1rem;
-  align-items: flex-start;
+  align-items: center; /* Centraliza os botões dentro da coluna */
 }
 
 .sidebar.expanded .menu-opcoes {
   display: flex;
 }
 
+/* Botões dentro da sidebar */
 .menu-opcoes button {
   background: var(--cor-primaria);
   color: white;
@@ -100,13 +101,16 @@ body, html {
   margin: 0.4rem 0;
   padding: 0.6rem 1rem;
   border-radius: 6px;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
-  width: 100%;
+  width: 90%; /* Adapta sem colar nas bordas */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  display: flex;
+  justify-content: center;  /* Centraliza texto horizontal */
+  align-items: center;      /* Centraliza texto vertical */
+  height: 40px;             /* Altura fixa para centralizar melhor */
 }
 
 .menu-opcoes button:last-child {
@@ -159,6 +163,7 @@ footer {
     padding-left: 1rem;
     border-left: 1px solid #ccc;
     background: var(--cor-clara);
+    align-items: center; /* Centraliza os botões */
   }
 
   .sidebar.expanded .menu-opcoes {
