@@ -95,7 +95,7 @@ body, html {
   background: var(--cor-primaria);
   color: white;
   border: none;
-  margin: 0.3rem 0;
+  margin: 0.10rem 0;
   padding: 0.6rem 1rem;
   border-radius: 6px;
   text-align: left;
