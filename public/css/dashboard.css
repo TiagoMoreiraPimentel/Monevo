@@ -103,6 +103,9 @@ body, html {
   text-align: left;
   cursor: pointer;
   width: 100%;
+  white-space: nowrap; /* 🔒 Não quebrar o texto */
+  overflow: hidden;     /* Opcional: esconde o excesso */
+  text-overflow: ellipsis; /* Opcional: adiciona "..." no final */
 }
 
 .menu-opcoes button:last-child {
