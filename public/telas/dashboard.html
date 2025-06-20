@@ -17,12 +17,15 @@
 
   <!-- Barra de menu -->
   <nav class="menu-bar">
-    <button onclick="alert('Tela de Dashboard ainda não criada')">Dashboard</button>
-    <button onclick="alert('Tela de Transações ainda não criada')">Transações</button>
-    <button onclick="alert('Tela de Planejamento ainda não criada')">Planejamento</button>
-    <button onclick="alert('Tela de Categorias ainda não criada')">Categorias</button>
-    <button id="admin-only" onclick="alert('Gestão de Usuários (Admin)')">Gerenciar Usuários</button>
-    <button onclick="logout()">Sair</button>
+    <button id="menu-toggle" class="menu-toggle">☰ Menu</button>
+    <div id="menu-opcoes" class="menu-opcoes">
+      <button onclick="alert('Tela de Dashboard ainda não criada')">Dashboard</button>
+      <button onclick="alert('Tela de Transações ainda não criada')">Transações</button>
+      <button onclick="alert('Tela de Planejamento ainda não criada')">Planejamento</button>
+      <button onclick="alert('Tela de Categorias ainda não criada')">Categorias</button>
+      <button id="admin-only" onclick="alert('Gestão de Usuários (Admin)')">Gerenciar Usuários</button>
+      <button onclick="logout()">Sair</button>
+    </div>
   </nav>
 
   <!-- Conteúdo principal -->
