@@ -66,17 +66,17 @@ body, html {
 }
 
 .toggle-btn {
-  position: absolute;
+  position: fixed;  /* ← Isso garante que ele fique independente da sidebar */
   top: 1rem;
-  left: 1rem;
+  left: 12px;        /* ← Distância fixa da borda esquerda */
   background: var(--cor-primaria);
   color: white;
   border: none;
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
-  z-index: 1600;
-  font-size: 1.4rem;
+  z-index: 2000;
+  font-size: 1.2rem;
 }
 
 .menu-opcoes {
