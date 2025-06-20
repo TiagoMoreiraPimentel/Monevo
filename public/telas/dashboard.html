@@ -1,3 +1,4 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,40 +10,37 @@
   <script src="../js/dashboard.js" defer></script>
 </head>
 <body>
-  
   <!-- Menu lateral (desktop) -->
   <aside class="menu-lateral" id="menu-lateral">
-    <button id="toggle-menu">▶</button>
-    <img src="../img/logo-monevo.png" class="logo-header" alt="Logo" />
+    <button id="toggle-menu">☰</button>
+    <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
     <nav class="menu-opcoes">
       <button>Dashboard</button>
       <button>Transações</button>
       <button>Planejamento</button>
       <button>Categorias</button>
-      <button>Gerenciar Usuários</button>
-      <button>Sair</button>
+      <button id="admin-only">Gerenciar Usuários</button>
+      <button onclick="logout()">Sair</button>
     </nav>
   </aside>
 
   <!-- Conteúdo principal -->
   <main class="main-content">
     <header class="header-bar">
-      <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
+      <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header-mobile" />
       <span id="saudacao">Olá, usuário</span>
-
-      <!-- Botão menu mobile -->
-      <button id="menu-toggle" class="mobile-toggle">☰</button>
-
-      <!-- Menu suspenso (mobile) -->
-      <div class="menu-mobile" id="menu-mobile">
-        <button onclick="alert('Dashboard')">Dashboard</button>
-        <button onclick="alert('Transações')">Transações</button>
-        <button onclick="alert('Planejamento')">Planejamento</button>
-        <button onclick="alert('Categorias')">Categorias</button>
-        <button id="admin-only-mobile" onclick="alert('Gestão de Usuários')">Gerenciar Usuários</button>
-        <button onclick="logout()">Sair</button>
-      </div>
+      <button id="menu-toggle">☰</button>
     </header>
+
+    <!-- Menu mobile -->
+    <div class="menu-mobile" id="menu-mobile">
+      <button>Dashboard</button>
+      <button>Transações</button>
+      <button>Planejamento</button>
+      <button>Categorias</button>
+      <button id="admin-only-mobile">Gerenciar Usuários</button>
+      <button onclick="logout()">Sair</button>
+    </div>
 
     <section class="conteudo">
       <h2>Resumo Financeiro</h2>

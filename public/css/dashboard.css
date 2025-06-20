@@ -1,9 +1,9 @@
 :root {
-  --cor-primaria: #007bff;
+  --cor-primaria: #008B65;
   --cor-clara: #ffffff;
   --cor-texto: #333;
   --cor-fundo: #f5f5f5;
-  --cor-hover: #f0f0f0;
+  --cor-hover: #00664f;
 }
 
 * {
@@ -27,13 +27,6 @@ p {
 
 .logo-header {
   height: 80px;
-  margin: 1rem auto;
-  max-width: 140px;
-  display: none;
-}
-
-.menu-lateral.expandido .logo-header {
-  display: block;
 }
 
 .header-bar {
@@ -46,116 +39,71 @@ p {
   position: relative;
 }
 
-.main-content {
-  margin-left: 60px;
-  transition: margin-left 0.3s ease;
-}
-
-.menu-lateral {
+.sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: 60px;
-  background-color: var(--cor-primaria);
+  background-color: var(--cor-clara);
+  border-right: 1px solid #ccc;
   transition: width 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow: hidden;
   z-index: 1000;
-  overflow-x: hidden;
-  padding-top: 1rem;
 }
 
-.menu-lateral.expandido {
-  width: 220px;
-  align-items: flex-start;
-  padding-left: 1rem;
+.sidebar.expanded {
+  width: 200px;
 }
 
-.menu-lateral .menu-opcoes {
-  display: none;
+.sidebar .toggle-btn {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--cor-primaria);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-.menu-lateral.expandido .menu-opcoes {
+.menu-opcoes {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
+  margin-top: 80px;
+  padding: 0 10px;
 }
 
 .menu-opcoes button {
-  background: var(--cor-clara);
-  color: var(--cor-primaria);
-  font-weight: bold;
+  background-color: var(--cor-primaria);
+  color: white;
   border: none;
-  padding: 0.6rem 1rem;
+  margin: 0.3rem 0;
+  padding: 0.7rem 1rem;
   border-radius: 6px;
+  font-weight: bold;
+  text-align: left;
   cursor: pointer;
   width: 100%;
-  text-align: left;
-  transition: background 0.2s ease;
 }
 
 .menu-opcoes button:hover {
   background-color: var(--cor-hover);
 }
 
-#toggle-menu {
-  position: absolute;
-  top: 1rem;
-  left: 100%;
-  transform: translateX(-50%);
-  background: var(--cor-primaria);
-  color: white;
-  border: none;
-  padding: 0.4rem 0.6rem;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-  z-index: 1100;
+.main-content {
+  margin-left: 60px;
+  transition: margin-left 0.3s ease;
 }
 
-#menu-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: var(--cor-clara);
-  color: var(--cor-primaria);
-  font-weight: bold;
-  border: 1px solid var(--cor-primaria);
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  display: none;
-}
-
-.menu-mobile {
-  display: none;
-  flex-direction: column;
-  background-color: var(--cor-clara);
-  position: absolute;
-  top: 60px;
-  right: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  border-radius: 6px;
-  overflow: hidden;
-  z-index: 1001;
-}
-
-.menu-mobile.ativo {
-  display: flex;
-}
-
-.menu-mobile button {
-  border: none;
-  background: var(--cor-clara);
-  padding: 0.6rem 1rem;
-  text-align: left;
-  color: var(--cor-primaria);
-  border-bottom: 1px solid #eee;
-}
-
-.menu-mobile button:hover {
-  background-color: var(--cor-hover);
+.sidebar.expanded ~ .main-content {
+  margin-left: 200px;
 }
 
 .conteudo {
@@ -170,35 +118,40 @@ footer {
   font-size: 0.9rem;
   color: #666;
   text-align: center;
-  width: 100%;
   border-top: 1px solid #ddd;
-  margin-top: 2rem;
 }
 
-/* Responsivo */
+/* Mobile */
 @media (max-width: 768px) {
-  .menu-lateral {
-    display: none;
+  .sidebar {
+    left: auto;
+    right: 0;
+    width: 0;
+    border-right: none;
+    background-color: var(--cor-clara);
+    transition: width 0.3s ease;
   }
 
-  #toggle-menu {
-    display: none;
+  .sidebar.expanded {
+    width: 200px;
   }
 
-  #menu-toggle {
-    display: block;
+  .sidebar .toggle-btn {
+    left: auto;
+    right: 10px;
+    transform: none;
+    top: 10px;
   }
 
   .main-content {
     margin-left: 0;
   }
 
-  .conteudo {
-    padding: 1rem;
+  .logo-header {
+    height: 60px;
   }
 
-  .header-bar {
-    flex-direction: column;
-    text-align: center;
+  .conteudo {
+    padding: 1rem;
   }
 }
