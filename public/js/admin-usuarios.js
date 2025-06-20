@@ -4,43 +4,53 @@ async function carregarUsuarios() {
   const res = await fetch("/api/usuarios");
   const usuarios = await res.json();
 
-  console.log("Usuários recebidos:", usuarios);
-
   tabela.innerHTML = "";
 
   usuarios.forEach(u => {
+    // Padroniza os nomes dos campos (em maiúsculo ou minúsculo)
+    const id = u.id_usuario || u.ID_USUARIO;
+    const nome = u.nome || u.NOME;
+    const email = u.email || u.EMAIL;
+    const nivel_acesso = u.nivel_acesso || u.NIVEL_ACESSO;
+    const status = u.status || u.STATUS;
+
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${u.nome}</td>
-      <td>${u.email}</td>
+      <td>${nome}</td>
+      <td>${email}</td>
       <td>
-        <select data-id="${u.id_usuario}" data-campo="nivel_acesso">
-          <option value="VERIFICAR" ${u.nivel_acesso === "VERIFICAR" ? "selected" : ""}>Verificar</option>
-          <option value="COLABORADOR" ${u.nivel_acesso === "COLABORADOR" ? "selected" : ""}>Colaborador</option>
-          <option value="ADMINISTRADOR" ${u.nivel_acesso === "ADMINISTRADOR" ? "selected" : ""}>Administrador</option>
+        <select data-id="${id}" data-campo="nivel_acesso">
+          <option value="VERIFICAR" ${nivel_acesso === "VERIFICAR" ? "selected" : ""}>Verificar</option>
+          <option value="COLABORADOR" ${nivel_acesso === "COLABORADOR" ? "selected" : ""}>Colaborador</option>
+          <option value="ADMINISTRADOR" ${nivel_acesso === "ADMINISTRADOR" ? "selected" : ""}>Administrador</option>
         </select>
       </td>
       <td>
-        <select data-id="${u.id_usuario}" data-campo="status">
-          <option value="Ativo" ${u.status === "Ativo" ? "selected" : ""}>Ativo</option>
-          <option value="Inativo" ${u.status === "Inativo" ? "selected" : ""}>Inativo</option>
+        <select data-id="${id}" data-campo="status">
+          <option value="Ativo" ${status === "Ativo" ? "selected" : ""}>Ativo</option>
+          <option value="Inativo" ${status === "Inativo" ? "selected" : ""}>Inativo</option>
         </select>
       </td>
       <td>
-        <button class="salvar" data-id="${u.id_usuario}">Salvar</button>
+        <button class="salvar" data-id="${id}">Salvar</button>
       </td>
     `;
 
     tabela.appendChild(tr);
   });
 
-  // Depois de montar a tabela, adiciona os eventos de clique nos botões
+  // Eventos de clique para todos os botões Salvar
   document.querySelectorAll(".salvar").forEach(botao => {
     botao.addEventListener("click", async () => {
       const id = botao.dataset.id;
       const nivel = document.querySelector(`select[data-id="${id}"][data-campo="nivel_acesso"]`).value.toUpperCase();
       const status = document.querySelector(`select[data-id="${id}"][data-campo="status"]`).value;
+
+      if (!id) {
+        alert("ID do usuário não encontrado.");
+        return;
+      }
 
       const res = await fetch(`/api/usuarios/${id}`, {
         method: "PUT",
@@ -57,5 +67,4 @@ async function carregarUsuarios() {
   });
 }
 
-// 🚀 Inicia o carregamento ao abrir a tela
 carregarUsuarios();
