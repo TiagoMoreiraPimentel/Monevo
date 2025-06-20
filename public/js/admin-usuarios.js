@@ -1,4 +1,5 @@
 const tabela = document.getElementById("corpo-tabela");
+const usuariosPorId = {}; // ← novo
 
 async function carregarUsuarios() {
   const res = await fetch("/api/usuarios");
@@ -8,6 +9,7 @@ async function carregarUsuarios() {
 
   usuarios.forEach(u => {
   const id = u.id;  // <- CORRETO
+  usuariosPorId[id] = u; // ← armazena o usuário original
   const nome = u.nome;
   const email = u.email;
   const nivel_acesso = u.nivel_acesso;
@@ -42,27 +44,33 @@ async function carregarUsuarios() {
 
   // Eventos de clique para todos os botões Salvar
   document.querySelectorAll(".salvar").forEach(botao => {
-    botao.addEventListener("click", async () => {
-      const id = botao.dataset.id;
-      const nivel = document.querySelector(`select[data-id="${id}"][data-campo="nivel_acesso"]`).value.toUpperCase();
-      const status = document.querySelector(`select[data-id="${id}"][data-campo="status"]`).value;
+  botao.addEventListener("click", async () => {
+    const id = botao.dataset.id;
+    const original = usuariosPorId[id];
 
-      if (!id) {
-        alert("ID do usuário não encontrado.");
-        return;
-      }
+    const nivel = document.querySelector(`select[data-id="${id}"][data-campo="nivel_acesso"]`).value.toUpperCase();
+    const status = document.querySelector(`select[data-id="${id}"][data-campo="status"]`).value;
 
-      const res = await fetch(`/api/usuarios/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nivel_acesso: nivel, status })
-      });
+    const payload = {
+      nome: original.nome,
+      email: original.email,
+      senha_hash: original.senha_hash,
+      nivel_acesso: nivel,
+      data_cadastro: original.data_cadastro,
+      status: status
+    };
 
-      if (res.ok) {
-        alert("Alterações salvas com sucesso.");
-      } else {
-        alert("Erro ao salvar alterações.");
-      }
+    const res = await fetch(`/api/usuarios/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      alert("Alterações salvas com sucesso.");
+    } else {
+      alert("Erro ao salvar alterações.");
+    }
     });
   });
 }
