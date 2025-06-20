@@ -85,6 +85,7 @@ body, html {
   width: 100%;
   display: none;
   flex-direction: column;
+  padding: 0 1rem; /* padding lateral ao invés de margin nos botões */
 }
 
 .sidebar.expanded .menu-opcoes {
@@ -97,14 +98,11 @@ body, html {
   border: none;
   margin-top: 0.4rem;
   margin-bottom: 0.4rem;
-  margin-left: 1rem;
-  margin-right: 1rem;
   padding: 0.6rem 1rem;
   border-radius: 6px;
   text-align: left;
   cursor: pointer;
   width: 100%;
-  max-width: 180px;
 }
 
 .menu-opcoes button:last-child {
