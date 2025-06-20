@@ -1,27 +1,63 @@
+:root {
+  --cor-primaria: #00B37E;
+  --cor-primaria-hover: #008B65;
+  --cor-erro: #dc3545;
+  --cor-fundo: #e9ecef;
+  --cor-texto: #1C1C1C;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #e9ecef;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
   margin: 0;
-  padding: 2rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #fff;
+  padding: 1rem;
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+header img {
+  max-height: 50px;
+}
+
+.logo {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.logo img {
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .container {
   max-width: 400px;
   width: 100%;
+  padding: 1rem;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 2rem;
-  color: #333;
+  color: var(--cor-texto);
 }
 
 .card {
-  background: white;
+  background: #fff;
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -30,7 +66,7 @@ h1 {
 .card h2 {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: #007bff;
+  color: var(--cor-primaria);
 }
 
 label {
@@ -54,34 +90,48 @@ button {
   padding: 0.7rem;
   font-size: 1rem;
   border: none;
-  background-color: #007bff;
+  background-color: var(--cor-primaria);
   color: white;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: var(--cor-primaria-hover);
 }
 
 .link-btn {
   background: none;
-  color: #007bff;
+  color: var(--cor-primaria);
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
   margin-top: 1rem;
   display: block;
   text-align: center;
+  font-size: 0.95rem;
 }
 
 #mensagem {
   margin-top: 1.5rem;
   text-align: center;
-  color: #dc3545;
+  color: var(--cor-erro);
   font-weight: bold;
 }
 
 .hidden {
   display: none;
+}
+
+footer {
+  background-color: #f1f1f1;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin-top: auto;
+  width: 100%;
+  border-top: 1px solid #ddd;
 }
