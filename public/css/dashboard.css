@@ -33,9 +33,14 @@ body, html {
 }
 
 #saudacao {
-  font-size: 1rem;
+  margin-left: auto;
+  font-weight: bold;
   color: var(--cor-texto);
-  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
 }
 
 /* Botão do menu (mobile) */
