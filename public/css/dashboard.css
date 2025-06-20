@@ -9,9 +9,8 @@
 }
 
 .logo-header {
-  height: 150px;
+  height: 100px;
 }
-
 
 .menu-bar {
   background-color: var(--cor-primaria);
@@ -51,4 +50,30 @@ footer {
   margin-top: auto;
   width: 100%;
   border-top: 1px solid #ddd;
+}
+
+@media (max-width: 600px) {
+  .header-bar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .header-bar h1 {
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+  }
+
+  .menu-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .conteudo {
+    padding: 1rem;
+  }
+
+  footer {
+    font-size: 0.8rem;
+  }
 }
