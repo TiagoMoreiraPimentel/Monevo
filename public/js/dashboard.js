@@ -7,35 +7,42 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Saudação com nome e nível
+  // Saudação
   const saudacao = document.getElementById("saudacao");
   if (saudacao) {
     saudacao.textContent = `Olá, ${usuario.nome} (${usuario.nivel_acesso})`;
   }
 
-  // Ocultar botão admin se não for ADMINISTRADOR
-  const botaoAdmin = document.getElementById("admin-only");
-  if (usuario.nivel_acesso !== "ADMINISTRADOR" && botaoAdmin) {
-    botaoAdmin.style.display = "none";
+  // Esconde botões de admin
+  if (usuario.nivel_acesso !== "ADMINISTRADOR") {
+    const botaoAdmin = document.getElementById("admin-only");
+    const botaoAdminMobile = document.getElementById("admin-only-mobile");
+    if (botaoAdmin) botaoAdmin.style.display = "none";
+    if (botaoAdminMobile) botaoAdminMobile.style.display = "none";
   }
 
-  // Menu lateral (desktop)
-  const toggleMenu = document.getElementById("toggle-menu");
-  const menuLateral = document.querySelector(".menu-lateral");
+  // Expansão do menu lateral (desktop)
+  const toggle = document.getElementById("toggle-menu");
+  const menuLateral = document.getElementById("menu-lateral");
 
-  if (toggleMenu && menuLateral) {
-    toggleMenu.addEventListener("click", () => {
+  if (toggle && menuLateral) {
+    toggle.addEventListener("click", () => {
       menuLateral.classList.toggle("expandido");
     });
   }
 
   // Menu suspenso (mobile)
-  const mobileToggle = document.getElementById("menu-toggle");
-  const mobileMenu = document.querySelector(".menu-mobile");
+  const menuToggle = document.getElementById("menu-toggle");
+  const menuMobile = document.getElementById("menu-mobile");
 
-  if (mobileToggle && mobileMenu) {
-    mobileToggle.addEventListener("click", () => {
-      mobileMenu.classList.toggle("ativo");
+  if (menuToggle && menuMobile) {
+    menuToggle.addEventListener("click", () => {
+      menuMobile.classList.toggle("ativo");
     });
   }
 });
+
+function logout() {
+  localStorage.removeItem("usuarioLogado");
+  window.location.href = "../telas/login.html";
+}
