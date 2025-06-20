@@ -46,14 +46,9 @@ loginForm.addEventListener("submit", async (e) => {
       return;
     }
 
-    if (usuario.nivel_acesso === "COLABORADOR") {
-      msg.innerText = "Login realizado com sucesso. Perfil: COLABORADOR.";
-      return;
-    }
-
-    if (usuario.nivel_acesso === "ADMINISTRADOR") {
-      msg.innerText = "Login realizado com sucesso. Perfil: ADMINISTRADOR.";
-      return;
+    if (usuario.nivel_acesso === "ADMINISTRADOR" || usuario.nivel_acesso === "COLABORADOR") {
+      localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+      window.location.href = "/telas/dashboard.html";
     }
 
     msg.innerText = `Acesso não autorizado: ${usuario.nivel_acesso}`;
