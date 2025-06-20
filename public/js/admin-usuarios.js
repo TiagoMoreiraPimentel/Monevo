@@ -3,6 +3,7 @@ const tabela = document.getElementById("corpo-tabela");
 async function carregarUsuarios() {
   const res = await fetch("/api/usuarios");
   const usuarios = await res.json();
+  console.log("Exemplo de usuário:", usuarios[0]);
 
   tabela.innerHTML = "";
 
