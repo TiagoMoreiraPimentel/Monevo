@@ -35,16 +35,13 @@ async function carregarUsuarios() {
 }
 
 window.salvarAlteracoes = async function(id) {
-  const nivel = document.querySelector(`select[data-id="${id}"][data-campo="nivel_acesso"]`).value;
+  const nivel = document.querySelector(`select[data-id="${id}"][data-campo="nivel_acesso"]`).value.toUpperCase();
   const status = document.querySelector(`select[data-id="${id}"][data-campo="status"]`).value;
 
-  const res = await fetch(`/api/usuarios?id=${id}`, {
+  const res = await fetch(`/api/usuarios/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      nivel_acesso: nivel,
-      status: status
-    })
+    body: JSON.stringify({ nivel_acesso: nivel, status })
   });
 
   if (res.ok) {
