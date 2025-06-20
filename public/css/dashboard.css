@@ -32,6 +32,13 @@ body, html {
   position: relative;
 }
 
+#saudacao {
+  font-size: 1rem;
+  color: var(--cor-texto);
+  margin-left: 1rem;
+}
+
+/* Botão do menu (mobile) */
 .mobile-toggle {
   display: none;
   background: var(--cor-primaria);
@@ -44,7 +51,7 @@ body, html {
   z-index: 2000;
 }
 
-/* Sidebar */
+/* Sidebar (desktop) */
 .sidebar {
   position: fixed;
   top: 0;
@@ -63,12 +70,13 @@ body, html {
 .sidebar.expanded {
   width: 240px;
   align-items: flex-start;
+  padding-left: 1rem;
 }
 
 .toggle-btn {
   position: absolute;
   top: 1rem;
-  left: 0.75rem;
+  left: 0.5rem;
   background: var(--cor-primaria);
   color: white;
   border: none;
@@ -142,10 +150,6 @@ footer {
 
 /* MOBILE */
 @media (max-width: 768px) {
-  .logo-header {
-    height: 100px;
-  }
-
   .sidebar {
     display: none;
   }
@@ -157,7 +161,8 @@ footer {
     right: 0;
     left: auto;
     height: 100vh;
-    width: 240px;
+    width: 200px;
+    padding-left: 1rem;
     border-left: 1px solid #ccc;
     background: var(--cor-clara);
   }
@@ -180,5 +185,23 @@ footer {
 
   .mobile-toggle {
     display: block;
+  }
+
+  .header-bar {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .logo-header {
+    height: 60px;
+    margin: 0 auto 0.5rem auto;
+  }
+
+  #saudacao {
+    margin: 0 auto;
+    font-size: 1rem;
+    color: var(--cor-texto);
   }
 }
