@@ -19,7 +19,7 @@ body, html {
 }
 
 .logo-header {
-  height: 120px;
+  height: 200px;
   margin-right: auto;
 }
 
@@ -44,10 +44,12 @@ body, html {
   background: var(--cor-primaria);
   color: white;
   border: none;
-  padding: 0.5rem 0.8rem;
-  font-size: 1.2rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 1.2rem; /* menor que antes */
   border-radius: 4px;
-  margin-left: auto;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   z-index: 2000;
 }
 
@@ -199,7 +201,7 @@ footer {
   }
 
   .logo-header {
-    height: 60px;
+    height: 150px;
     margin: 0 auto 0.5rem auto;
   }
 
