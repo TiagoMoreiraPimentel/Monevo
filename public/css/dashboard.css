@@ -62,8 +62,7 @@ body, html {
 
 .sidebar.expanded {
   width: 240px;
-  align-items: flex-start;
-  padding-left: 1rem;
+  align-items: center;  /* mantém centralizado */
 }
 
 .toggle-btn {
@@ -99,18 +98,20 @@ body, html {
   color: white;
   border: none;
   margin: 0.4rem 0;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1rem;             /* padding horizontal equilibrado */
   border-radius: 6px;
   text-align: center;
   cursor: pointer;
-  width: 90%; /* Adapta sem colar nas bordas */
+  width: 100%;                      /* ocupa todo o espaço da coluna */
+  max-width: 200px;                 /* limite máximo para não estourar */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: flex;
-  justify-content: center;  /* Centraliza texto horizontal */
-  align-items: center;      /* Centraliza texto vertical */
-  height: 40px;             /* Altura fixa para centralizar melhor */
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  box-sizing: border-box;
 }
 
 .menu-opcoes button:last-child {
