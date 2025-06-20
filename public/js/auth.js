@@ -36,6 +36,11 @@ loginForm.addEventListener("submit", async (e) => {
       return;
     }
 
+    if (usuario.status !== "Ativo") {
+      msg.innerText = "Sua conta está inativa. Procure o administrador.";
+      return;
+    }
+
     if (usuario.senha_hash !== senha) {
       msg.innerText = "Senha incorreta.";
       return;
