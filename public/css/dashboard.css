@@ -38,11 +38,9 @@ body, html {
   color: white;
   border: none;
   padding: 0.5rem 0.8rem;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   border-radius: 4px;
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem; /* ✅ ADICIONA ESPAÇO DA BORDA */
+  margin-left: auto;
   z-index: 2000;
 }
 
