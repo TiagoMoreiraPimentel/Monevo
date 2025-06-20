@@ -79,6 +79,7 @@ document.getElementById("btn-criar-conta").addEventListener("click", async () =>
     email: email.slice(0, 50),
     senha_hash: senha.slice(0, 200),
     nivel_acesso: "Verificar",
+    status: "Ativo", // ADICIONADO AQUI
     data_cadastro: new Date().toISOString()
   };
 
