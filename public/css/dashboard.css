@@ -97,7 +97,7 @@ body, html {
   border: none;
   margin-top: 0.4rem;
   margin-bottom: 0.4rem;
-  margin-left: 3rem;
+  margin-left: 1rem;
   margin-right: 1rem;
   padding: 0.6rem 1rem;
   border-radius: 6px;
@@ -105,6 +105,10 @@ body, html {
   cursor: pointer;
   width: 100%;
   max-width: 180px;
+}
+
+.menu-opcoes button:last-child {
+  margin-bottom: 2rem; /* distância entre o último botão e o final da sidebar */
 }
 
 .menu-opcoes button:hover {
