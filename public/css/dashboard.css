@@ -38,9 +38,11 @@ body, html {
   color: white;
   border: none;
   padding: 0.5rem 0.8rem;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   border-radius: 4px;
-  margin-left: auto;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   z-index: 2000;
 }
 
