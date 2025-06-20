@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const saudacao = document.getElementById("saudacao");
   if (saudacao) {
-    saudacao.textContent = `Olá, ${usuario.nome} (${usuario.nivel_acesso})`;
+    saudacao.textContent = `Olá, ${usuario.nome}`;
   }
 
   const botaoAdmin = document.getElementById("admin-only");
