@@ -14,19 +14,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const botaoAdmin = document.getElementById("admin-only");
   if (usuario.nivel_acesso === "ADMINISTRADOR") {
-    if (botaoAdmin) {
-      botaoAdmin.classList.remove("hidden");
-      botaoAdmin.addEventListener("click", () => {
-        window.location.href = "../telas/admin-usuarios.html";
-      });
-    }
-  } else if (botaoAdmin) {
+    botaoAdmin.classList.remove("hidden");
+    botaoAdmin.addEventListener("click", () => {
+      window.location.href = "../telas/admin-usuarios.html";
+    });
+  } else {
     botaoAdmin.style.display = "none";
   }
 
   const hoje = new Date();
   document.getElementById("mes").value = String(hoje.getMonth() + 1).padStart(2, '0');
   document.getElementById("ano").value = String(hoje.getFullYear());
+
   carregarResumo();
 });
 
@@ -72,10 +71,11 @@ async function carregarResumo() {
 }
 
 async function buscarTransacoes(idUsuario, mes, ano) {
-  const url = `https://sua-api-ords/transacoes?id_usuario=${idUsuario}&mes=${mes}&ano=${ano}`;
+  const url = `/api/transacoes?id_usuario=${idUsuario}&mes=${mes}&ano=${ano}`;
   try {
     const res = await fetch(url);
-    return await res.json();
+    const dados = await res.json();
+    return dados;
   } catch (err) {
     console.error("Erro ao buscar transações", err);
     return [];
