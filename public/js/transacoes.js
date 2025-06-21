@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id_conta: parseInt(document.getElementById("conta").value),
       tipo: document.getElementById("tipo").value,
       valor: parseFloat(document.getElementById("valor").value),
-      data_transacao: document.getElementById("data").value, // corrigido
+      data_transacao: document.getElementById("data").value + "T00:00:00",
       categoria: document.getElementById("categoria").value,
       descricao: document.getElementById("descricao").value.trim()
     };
