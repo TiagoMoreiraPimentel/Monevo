@@ -14,6 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("form-transacao").classList.toggle("hidden");
   });
 
+  document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
+    document.getElementById("form-filtros").classList.toggle("hidden");
+  });
+
+  document.getElementById("btn-aplicar-filtros").addEventListener("click", () => {
+    carregarTransacoes(usuario.id);
+  });
+
   carregarContas(usuario.id);
   carregarTransacoes(usuario.id);
 
@@ -73,31 +81,53 @@ async function carregarContas(idUsuario) {
   const res = await fetch("/api/contas");
   const contas = await res.json();
   const minhas = contas.filter(c => c.id_usuario === idUsuario);
-  const select = document.getElementById("conta");
-  select.innerHTML = "<option value=''>Selecione uma conta</option>";
+  const selectTransacao = document.getElementById("conta");
+  const selectFiltro = document.getElementById("filtro-conta");
+
+  selectTransacao.innerHTML = "<option value=''>Selecione uma conta</option>";
+  selectFiltro.innerHTML = "<option value=''>Todas</option>";
 
   minhas.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id_conta;
-    opt.textContent = `${c.nome_conta} (${c.tipo})`;
-    select.appendChild(opt);
+    const opt1 = document.createElement("option");
+    opt1.value = c.id_conta;
+    opt1.textContent = `${c.nome_conta} (${c.tipo})`;
+    selectTransacao.appendChild(opt1);
+
+    const opt2 = opt1.cloneNode(true);
+    selectFiltro.appendChild(opt2);
   });
 }
 
 async function carregarTransacoes(idUsuario) {
   const tabela = document.getElementById("tabela-transacoes");
   const listaMobile = document.getElementById("lista-transacoes-mobile");
-  if (!tabela || !listaMobile) return;
-
   tabela.innerHTML = "";
   listaMobile.innerHTML = "";
 
   try {
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
-    const minhas = todas.filter(t => t.id_usuario === idUsuario);
+    let minhas = todas.filter(t => t.id_usuario === idUsuario);
 
-    // Ordena da mais recente para a mais antiga
+    // Filtros
+    const dataFiltro = document.getElementById("filtro-data").value;
+    const contaFiltro = document.getElementById("filtro-conta").value;
+    const tipoFiltro = document.getElementById("filtro-tipo").value;
+    const categoriaFiltro = document.getElementById("filtro-categoria").value.trim().toLowerCase();
+
+    if (dataFiltro) {
+      minhas = minhas.filter(t => t.data_transacao.startsWith(dataFiltro));
+    }
+    if (contaFiltro) {
+      minhas = minhas.filter(t => t.id_conta == contaFiltro);
+    }
+    if (tipoFiltro) {
+      minhas = minhas.filter(t => t.tipo === tipoFiltro);
+    }
+    if (categoriaFiltro) {
+      minhas = minhas.filter(t => t.categoria.toLowerCase().includes(categoriaFiltro));
+    }
+
     minhas.sort((a, b) => new Date(b.data_transacao) - new Date(a.data_transacao));
 
     const resContas = await fetch("/api/contas");
@@ -109,7 +139,7 @@ async function carregarTransacoes(idUsuario) {
         mapaContas[c.id_conta] = c.nome_conta;
       });
 
-    // Versão Desktop - Tabela
+    // Tabela Desktop
     minhas.forEach(t => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -125,11 +155,10 @@ async function carregarTransacoes(idUsuario) {
       tabela.appendChild(tr);
     });
 
-    // Versão Mobile - Cards
+    // Cards Mobile
     minhas.forEach(t => {
       const card = document.createElement("div");
       card.classList.add("card-transacao");
-
       card.innerHTML = `
         <p><strong>Data:</strong> ${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</p>
         <p><strong>Conta:</strong> ${mapaContas[t.id_conta] || "Conta desconhecida"}</p>

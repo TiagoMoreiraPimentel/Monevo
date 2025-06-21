@@ -34,8 +34,11 @@ main {
   box-shadow: 0 0 10px #ccc;
 }
 
-#btn-toggle-form {
+/* Botões expansores */
+#btn-toggle-form,
+#btn-toggle-filtros {
   margin-bottom: 1rem;
+  margin-right: 0.5rem;
   padding: 0.6rem 1.5rem;
   background-color: #008B65;
   color: white;
@@ -45,7 +48,8 @@ main {
   cursor: pointer;
 }
 
-#form-transacao.hidden {
+#form-transacao.hidden,
+#form-filtros.hidden {
   display: none;
 }
 
@@ -84,6 +88,30 @@ form button:hover {
   margin-top: 0.5rem;
 }
 
+/* Filtros */
+#form-filtros {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+#form-filtros label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+#form-filtros select,
+#form-filtros input {
+  padding: 0.4rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  min-width: 120px;
+}
+
+/* Tabela (desktop) */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -101,6 +129,7 @@ th, td {
   text-align: left;
 }
 
+/* Rodapé */
 .footer {
   background-color: #008B65;
   color: white;
@@ -110,12 +139,16 @@ th, td {
   margin-top: 2rem;
 }
 
+/* Cards (mobile) */
 #lista-transacoes-mobile {
   display: none;
 }
 
-/* Versão Mobile */
 @media (max-width: 600px) {
+  #form-filtros {
+    flex-direction: column;
+  }
+
   #tabela-desktop {
     display: none;
   }
