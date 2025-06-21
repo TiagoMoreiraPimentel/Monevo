@@ -155,13 +155,15 @@ footer {
   margin-bottom: 1rem;
 }
 
+/* Canvas geral: altura reduzida no desktop */
 canvas {
   width: 100%;
   max-width: 100%;
-  height: 250px;
+  height: 220px;
   margin-bottom: 2rem;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .sidebar {
     display: none;
@@ -217,7 +219,8 @@ canvas {
     text-align: center;
   }
 
+  /* Ajuste de altura para gráficos no mobile */
   canvas {
-    height: 350px;
+    height: 450px;
   }
 }
