@@ -35,7 +35,6 @@ body, html {
   font-weight: bold;
   font-size: 0.95rem;
   color: var(--cor-texto);
-  margin: 0;
 }
 
 .mobile-toggle {
@@ -113,14 +112,9 @@ body, html {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.5;
   display: flex;
-  align-items: center;
   justify-content: center;
-}
-
-.menu-opcoes button:hover {
-  background-color: var(--cor-hover);
+  align-items: center;
 }
 
 .main-content {
@@ -134,8 +128,15 @@ body, html {
 
 .conteudo {
   padding: 2rem;
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
+}
+
+.filtros-relatorio {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 
 footer {
@@ -148,18 +149,17 @@ footer {
   margin-top: 2rem;
 }
 
-.filtros-relatorio {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+/* Gráficos com scroll horizontal */
+.grafico-scroll {
+  overflow-x: auto;
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
-canvas {
-  width: 100%;
-  max-width: 100%;
-  height: 250px;
-  margin-bottom: 2rem;
+.grafico-scroll canvas {
+  min-width: 800px;
+  width: 800px;
+  height: 400px;
 }
 
 @media (max-width: 768px) {
@@ -172,24 +172,14 @@ canvas {
     position: fixed;
     top: 0;
     right: 0;
-    left: auto;
     height: 100vh;
     width: 200px;
-    padding-left: 1rem;
-    border-left: 1px solid #ccc;
     background: var(--cor-clara);
+    padding-left: 1rem;
   }
 
   .main-content {
     margin-left: 0;
-  }
-
-  .sidebar.expanded ~ .main-content {
-    margin-left: 0;
-  }
-
-  .toggle-btn {
-    display: none;
   }
 
   .mobile-toggle {
@@ -201,23 +191,22 @@ canvas {
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding-top: 1rem;
   }
 
   .logo-header {
     height: 150px;
-    margin: 0 auto 0.5rem auto;
+    margin-bottom: 0.5rem;
   }
 
   #saudacao {
     position: static;
     font-size: 1rem;
-    margin: 0 auto;
-    padding: 0;
+    margin: 0;
     text-align: center;
   }
 
-  canvas {
-    height: 350px;
+  .grafico-scroll canvas {
+    height: 500px;
+    width: 900px;
   }
 }
