@@ -87,15 +87,26 @@ async function carregarTransacoes(idUsuario) {
   tabela.innerHTML = "";
 
   try {
+    // Busca todas as transações
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
     const minhas = todas.filter(t => t.id_usuario === idUsuario);
+
+    // Busca todas as contas do usuário para mapear nome por ID
+    const resContas = await fetch("/api/contas");
+    const contas = await resContas.json();
+    const mapaContas = {};
+    contas
+      .filter(c => c.id_usuario === idUsuario)
+      .forEach(c => {
+        mapaContas[c.id_conta] = c.nome_conta;
+      });
 
     minhas.forEach(t => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
-        <td>${t.id_conta}</td>
+        <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
