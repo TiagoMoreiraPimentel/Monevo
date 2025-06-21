@@ -54,10 +54,10 @@
           <option value="2022">2022</option>
           <option value="2023">2023</option>
           <option value="2024">2024</option>
-          <option value="2025">2025</option>
+          <option value="2025" selected>2025</option>
         </select>
 
-        <button id="btn-aplicar-filtro">Aplicar Filtro</button>
+        <button onclick="carregarResumo()">Aplicar Filtro</button>
       </div>
 
       <div class="resumo-valores">
@@ -66,26 +66,14 @@
         <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
       </div>
 
-      <div class="grafico-bloco">
-        <h3>Distribuição por Categoria</h3>
-        <div class="grafico-scroll">
-          <canvas id="grafico-categorias"></canvas>
-        </div>
-      </div>
+      <h3>Distribuição por Categoria</h3>
+      <canvas id="grafico-categorias"></canvas>
 
-      <div class="grafico-bloco">
-        <h3>Receitas vs Despesas</h3>
-        <div class="grafico-scroll">
-          <canvas id="grafico-linhas"></canvas>
-        </div>
-      </div>
+      <h3>Receitas vs Despesas</h3>
+      <canvas id="grafico-linhas"></canvas>
 
-      <div class="grafico-bloco">
-        <h3>Movimentações por Tipo de Conta</h3>
-        <div class="grafico-scroll">
-          <canvas id="grafico-conta"></canvas>
-        </div>
-      </div>
+      <h3>Movimentações por Tipo de Conta</h3>
+      <canvas id="grafico-conta"></canvas>
     </section>
 
     <footer>

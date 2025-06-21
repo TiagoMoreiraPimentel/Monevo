@@ -6,10 +6,6 @@
   --cor-hover: #006F4F;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 body, html {
   margin: 0;
   padding: 0;
@@ -30,7 +26,6 @@ body, html {
   padding: 1rem;
   border-bottom: 1px solid #ddd;
   position: relative;
-  z-index: 1000;
 }
 
 #saudacao {
@@ -43,7 +38,6 @@ body, html {
   margin: 0;
 }
 
-/* Botão de menu (mobile) */
 .mobile-toggle {
   display: none;
   background: var(--cor-primaria);
@@ -52,13 +46,12 @@ body, html {
   padding: 0.4rem 0.7rem;
   font-size: 1.2rem;
   border-radius: 4px;
-  position: fixed;
+  position: absolute;
   top: 1rem;
-  left: 1rem;
-  z-index: 3000;
+  right: 1rem;
+  z-index: 2000;
 }
 
-/* Sidebar (desktop) */
 .sidebar {
   position: fixed;
   top: 0;
@@ -71,7 +64,7 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1100;
+  z-index: 1500;
 }
 
 .sidebar.expanded {
@@ -126,10 +119,6 @@ body, html {
   justify-content: center;
 }
 
-.menu-opcoes button:last-child {
-  margin-bottom: 2rem;
-}
-
 .menu-opcoes button:hover {
   background-color: var(--cor-hover);
 }
@@ -159,22 +148,20 @@ footer {
   margin-top: 2rem;
 }
 
-/* Gráficos */
-.grafico-wrapper {
-  overflow-x: auto;
-  padding: 1rem 0;
-  margin-bottom: 2rem;
-  width: 100%;
+.filtros-relatorio {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 
 canvas {
-  display: block;
-  min-width: 800px;
-  width: 800px;
-  height: 500px !important;
+  width: 100%;
+  max-width: 100%;
+  height: 250px;
+  margin-bottom: 2rem;
 }
 
-/* MOBILE */
 @media (max-width: 768px) {
   .sidebar {
     display: none;
@@ -184,17 +171,13 @@ canvas {
     display: flex;
     position: fixed;
     top: 0;
-    left: 0;
-    right: auto;
+    right: 0;
+    left: auto;
     height: 100vh;
     width: 200px;
     padding-left: 1rem;
-    border-right: 1px solid #ccc;
+    border-left: 1px solid #ccc;
     background: var(--cor-clara);
-  }
-
-  .sidebar.expanded .menu-opcoes {
-    display: flex;
   }
 
   .main-content {
@@ -234,14 +217,7 @@ canvas {
     text-align: center;
   }
 
-  .grafico-wrapper {
-    overflow-x: auto;
-    padding: 1rem 0;
-  }
-
   canvas {
-    min-width: 800px;
-    width: 800px;
-    height: 600px !important;
+    height: 350px;
   }
 }

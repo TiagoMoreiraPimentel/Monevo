@@ -1,3 +1,5 @@
+// dashboard.js atualizado com percentuais e barras para todas as categorias
+
 let graficoCategorias, graficoLinhas, graficoConta;
 
 function carregarResumo() {
@@ -37,6 +39,7 @@ function renderizarGraficoCategorias(transacoes) {
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
+
   const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
 
   if (graficoCategorias) graficoCategorias.destroy();
@@ -56,8 +59,7 @@ function renderizarGraficoCategorias(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) =>
-            `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -90,8 +92,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) =>
-            `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -132,8 +133,7 @@ function renderizarGraficoConta(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) =>
-            `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -144,32 +144,6 @@ function renderizarGraficoConta(transacoes) {
   });
 }
 
-// Sidebar e logout
-window.toggleSidebar = function () {
-  const sidebar = document.getElementById("sidebar");
-  sidebar.classList.toggle("expanded");
-};
-
-function logout() {
-  localStorage.removeItem("usuarioLogado");
-  window.location.href = "../telas/login.html";
-}
-
-// Expansão do gráfico no mobile (caso volte a usar)
-function toggleGrafico(id) {
-  const wrapper = document.getElementById(id);
-  if (!wrapper) return;
-  wrapper.classList.toggle("ativo");
-
-  const btn = wrapper.previousElementSibling;
-  if (wrapper.classList.contains("ativo")) {
-    btn.textContent = "Ocultar Gráfico";
-  } else {
-    btn.textContent = "Ver Gráfico";
-  }
-}
-
-// Inicialização única
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -179,28 +153,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const saudacao = document.getElementById("saudacao");
-  if (saudacao) saudacao.textContent = `Olá, ${usuario.nome}`;
+  if (saudacao) {
+    saudacao.textContent = `Olá, ${usuario.nome}`;
+  }
 
   const botaoAdmin = document.getElementById("admin-only");
   if (usuario.nivel_acesso === "ADMINISTRADOR") {
-    botaoAdmin.classList.remove("hidden");
-    botaoAdmin.addEventListener("click", () => {
-      window.location.href = "../telas/admin-usuarios.html";
-    });
-  } else {
+    if (botaoAdmin) {
+      botaoAdmin.classList.remove("hidden");
+      botaoAdmin.addEventListener("click", () => {
+        window.location.href = "../telas/admin-usuarios.html";
+      });
+    }
+  } else if (botaoAdmin) {
     botaoAdmin.style.display = "none";
   }
 
-  // Preencher mês e ano atuais
-  const mesSelect = document.getElementById("mes");
-  const anoSelect = document.getElementById("ano");
-  const hoje = new Date();
-  mesSelect.value = String(hoje.getMonth() + 1).padStart(2, "0");
-  anoSelect.value = hoje.getFullYear().toString();
+  const menuBtn = document.getElementById("menu-toggle");
+  if (menuBtn) {
+    menuBtn.addEventListener("click", () => {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("expanded");
+    });
+  }
 
-  // Botão aplicar filtro
-  document.getElementById("btn-aplicar-filtro").addEventListener("click", carregarResumo);
-
-  // Carregamento inicial
   carregarResumo();
 });
+
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("expanded");
+};
+
+function logout() {
+  localStorage.removeItem("usuarioLogado");
+  window.location.href = "../telas/login.html";
+}
