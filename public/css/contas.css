@@ -6,12 +6,24 @@ body {
 }
 
 header {
+  background-color: white;
+  color: #008B65;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+#btn-voltar {
+  display: block;
+  margin: 1rem auto 0 auto;
+  padding: 0.5rem 1rem;
   background-color: #008B65;
   color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 main {
@@ -35,19 +47,22 @@ form label {
 }
 
 form input,
-form select,
-form button {
+form select {
   padding: 0.5rem;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
 form button {
+  width: fit-content;
+  align-self: flex-start;
+  padding: 0.5rem 1.5rem;
   background-color: #008B65;
   color: white;
   border: none;
-  cursor: pointer;
+  border-radius: 5px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 form button:hover {
@@ -79,9 +94,7 @@ td {
 
 @media (max-width: 600px) {
   header {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
+    font-size: 1.2rem;
   }
 
   form,
