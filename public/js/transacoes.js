@@ -17,18 +17,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
 
     const novaTransacao = {
-      id_usuario: usuario.id,
-      id_conta: document.getElementById("conta").value,
-      tipo: document.getElementById("tipo").value,
-      valor: parseFloat(document.getElementById("valor").value),
-      data_transacao: document.getElementById("data").value,
-      categoria: document.getElementById("categoria").value.trim(),
-      descricao: document.getElementById("descricao").value.trim()
+      id_usuario: parseInt(usuario.id),
+      id_conta: parseInt(idConta),
+      tipo: tipoSelecionado,
+      valor: parseFloat(valor),
+      data_transacao: dataSelecionada,
+      categoria: categoriaSelecionada,
+      descricao: descricao || null
     };
 
     try {
-      console.log("Dados enviados:", novaTransacao);
-
       const res = await fetch("/api/transacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
