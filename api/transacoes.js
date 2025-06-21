@@ -8,38 +8,12 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const dados = req.body;
-
-    // 🔒 Validação de campos obrigatórios
-    const camposObrigatorios = ["id_usuario", "id_conta", "tipo", "valor", "data_transacao", "categoria"];
-    const faltando = camposObrigatorios.find(campo => !dados[campo] && dados[campo] !== 0);
-    if (faltando) {
-      return res.status(400).json({ erro: `Campo obrigatório ausente: ${faltando}` });
-    }
-
-    // ✅ Formatar a data corretamente se estiver em YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dados.data_transacao)) {
-      dados.data_transacao += "T00:00:00";
-    }
-
-    try {
-      const r = await fetch(BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados)
-      });
-
-      const texto = await r.text();
-
-      if (!r.ok) {
-        return res.status(r.status).send(`Erro do ORDS: ${texto}`);
-      }
-
-      return res.status(200).send(texto);
-    } catch (err) {
-      console.error("Erro no backend:", err);
-      return res.status(500).send("Erro interno no servidor.");
-    }
+    const r = await fetch(BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body),
+    });
+    return res.status(r.status).end();
   }
 
   const id = req.query.id;
