@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const idConta = document.getElementById("conta").value;
+    const idConta = parseInt(document.getElementById("conta").value);
     const tipoSelecionado = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
     const data = document.getElementById("data").value;
