@@ -26,6 +26,7 @@ body, html {
   padding: 1rem;
   border-bottom: 1px solid #ddd;
   position: relative;
+  z-index: 1000;
 }
 
 #saudacao {
@@ -49,7 +50,7 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1500;
+  z-index: 1100;
 }
 
 .sidebar.expanded {
@@ -130,7 +131,7 @@ footer {
 
 canvas {
   min-width: 600px;
-  height: 220px;
+  height: 300px;
 }
 
 .grafico-scroll {
@@ -161,6 +162,22 @@ canvas {
   #saudacao {
     position: static;
     margin-top: 0.5rem;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .sidebar.expanded {
+    display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: auto;
+    height: 100vh;
+    width: 200px;
+    border-left: 1px solid #ccc;
+    background: var(--cor-clara);
   }
 
   canvas {

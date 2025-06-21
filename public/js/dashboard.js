@@ -1,5 +1,3 @@
-// dashboard.js atualizado com percentuais e barras para todas as categorias
-
 let graficoCategorias, graficoLinhas, graficoConta;
 
 function carregarResumo() {
@@ -39,7 +37,6 @@ function renderizarGraficoCategorias(transacoes) {
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
-
   const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
 
   if (graficoCategorias) graficoCategorias.destroy();
@@ -59,7 +56,8 @@ function renderizarGraficoCategorias(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) =>
+            `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -92,7 +90,8 @@ function renderizarGraficoLinhas(receitas, despesas) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) =>
+            `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -133,7 +132,8 @@ function renderizarGraficoConta(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) =>
+            `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -144,42 +144,7 @@ function renderizarGraficoConta(transacoes) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario) {
-    alert("Acesso negado. Faça login.");
-    window.location.href = "../telas/login.html";
-    return;
-  }
-
-  const saudacao = document.getElementById("saudacao");
-  if (saudacao) {
-    saudacao.textContent = `Olá, ${usuario.nome}`;
-  }
-
-  const botaoAdmin = document.getElementById("admin-only");
-  if (usuario.nivel_acesso === "ADMINISTRADOR") {
-    if (botaoAdmin) {
-      botaoAdmin.classList.remove("hidden");
-      botaoAdmin.addEventListener("click", () => {
-        window.location.href = "../telas/admin-usuarios.html";
-      });
-    }
-  } else if (botaoAdmin) {
-    botaoAdmin.style.display = "none";
-  }
-
-  const menuBtn = document.getElementById("menu-toggle");
-  if (menuBtn) {
-    menuBtn.addEventListener("click", () => {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("expanded");
-    });
-  }
-
-  carregarResumo();
-});
-
+// Sidebar e logout
 window.toggleSidebar = function () {
   const sidebar = document.getElementById("sidebar");
   sidebar.classList.toggle("expanded");
@@ -190,7 +155,7 @@ function logout() {
   window.location.href = "../telas/login.html";
 }
 
-// Exibe/oculta gráficos no mobile
+// Expansão do gráfico no mobile (caso volte a usar)
 function toggleGrafico(id) {
   const wrapper = document.getElementById(id);
   if (!wrapper) return;
@@ -204,17 +169,38 @@ function toggleGrafico(id) {
   }
 }
 
+// Inicialização única
 document.addEventListener("DOMContentLoaded", () => {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario) {
+    alert("Acesso negado. Faça login.");
+    window.location.href = "../telas/login.html";
+    return;
+  }
+
+  const saudacao = document.getElementById("saudacao");
+  if (saudacao) saudacao.textContent = `Olá, ${usuario.nome}`;
+
+  const botaoAdmin = document.getElementById("admin-only");
+  if (usuario.nivel_acesso === "ADMINISTRADOR") {
+    botaoAdmin.classList.remove("hidden");
+    botaoAdmin.addEventListener("click", () => {
+      window.location.href = "../telas/admin-usuarios.html";
+    });
+  } else {
+    botaoAdmin.style.display = "none";
+  }
+
+  // Preencher mês e ano atuais
   const mesSelect = document.getElementById("mes");
   const anoSelect = document.getElementById("ano");
   const hoje = new Date();
-  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
-  const anoAtual = hoje.getFullYear().toString();
+  mesSelect.value = String(hoje.getMonth() + 1).padStart(2, "0");
+  anoSelect.value = hoje.getFullYear().toString();
 
-  if (mesSelect) mesSelect.value = mesAtual;
-  if (anoSelect) anoSelect.value = anoAtual;
+  // Botão aplicar filtro
+  document.getElementById("btn-aplicar-filtro").addEventListener("click", carregarResumo);
 
+  // Carregamento inicial
   carregarResumo();
 });
-
-
