@@ -10,6 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/telas/dashboard.html";
   });
 
+  document.getElementById("btn-toggle-form").addEventListener("click", () => {
+    document.getElementById("form-transacao").classList.toggle("hidden");
+  });
+
   carregarContas(usuario.id);
   carregarTransacoes(usuario.id);
 
@@ -83,6 +87,7 @@ async function carregarContas(idUsuario) {
 async function carregarTransacoes(idUsuario) {
   const tabela = document.getElementById("tabela-transacoes");
   const listaMobile = document.getElementById("lista-transacoes-mobile");
+
   if (!tabela || !listaMobile) return;
 
   tabela.innerHTML = "";
@@ -91,47 +96,46 @@ async function carregarTransacoes(idUsuario) {
   try {
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
-    const minhas = todas.filter(t => t.id_usuario === idUsuario);
+    const minhas = todas
+      .filter(t => t.id_usuario === idUsuario)
+      .sort((a, b) => new Date(b.data_transacao) - new Date(a.data_transacao));
 
     const resContas = await fetch("/api/contas");
     const contas = await resContas.json();
     const mapaContas = {};
-    contas
-      .filter(c => c.id_usuario === idUsuario)
-      .forEach(c => {
-        mapaContas[c.id_conta] = c.nome_conta;
-      });
+    contas.filter(c => c.id_usuario === idUsuario).forEach(c => {
+      mapaContas[c.id_conta] = c.nome_conta;
+    });
 
     minhas.forEach(t => {
-      const dataFormatada = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
       const nomeConta = mapaContas[t.id_conta] || "Conta desconhecida";
-      const valorFormatado = "R$ " + Number(t.valor).toFixed(2);
-      const descricaoCompleta = t.descricao || "";
+      const data = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
+      const valor = `R$ ${Number(t.valor).toFixed(2)}`;
 
-      // Tabela (Desktop)
+      // Tabela desktop
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${dataFormatada}</td>
+        <td>${data}</td>
         <td>${nomeConta}</td>
         <td>${t.tipo}</td>
-        <td>${valorFormatado}</td>
+        <td>${valor}</td>
         <td>${t.categoria}</td>
-        <td title="${descricaoCompleta}">
-          ${descricaoCompleta.length > 30 ? descricaoCompleta.slice(0, 30) + "..." : descricaoCompleta}
+        <td title="${t.descricao || ""}">
+          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
         </td>
       `;
       tabela.appendChild(tr);
 
-      // Card (Mobile)
+      // Card mobile
       const card = document.createElement("div");
       card.className = "card-transacao";
       card.innerHTML = `
-        <div class="linha"><strong>Data:</strong> ${dataFormatada}</div>
-        <div class="linha"><strong>Conta:</strong> ${nomeConta}</div>
-        <div class="linha"><strong>Tipo:</strong> ${t.tipo}</div>
-        <div class="linha"><strong>Valor:</strong> ${valorFormatado}</div>
-        <div class="linha"><strong>Categoria:</strong> ${t.categoria}</div>
-        <div class="linha descricao-limitada"><strong>Descrição:</strong><br>${descricaoCompleta}</div>
+        <p><strong>Data:</strong> ${data}</p>
+        <p><strong>Conta:</strong> ${nomeConta}</p>
+        <p><strong>Tipo:</strong> ${t.tipo}</p>
+        <p><strong>Valor:</strong> ${valor}</p>
+        <p><strong>Categoria:</strong> ${t.categoria}</p>
+        <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
       `;
       listaMobile.appendChild(card);
     });
