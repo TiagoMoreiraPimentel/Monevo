@@ -24,6 +24,19 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Verifica duplicidade
+    const todasContas = await fetch("/api/contas").then(r => r.json());
+    const minhasContas = todasContas.filter(c => c.id_usuario === usuario.id);
+    const contaJaExiste = minhasContas.some(c =>
+      c.nome_conta.toLowerCase() === nome.toLowerCase() &&
+      c.tipo.toLowerCase() === tipo.toLowerCase()
+    );
+
+    if (contaJaExiste) {
+      mostrarMensagem("Você já cadastrou uma conta com esse nome e tipo.");
+      return;
+    }
+
     const novaConta = {
       id_usuario: usuario.id,
       nome_conta: nome,
@@ -38,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(novaConta)
       });
+
 
       if (res.ok) {
         mostrarMensagem("Conta cadastrada com sucesso.");
