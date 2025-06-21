@@ -99,11 +99,10 @@ button.salvar:hover {
     font-size: 0.8rem;
   }
   .footer {
-    min-width: 600px;        /* acompanha largura da tabela */
+    min-width: 650px;        /* acompanha largura da tabela */
     width: max-content;      /* estica conforme o conteúdo */
     overflow-x: auto;
   }
-
   body {
     overflow-x: auto;        /* permite scroll horizontal */
   }
