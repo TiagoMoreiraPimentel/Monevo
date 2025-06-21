@@ -1,5 +1,3 @@
-// transacoes.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -83,8 +81,10 @@ async function carregarContas(idUsuario) {
 }
 
 async function carregarTransacoes(idUsuario) {
-  const container = document.getElementById("tabela-transacoes");
-  container.innerHTML = "";
+  const tabela = document.getElementById("tabela-transacoes");
+  const listaMobile = document.getElementById("lista-transacoes-mobile");
+  tabela.innerHTML = "";
+  listaMobile.innerHTML = "";
 
   try {
     const res = await fetch("/api/transacoes");
@@ -94,47 +94,45 @@ async function carregarTransacoes(idUsuario) {
     const resContas = await fetch("/api/contas");
     const contas = await resContas.json();
     const mapaContas = {};
-    contas.filter(c => c.id_usuario === idUsuario).forEach(c => {
-      mapaContas[c.id_conta] = c.nome_conta;
-    });
+    contas
+      .filter(c => c.id_usuario === idUsuario)
+      .forEach(c => {
+        mapaContas[c.id_conta] = c.nome_conta;
+      });
 
-    if (window.innerWidth <= 600) {
-      minhas.forEach(t => {
-        const card = document.createElement("div");
-        card.className = "card-transacao";
-        card.innerHTML = `
-          <div class="linha"><strong>Data:</strong> ${t.data_transacao.slice(0,10).split("-").reverse().join("/")}</div>
-          <div class="linha"><strong>Conta:</strong> ${mapaContas[t.id_conta] || "Conta desconhecida"}</div>
-          <div class="linha"><strong>Tipo:</strong> ${t.tipo}</div>
-          <div class="linha"><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</div>
-          <div class="linha"><strong>Categoria:</strong> ${t.categoria}</div>
-          <div class="linha descricao-limitada">
-            <strong>Descrição:</strong> <span title="${t.descricao || ''}">
-              ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
-            </span>
-          </div>
-        `;
-        card.querySelector(".descricao-limitada span").addEventListener("click", () => {
-          alert(t.descricao || "Sem descrição");
-        });
-        container.appendChild(card);
-      });
-    } else {
-      minhas.forEach(t => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${t.data_transacao.slice(0,10).split("-").reverse().join("/")}</td>
-          <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
-          <td>${t.tipo}</td>
-          <td>R$ ${Number(t.valor).toFixed(2)}</td>
-          <td>${t.categoria}</td>
-          <td title="${t.descricao || ''}">
-            ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
-          </td>
-        `;
-        container.appendChild(tr);
-      });
-    }
+    minhas.forEach(t => {
+      const data = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
+      const conta = mapaContas[t.id_conta] || "Conta desconhecida";
+      const tipo = t.tipo;
+      const valor = `R$ ${Number(t.valor).toFixed(2)}`;
+      const categoria = t.categoria;
+      const descricao = t.descricao || "";
+
+      // Desktop
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${data}</td>
+        <td>${conta}</td>
+        <td>${tipo}</td>
+        <td>${valor}</td>
+        <td>${categoria}</td>
+        <td title="${descricao}">${descricao.length > 30 ? descricao.slice(0, 30) + "..." : descricao}</td>
+      `;
+      tabela.appendChild(tr);
+
+      // Mobile
+      const card = document.createElement("div");
+      card.className = "transacao-card";
+      card.innerHTML = `
+        <p><strong>Data:</strong> ${data}</p>
+        <p><strong>Conta:</strong> ${conta}</p>
+        <p><strong>Tipo:</strong> ${tipo}</p>
+        <p><strong>Valor:</strong> ${valor}</p>
+        <p><strong>Categoria:</strong> ${categoria}</p>
+        <p><strong>Descrição:</strong> <span class="descricao-curta" title="${descricao}">${descricao.length > 30 ? descricao.slice(0, 30) + "..." : descricao}</span></p>
+      `;
+      listaMobile.appendChild(card);
+    });
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
