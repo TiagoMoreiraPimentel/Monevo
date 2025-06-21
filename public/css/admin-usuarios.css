@@ -11,7 +11,10 @@ h1 {
 
 .tabela-responsiva {
   overflow-x: auto;
-  max-width: 100%;
+  width: 100vw;         /* pega 100% da largura da tela */
+  margin: 0;            /* remove margens que empurram da esquerda */
+  padding: 0;           /* remove qualquer espaçamento lateral */
+  box-sizing: border-box;
 }
 
 table {
@@ -74,6 +77,7 @@ button.salvar:hover {
   font-size: 0.9rem;
   border-top: 1px solid #ccc;
   min-width: 600px; /* igual ao min-width da tabela */
+  width: 100%;          /* garante largura cheia interna */
 }
 
 
