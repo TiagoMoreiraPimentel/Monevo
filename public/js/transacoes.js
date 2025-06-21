@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
       descricao: document.getElementById("descricao").value.trim()
     };
 
+    console.log("Dados que serão enviados:", dados);
+
     try {
       const res = await fetch("/api/transacoes", {
         method: "POST",
