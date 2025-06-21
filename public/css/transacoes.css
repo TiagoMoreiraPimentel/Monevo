@@ -101,53 +101,31 @@ th, td {
 }
 
 @media (max-width: 600px) {
-  form, table {
-    font-size: 0.9rem;
-  }
-
   table, thead, tbody, th, td, tr {
-    display: block;
-  }
-
-  thead tr {
     display: none;
   }
 
-  td {
-    padding-left: 50%;
-    position: relative;
-    border: none;
-    border-bottom: 1px solid #ccc;
-  }
-
-  td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 0;
-    width: 45%;
-    padding-left: 0.5rem;
-    font-weight: bold;
-  }
-  table {
-    display: none;
-  }
   .card-transacao {
-    display: block;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid #ccc;
+    border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background: white;
   }
 
   .card-transacao .linha {
-    margin: 0.3rem 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
   }
 
-  .descricao-limitada {
-    white-space: nowrap;
+  .card-transacao .descricao-limitada span {
+    display: inline-block;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
     cursor: pointer;
+    color: #008B65;
   }
 }
