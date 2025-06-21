@@ -49,6 +49,7 @@ async function carregarResumo() {
   let totalReceitas = 0;
   let totalDespesas = 0;
   const porCategoria = {};
+  const porConta = {};
 
   transacoes.forEach(t => {
     const valor = parseFloat(t.valor);
@@ -60,6 +61,9 @@ async function carregarResumo() {
 
     const cat = t.categoria || "Outros";
     porCategoria[cat] = (porCategoria[cat] || 0) + valor;
+
+    const tipoConta = t.tipo_conta || "Desconhecida";
+    porConta[tipoConta] = (porConta[tipoConta] || 0) + valor;
   });
 
   document.getElementById("total-receitas").textContent = totalReceitas.toFixed(2);
@@ -68,6 +72,7 @@ async function carregarResumo() {
 
   desenharGraficoPizza(porCategoria);
   desenharGraficoBarra(totalReceitas, totalDespesas);
+  desenharGraficoConta(porConta);
 }
 
 async function buscarTransacoes(idUsuario, mes, ano) {
@@ -82,7 +87,7 @@ async function buscarTransacoes(idUsuario, mes, ano) {
   }
 }
 
-let graficoPizza, graficoBarra;
+let graficoPizza, graficoBarra, graficoConta;
 
 function desenharGraficoPizza(dados) {
   const ctx = document.getElementById("grafico-categorias").getContext("2d");
@@ -96,7 +101,18 @@ function desenharGraficoPizza(dados) {
         data: Object.values(dados),
         backgroundColor: ['#008B65', '#FF6384', '#FFCE56', '#36A2EB', '#9966FF', '#FF9F40']
       }]
-    }
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          color: "#000",
+          formatter: v => `R$ ${v.toFixed(2)}`,
+          anchor: 'end',
+          align: 'start'
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
   });
 }
 
@@ -112,6 +128,44 @@ function desenharGraficoBarra(receitas, despesas) {
         data: [receitas, despesas],
         backgroundColor: ['#008B65', '#FF6384']
       }]
-    }
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          color: "#000",
+          anchor: 'end',
+          align: 'top',
+          formatter: v => `R$ ${v.toFixed(2)}`
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function desenharGraficoConta(dados) {
+  const ctx = document.getElementById("grafico-conta").getContext("2d");
+  if (graficoConta) graficoConta.destroy();
+  graficoConta = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(dados),
+      datasets: [{
+        label: "Valor movimentado por tipo de conta",
+        data: Object.values(dados),
+        backgroundColor: "#36A2EB"
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          color: "#000",
+          anchor: "end",
+          align: "top",
+          formatter: val => `R$ ${val.toFixed(2)}`
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
   });
 }

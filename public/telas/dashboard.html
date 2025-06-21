@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <script src="../js/dashboard.js" defer></script>
 </head>
 <body>
@@ -65,8 +66,14 @@
         <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
       </div>
 
+      <h3>Distribuição por Categoria</h3>
       <canvas id="grafico-categorias" height="200"></canvas>
+
+      <h3>Receitas vs Despesas</h3>
       <canvas id="grafico-linhas" height="200"></canvas>
+
+      <h3>Movimentações por Tipo de Conta</h3>
+      <canvas id="grafico-conta" height="200"></canvas>
     </section>
 
     <footer>
