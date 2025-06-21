@@ -1,3 +1,12 @@
+/* ======= Estilo Geral ======= */
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+
 header {
   background-color: white;
   color: #008B65;
@@ -8,7 +17,6 @@ header {
 header h1 {
   margin: 0;
   font-size: 1.8rem;
-  color: #008B65;
 }
 
 #btn-voltar {
@@ -100,9 +108,13 @@ th, td {
   margin-top: 2rem;
 }
 
-/* Modo mobile: até 600px */
+/* ======= VERSÃO MOBILE ======= */
 @media (max-width: 600px) {
-  table {
+  table,
+  thead,
+  tbody,
+  th,
+  tr {
     display: none;
   }
 
@@ -110,35 +122,28 @@ th, td {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-top: 1rem;
   }
 
-  .transacao-card {
-    background: #f9f9f9;
+  .card-transacao {
+    background-color: #fff;
+    border: 1px solid #ccc;
     border-left: 5px solid #008B65;
     padding: 1rem;
     border-radius: 10px;
-    box-shadow: 0 0 5px #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+
+  .linha {
+    margin-bottom: 0.5rem;
     font-size: 0.95rem;
-    overflow-wrap: break-word;
   }
 
-  .transacao-card p {
-    margin: 0.3rem 0;
+  .linha strong {
+    color: #008B65;
   }
 
-  .descricao-curta {
-    display: inline-block;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-  }
-
-  .descricao-curta:hover {
-    white-space: normal;
+  .card-transacao .descricao-limitada {
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 }
-
-

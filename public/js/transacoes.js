@@ -83,6 +83,8 @@ async function carregarContas(idUsuario) {
 async function carregarTransacoes(idUsuario) {
   const tabela = document.getElementById("tabela-transacoes");
   const listaMobile = document.getElementById("lista-transacoes-mobile");
+  if (!tabela || !listaMobile) return;
+
   tabela.innerHTML = "";
   listaMobile.innerHTML = "";
 
@@ -101,38 +103,39 @@ async function carregarTransacoes(idUsuario) {
       });
 
     minhas.forEach(t => {
-      const data = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
-      const conta = mapaContas[t.id_conta] || "Conta desconhecida";
-      const tipo = t.tipo;
-      const valor = `R$ ${Number(t.valor).toFixed(2)}`;
-      const categoria = t.categoria;
-      const descricao = t.descricao || "";
+      const dataFormatada = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
+      const nomeConta = mapaContas[t.id_conta] || "Conta desconhecida";
+      const valorFormatado = "R$ " + Number(t.valor).toFixed(2);
+      const descricaoCompleta = t.descricao || "";
 
-      // Desktop
+      // Tabela (Desktop)
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${data}</td>
-        <td>${conta}</td>
-        <td>${tipo}</td>
-        <td>${valor}</td>
-        <td>${categoria}</td>
-        <td title="${descricao}">${descricao.length > 30 ? descricao.slice(0, 30) + "..." : descricao}</td>
+        <td>${dataFormatada}</td>
+        <td>${nomeConta}</td>
+        <td>${t.tipo}</td>
+        <td>${valorFormatado}</td>
+        <td>${t.categoria}</td>
+        <td title="${descricaoCompleta}">
+          ${descricaoCompleta.length > 30 ? descricaoCompleta.slice(0, 30) + "..." : descricaoCompleta}
+        </td>
       `;
       tabela.appendChild(tr);
 
-      // Mobile
+      // Card (Mobile)
       const card = document.createElement("div");
-      card.className = "transacao-card";
+      card.className = "card-transacao";
       card.innerHTML = `
-        <p><strong>Data:</strong> ${data}</p>
-        <p><strong>Conta:</strong> ${conta}</p>
-        <p><strong>Tipo:</strong> ${tipo}</p>
-        <p><strong>Valor:</strong> ${valor}</p>
-        <p><strong>Categoria:</strong> ${categoria}</p>
-        <p><strong>Descrição:</strong> <span class="descricao-curta" title="${descricao}">${descricao.length > 30 ? descricao.slice(0, 30) + "..." : descricao}</span></p>
+        <div class="linha"><strong>Data:</strong> ${dataFormatada}</div>
+        <div class="linha"><strong>Conta:</strong> ${nomeConta}</div>
+        <div class="linha"><strong>Tipo:</strong> ${t.tipo}</div>
+        <div class="linha"><strong>Valor:</strong> ${valorFormatado}</div>
+        <div class="linha"><strong>Categoria:</strong> ${t.categoria}</div>
+        <div class="linha descricao-limitada"><strong>Descrição:</strong><br>${descricaoCompleta}</div>
       `;
       listaMobile.appendChild(card);
     });
+
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
