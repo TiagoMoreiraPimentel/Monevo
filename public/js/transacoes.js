@@ -87,7 +87,6 @@ async function carregarContas(idUsuario) {
 async function carregarTransacoes(idUsuario) {
   const tabela = document.getElementById("tabela-transacoes");
   const listaMobile = document.getElementById("lista-transacoes-mobile");
-
   if (!tabela || !listaMobile) return;
 
   tabela.innerHTML = "";
@@ -96,44 +95,46 @@ async function carregarTransacoes(idUsuario) {
   try {
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
-    const minhas = todas
-      .filter(t => t.id_usuario === idUsuario)
-      .sort((a, b) => new Date(b.data_transacao) - new Date(a.data_transacao));
+    const minhas = todas.filter(t => t.id_usuario === idUsuario);
+
+    // Ordena da mais recente para a mais antiga
+    minhas.sort((a, b) => new Date(b.data_transacao) - new Date(a.data_transacao));
 
     const resContas = await fetch("/api/contas");
     const contas = await resContas.json();
     const mapaContas = {};
-    contas.filter(c => c.id_usuario === idUsuario).forEach(c => {
-      mapaContas[c.id_conta] = c.nome_conta;
-    });
+    contas
+      .filter(c => c.id_usuario === idUsuario)
+      .forEach(c => {
+        mapaContas[c.id_conta] = c.nome_conta;
+      });
 
+    // Versão Desktop - Tabela
     minhas.forEach(t => {
-      const nomeConta = mapaContas[t.id_conta] || "Conta desconhecida";
-      const data = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
-      const valor = `R$ ${Number(t.valor).toFixed(2)}`;
-
-      // Tabela desktop
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${data}</td>
-        <td>${nomeConta}</td>
+        <td>${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</td>
+        <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
         <td>${t.tipo}</td>
-        <td>${valor}</td>
+        <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td title="${t.descricao || ""}">
+        <td title="${t.descricao || ''}">
           ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
         </td>
       `;
       tabela.appendChild(tr);
+    });
 
-      // Card mobile
+    // Versão Mobile - Cards
+    minhas.forEach(t => {
       const card = document.createElement("div");
-      card.className = "card-transacao";
+      card.classList.add("card-transacao");
+
       card.innerHTML = `
-        <p><strong>Data:</strong> ${data}</p>
-        <p><strong>Conta:</strong> ${nomeConta}</p>
+        <p><strong>Data:</strong> ${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</p>
+        <p><strong>Conta:</strong> ${mapaContas[t.id_conta] || "Conta desconhecida"}</p>
         <p><strong>Tipo:</strong> ${t.tipo}</p>
-        <p><strong>Valor:</strong> ${valor}</p>
+        <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
         <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
       `;
