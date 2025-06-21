@@ -14,25 +14,8 @@
   </header>
 
   <main>
-    <button id="btn-toggle-filtros">Mostrar Filtros</button>
-    <section id="secao-filtros" class="hidden">
-      <div class="filtros">
-        <input type="date" id="filtro-data-inicio" placeholder="Data Início" />
-        <input type="date" id="filtro-data-fim" placeholder="Data Fim" />
-        <select id="filtro-conta">
-          <option value="">Todas as Contas</option>
-        </select>
-        <select id="filtro-tipo">
-          <option value="">Todos os Tipos</option>
-          <option value="Receita">Receita</option>
-          <option value="Despesa">Despesa</option>
-        </select>
-        <input type="text" id="filtro-categoria" placeholder="Categoria" maxlength="50" />
-        <button id="btn-aplicar-filtros">Aplicar Filtros</button>
-      </div>
-    </section>
-
     <button id="btn-toggle-form">Cadastrar Nova Transação</button>
+
     <form id="form-transacao" class="hidden">
       <label for="conta">Conta:</label>
       <select id="conta" required></select>
@@ -60,7 +43,9 @@
     </form>
 
     <h2>Histórico</h2>
-    <table class="desktop">
+
+    <!-- Tabela para Desktop -->
+    <table id="tabela-desktop">
       <thead>
         <tr>
           <th>Data</th>
@@ -73,7 +58,9 @@
       </thead>
       <tbody id="tabela-transacoes"></tbody>
     </table>
-    <div id="lista-transacoes-mobile" class="mobile"></div>
+
+    <!-- Cards para Mobile -->
+    <div id="lista-transacoes-mobile"></div>
   </main>
 
   <footer class="footer">
