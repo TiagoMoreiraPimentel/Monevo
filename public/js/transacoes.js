@@ -110,7 +110,10 @@ async function carregarTransacoes(idUsuario) {
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td>${t.descricao || ""}</td>
+        <td title="${t.descricao || ''}">
+          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
+        </td>
+
       `;
       tabela.appendChild(tr);
     });
