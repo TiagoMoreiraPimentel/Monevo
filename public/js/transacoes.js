@@ -1,51 +1,58 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
-    alert("Acesso negado.");
+    alert("Acesso negado. Faça login.");
     window.location.href = "../telas/login.html";
     return;
   }
 
-  document.getElementById("btn-voltar").addEventListener("click", () => {
-    window.location.href = "/telas/dashboard.html";
-  });
+  carregarContas();
 
-  await carregarContas(usuario.id);
-  await carregarTransacoes(usuario.id);
-
-  document.getElementById("form-transacao").addEventListener("submit", async (e) => {
+  const form = document.getElementById("form-transacao");
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const idConta = document.getElementById("conta").value;
+    const tipoSelecionado = document.getElementById("tipo").value;
+    const valor = parseFloat(document.getElementById("valor").value);
+    const data = document.getElementById("data").value;
+    const categoria = document.getElementById("categoria").value;
+    const descricao = document.getElementById("descricao").value || "";
 
-    const novaTransacao = {
-      id_usuario: parseInt(usuario.id),
-      id_conta: parseInt(idConta),
+    if (!usuario || !idConta || !tipoSelecionado || isNaN(valor) || !data || !categoria) {
+      mostrarMensagem("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const transacao = {
+      id_usuario: usuario.id,
+      id_conta: idConta,
       tipo: tipoSelecionado,
-      valor: parseFloat(valor),
-      data_transacao: dataSelecionada,
-      categoria: categoriaSelecionada,
-      descricao: descricao || null
+      valor,
+      data_transacao: data,
+      categoria,
+      descricao
     };
-
 
     try {
       const res = await fetch("/api/transacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novaTransacao)
+        body: JSON.stringify(transacao)
       });
 
+      const txt = await res.text();
+
       if (res.ok) {
-        mostrarMensagem("Transação adicionada.");
+        mostrarMensagem("Transação cadastrada com sucesso.");
         e.target.reset();
-        await carregarTransacoes(usuario.id);
       } else {
-        mostrarMensagem("Erro ao salvar transação.");
+        console.error("Erro ORDS:", txt);
+        mostrarMensagem("Erro ao cadastrar transação.");
       }
     } catch (err) {
       console.error(err);
-      mostrarMensagem("Erro na conexão.");
+      mostrarMensagem("Erro de conexão.");
     }
   });
 });
@@ -54,35 +61,23 @@ function mostrarMensagem(msg) {
   document.getElementById("mensagem").innerText = msg;
 }
 
-async function carregarContas(idUsuario) {
-  const res = await fetch("/api/contas");
-  const contas = await res.json();
-  const minhas = contas.filter(c => c.id_usuario == idUsuario);
+async function carregarContas() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   const select = document.getElementById("conta");
-  minhas.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id_conta;
-    opt.textContent = `${c.nome_conta} (${c.tipo})`;
-    select.appendChild(opt);
-  });
-}
 
-async function carregarTransacoes(idUsuario) {
-  const res = await fetch("/api/transacoes");
-  const lista = await res.json();
-  const minhas = lista.filter(t => t.id_usuario == idUsuario);
-  const tabela = document.getElementById("tabela-transacoes");
-  tabela.innerHTML = "";
-  minhas.forEach(t => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${t.id_conta}</td>
-      <td>${t.tipo}</td>
-      <td>R$ ${parseFloat(t.valor).toFixed(2)}</td>
-      <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
-      <td>${t.categoria}</td>
-      <td>${t.descricao || ""}</td>
-    `;
-    tabela.appendChild(tr);
-  });
+  try {
+    const res = await fetch("/api/contas");
+    const contas = await res.json();
+    const contasUsuario = contas.filter(c => c.id_usuario == usuario.id);
+
+    contasUsuario.forEach(conta => {
+      const opt = document.createElement("option");
+      opt.value = conta.id_conta;
+      opt.textContent = `${conta.nome_conta} (${conta.tipo})`;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar contas:", err);
+    mostrarMensagem("Erro ao carregar contas.");
+  }
 }
