@@ -16,15 +16,29 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const idConta = parseInt(document.getElementById("conta").value);
+    const tipo = document.getElementById("tipo").value;
+    const valor = parseFloat(document.getElementById("valor").value);
+    const dataBruta = document.getElementById("data").value;
+    const categoria = document.getElementById("categoria").value;
+    const descricao = document.getElementById("descricao").value.trim();
+
+    if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
+      mostrarMensagem("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
     const dados = {
       id_usuario: usuario.id,
-      id_conta: parseInt(document.getElementById("conta").value),
-      tipo: document.getElementById("tipo").value,
-      valor: parseFloat(document.getElementById("valor").value),
-      data_transacao: document.getElementById("data").value, // corrigido
-      categoria: document.getElementById("categoria").value,
-      descricao: document.getElementById("descricao").value.trim()
+      id_conta: idConta,
+      tipo,
+      valor,
+      data_transacao: new Date(dataBruta).toISOString(),  // formato ISO compatível
+      categoria,
+      descricao
     };
+
+    console.log("Enviando:", dados); // debug
 
     try {
       const res = await fetch("/api/transacoes", {
@@ -38,6 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
         e.target.reset();
         carregarTransacoes(usuario.id);
       } else {
+        const erro = await res.text();
+        console.error("Erro ORDS:", erro);
         mostrarMensagem("Erro ao registrar transação.");
       }
     } catch (err) {
@@ -56,6 +72,7 @@ async function carregarContas(idUsuario) {
   const contas = await res.json();
   const minhas = contas.filter(c => c.id_usuario === idUsuario);
   const select = document.getElementById("conta");
+  select.innerHTML = "<option value=''>Selecione uma conta</option>"; // previne erros
 
   minhas.forEach(c => {
     const opt = document.createElement("option");
@@ -70,28 +87,30 @@ async function carregarTransacoes(idUsuario) {
   tabela.innerHTML = "";
 
   try {
-    const [resTransacoes, resContas] = await Promise.all([
-      fetch("/api/transacoes"),
-      fetch("/api/contas")
-    ]);
+    // Busca todas as transações
+    const res = await fetch("/api/transacoes");
+    const todas = await res.json();
+    const minhas = todas.filter(t => t.id_usuario === idUsuario);
 
-    const todasTransacoes = await resTransacoes.json();
-    const todasContas = await resContas.json();
-    const minhasTransacoes = todasTransacoes.filter(t => t.id_usuario === idUsuario);
-    const contasMap = Object.fromEntries(todasContas.map(c => [c.id_conta, c.nome_conta]));
+    // Busca todas as contas do usuário para mapear nome por ID
+    const resContas = await fetch("/api/contas");
+    const contas = await resContas.json();
+    const mapaContas = {};
+    contas
+      .filter(c => c.id_usuario === idUsuario)
+      .forEach(c => {
+        mapaContas[c.id_conta] = c.nome_conta;
+      });
 
-    minhasTransacoes.forEach(t => {
-      const nomeConta = contasMap[t.id_conta] || "Conta desconhecida";
+    minhas.forEach(t => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${formatarDataLocal(t.data_transacao)}</td>
-        <td>${nomeConta}</td>
+        <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
+        <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
         <td>${t.tipo}</td>
-        <td>R$ ${t.valor.toFixed(2)}</td>
+        <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td title="${t.descricao || ""}">
-          ${(t.descricao || "").slice(0, 20)}${t.descricao && t.descricao.length > 20 ? "..." : ""}
-        </td>
+        <td>${t.descricao || ""}</td>
       `;
       tabela.appendChild(tr);
     });
@@ -100,10 +119,4 @@ async function carregarTransacoes(idUsuario) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
   }
-
-  function formatarDataLocal(dataStr) {
-  const partes = dataStr.split("T")[0].split("-");
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
 }
