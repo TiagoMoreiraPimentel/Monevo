@@ -35,22 +35,22 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      console.log("Dados enviados:", transacao);
-
       const res = await fetch("/api/transacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transacao)
       });
 
-      const txt = await res.json();
+      console.log("Dados enviados:", transacao);
 
       if (res.ok) {
-        mostrarMensagem("Transação cadastrada com sucesso.");
-        e.target.reset();
+        mostrarMensagem("Transação cadastrada com sucesso!");
+        form.reset();
+        carregarTransacoes();
       } else {
-        console.error("Erro ORDS:", txt);
-        mostrarMensagem("Erro ao cadastrar transação.");
+        const texto = await res.text();  // <- em vez de res.json()
+        console.error("Erro ORDS:", texto);
+        mostrarMensagem("Erro ao cadastrar transação: " + texto);
       }
     } catch (err) {
       console.error(err);
