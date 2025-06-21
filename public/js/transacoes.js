@@ -1,3 +1,5 @@
+// transacoes.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -81,8 +83,8 @@ async function carregarContas(idUsuario) {
 }
 
 async function carregarTransacoes(idUsuario) {
-  const tabela = document.getElementById("tabela-transacoes");
-  tabela.innerHTML = "";
+  const container = document.getElementById("tabela-transacoes");
+  container.innerHTML = "";
 
   try {
     const res = await fetch("/api/transacoes");
@@ -97,12 +99,31 @@ async function carregarTransacoes(idUsuario) {
     });
 
     if (window.innerWidth <= 600) {
-      renderizarTransacoesMobile(minhas, mapaContas);
+      minhas.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "card-transacao";
+        card.innerHTML = `
+          <div class="linha"><strong>Data:</strong> ${t.data_transacao.slice(0,10).split("-").reverse().join("/")}</div>
+          <div class="linha"><strong>Conta:</strong> ${mapaContas[t.id_conta] || "Conta desconhecida"}</div>
+          <div class="linha"><strong>Tipo:</strong> ${t.tipo}</div>
+          <div class="linha"><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</div>
+          <div class="linha"><strong>Categoria:</strong> ${t.categoria}</div>
+          <div class="linha descricao-limitada">
+            <strong>Descrição:</strong> <span title="${t.descricao || ''}">
+              ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
+            </span>
+          </div>
+        `;
+        card.querySelector(".descricao-limitada span").addEventListener("click", () => {
+          alert(t.descricao || "Sem descrição");
+        });
+        container.appendChild(card);
+      });
     } else {
       minhas.forEach(t => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</td>
+          <td>${t.data_transacao.slice(0,10).split("-").reverse().join("/")}</td>
           <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
           <td>${t.tipo}</td>
           <td>R$ ${Number(t.valor).toFixed(2)}</td>
@@ -111,34 +132,11 @@ async function carregarTransacoes(idUsuario) {
             ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
           </td>
         `;
-        tabela.appendChild(tr);
+        container.appendChild(tr);
       });
     }
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
   }
-}
-
-function renderizarTransacoesMobile(transacoes, mapaContas) {
-  const tabela = document.getElementById("tabela-transacoes");
-  tabela.innerHTML = "";
-
-  transacoes.forEach(t => {
-    const card = document.createElement("div");
-    card.className = "card-transacao";
-    card.innerHTML = `
-      <div class="linha"><strong>Data:</strong> ${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</div>
-      <div class="linha"><strong>Conta:</strong> ${mapaContas[t.id_conta] || "Conta desconhecida"}</div>
-      <div class="linha"><strong>Tipo:</strong> ${t.tipo}</div>
-      <div class="linha"><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</div>
-      <div class="linha"><strong>Categoria:</strong> ${t.categoria}</div>
-      <div class="linha descricao-limitada" title="Clique para ver mais">
-        <strong>Descrição:</strong> <span onclick="alert('${t.descricao?.replace(/'/g, "\\'") || 'Sem descrição'}')">
-          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
-        </span>
-      </div>
-    `;
-    tabela.appendChild(card);
-  });
 }

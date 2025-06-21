@@ -101,22 +101,26 @@ th, td {
 }
 
 @media (max-width: 600px) {
+  form, table {
+    font-size: 0.9rem;
+  }
+
   table, thead, tbody, th, td, tr {
-    display: none;
+    display: none; /* esconde a tabela no mobile */
   }
 
   .card-transacao {
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 1rem;
     margin-bottom: 1rem;
+    background-color: #f9f9f9;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    background: white;
   }
 
   .card-transacao .linha {
     margin-bottom: 0.5rem;
-    font-size: 0.95rem;
+    word-wrap: break-word;
   }
 
   .card-transacao .descricao-limitada span {
@@ -126,6 +130,6 @@ th, td {
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
-    color: #008B65;
   }
 }
+
