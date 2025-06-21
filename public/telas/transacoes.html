@@ -14,27 +14,6 @@
   </header>
 
   <main>
-    <button id="btn-toggle-filtros">Filtrar Transações</button>
-    <form id="form-filtros" class="hidden">
-      <label for="filtro-data">Data:</label>
-      <input type="date" id="filtro-data">
-
-      <label for="filtro-conta">Conta:</label>
-      <select id="filtro-conta"></select>
-
-      <label for="filtro-tipo">Tipo:</label>
-      <select id="filtro-tipo">
-        <option value="">Todos</option>
-        <option value="Receita">Receita</option>
-        <option value="Despesa">Despesa</option>
-      </select>
-
-      <label for="filtro-categoria">Categoria:</label>
-      <input type="text" id="filtro-categoria" maxlength="50">
-
-      <button type="button" id="btn-aplicar-filtros">Aplicar Filtros</button>
-    </form>
-
     <button id="btn-toggle-form">Cadastrar Nova Transação</button>
 
     <form id="form-transacao" class="hidden">
@@ -54,7 +33,15 @@
       <input type="date" id="data" required>
 
       <label for="categoria">Categoria:</label>
-      <input type="text" id="categoria" required maxlength="50">
+      <select id="categoria" required>
+        <option value="">Selecione</option>
+        <option>Salário</option>
+        <option>Renda Extra</option>
+        <option>Alimentação</option>
+        <option>Lazer</option>
+        <option>Farmácia</option>
+        <option>Emergência</option>
+      </select>
 
       <label for="descricao">Descrição:</label>
       <input type="text" id="descricao" maxlength="200" placeholder="Opcional">
@@ -63,8 +50,36 @@
       <p id="mensagem"></p>
     </form>
 
-    <h2>Histórico</h2>
+    <button id="btn-toggle-filtros">Filtrar Transações</button>
+    <div id="filtros-container" class="hidden">
+      <label>Data:</label>
+      <input type="date" id="filtro-data">
 
+      <label>Conta:</label>
+      <select id="filtro-conta"></select>
+
+      <label>Tipo:</label>
+      <select id="filtro-tipo">
+        <option value="">Todos</option>
+        <option value="Receita">Receita</option>
+        <option value="Despesa">Despesa</option>
+      </select>
+
+      <label>Categoria:</label>
+      <select id="filtro-categoria">
+        <option value="">Todas</option>
+        <option>Salário</option>
+        <option>Renda Extra</option>
+        <option>Alimentação</option>
+        <option>Lazer</option>
+        <option>Farmácia</option>
+        <option>Emergência</option>
+      </select>
+
+      <button id="btn-aplicar-filtro">Aplicar Filtro</button>
+    </div>
+
+    <h2>Histórico</h2>
     <table id="tabela-desktop">
       <thead>
         <tr>

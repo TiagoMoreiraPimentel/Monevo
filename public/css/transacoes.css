@@ -34,11 +34,10 @@ main {
   box-shadow: 0 0 10px #ccc;
 }
 
-/* Botões expansores */
 #btn-toggle-form,
-#btn-toggle-filtros {
-  margin-bottom: 1rem;
-  margin-right: 0.5rem;
+#btn-toggle-filtros,
+#btn-aplicar-filtro {
+  margin: 1rem 0 0.5rem 0;
   padding: 0.6rem 1.5rem;
   background-color: #008B65;
   color: white;
@@ -49,11 +48,12 @@ main {
 }
 
 #form-transacao.hidden,
-#form-filtros.hidden {
+#filtros-container.hidden {
   display: none;
 }
 
-form {
+form,
+#filtros-container {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -61,7 +61,9 @@ form {
 }
 
 form input,
-form select {
+form select,
+#filtros-container input,
+#filtros-container select {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -88,30 +90,6 @@ form button:hover {
   margin-top: 0.5rem;
 }
 
-/* Filtros */
-#form-filtros {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-
-#form-filtros label {
-  display: flex;
-  flex-direction: column;
-  font-weight: bold;
-  font-size: 0.95rem;
-}
-
-#form-filtros select,
-#form-filtros input {
-  padding: 0.4rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  min-width: 120px;
-}
-
-/* Tabela (desktop) */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -123,13 +101,13 @@ thead {
   color: white;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ccc;
   padding: 0.75rem;
   text-align: left;
 }
 
-/* Rodapé */
 .footer {
   background-color: #008B65;
   color: white;
@@ -139,16 +117,12 @@ th, td {
   margin-top: 2rem;
 }
 
-/* Cards (mobile) */
 #lista-transacoes-mobile {
   display: none;
 }
 
+/* Versão Mobile */
 @media (max-width: 600px) {
-  #form-filtros {
-    flex-direction: column;
-  }
-
   #tabela-desktop {
     display: none;
   }
@@ -171,5 +145,29 @@ th, td {
     margin: 0.3rem 0;
     word-wrap: break-word;
     white-space: normal;
+  }
+
+  #filtros-container {
+    flex-direction: column;
+  }
+}
+
+/* Desktop filtros lado a lado */
+@media (min-width: 601px) {
+  #filtros-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  #filtros-container label {
+    margin-right: 0.25rem;
+    font-weight: bold;
+  }
+
+  #filtros-container input,
+  #filtros-container select {
+    width: auto;
   }
 }
