@@ -29,6 +29,7 @@ loginForm.addEventListener("submit", async (e) => {
   try {
     const res = await fetch(apiBase);
     const usuarios = await res.json();
+
     const usuario = usuarios.find(u => u.email === email);
 
     if (!usuario) {
