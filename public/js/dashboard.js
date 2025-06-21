@@ -204,3 +204,17 @@ function toggleGrafico(id) {
   }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const mesSelect = document.getElementById("mes");
+  const anoSelect = document.getElementById("ano");
+  const hoje = new Date();
+  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
+  const anoAtual = hoje.getFullYear().toString();
+
+  if (mesSelect) mesSelect.value = mesAtual;
+  if (anoSelect) anoSelect.value = anoAtual;
+
+  carregarResumo();
+});
+
+

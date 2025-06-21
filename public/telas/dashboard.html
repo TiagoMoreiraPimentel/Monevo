@@ -54,7 +54,7 @@
           <option value="2022">2022</option>
           <option value="2023">2023</option>
           <option value="2024">2024</option>
-          <option value="2025" selected>2025</option>
+          <option value="2025">2025</option>
         </select>
 
         <button onclick="carregarResumo()">Aplicar Filtro</button>
@@ -68,24 +68,21 @@
 
       <div class="grafico-bloco">
         <h3>Distribuição por Categoria</h3>
-        <button class="btn-toggle-grafico" onclick="toggleGrafico('grafico-categorias-wrapper')">Ver Gráfico</button>
-        <div class="grafico-wrapper" id="grafico-categorias-wrapper">
+        <div class="grafico-scroll">
           <canvas id="grafico-categorias"></canvas>
         </div>
       </div>
 
       <div class="grafico-bloco">
         <h3>Receitas vs Despesas</h3>
-        <button class="btn-toggle-grafico" onclick="toggleGrafico('grafico-linhas-wrapper')">Ver Gráfico</button>
-        <div class="grafico-wrapper" id="grafico-linhas-wrapper">
+        <div class="grafico-scroll">
           <canvas id="grafico-linhas"></canvas>
         </div>
       </div>
 
       <div class="grafico-bloco">
         <h3>Movimentações por Tipo de Conta</h3>
-        <button class="btn-toggle-grafico" onclick="toggleGrafico('grafico-conta-wrapper')">Ver Gráfico</button>
-        <div class="grafico-wrapper" id="grafico-conta-wrapper">
+        <div class="grafico-scroll">
           <canvas id="grafico-conta"></canvas>
         </div>
       </div>
