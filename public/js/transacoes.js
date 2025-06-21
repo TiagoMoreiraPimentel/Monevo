@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
       id_conta: idConta,
       tipo,
       valor,
-      data_transacao: new Date(dataBruta).toISOString(),  // formato ISO compatível
+      data_transacao: dataBruta,
       categoria,
       descricao
     };
