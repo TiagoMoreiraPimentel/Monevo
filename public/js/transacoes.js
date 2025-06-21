@@ -27,6 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     try {
+      console.log("Dados enviados:", novaTransacao);
+
       const res = await fetch("/api/transacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
