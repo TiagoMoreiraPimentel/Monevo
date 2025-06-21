@@ -16,29 +16,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const idConta = parseInt(document.getElementById("conta").value);
-    const tipo = document.getElementById("tipo").value;
-    const valor = parseFloat(document.getElementById("valor").value);
-    const dataBruta = document.getElementById("data").value;
-    const categoria = document.getElementById("categoria").value;
-    const descricao = document.getElementById("descricao").value.trim();
-
-    if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
-      mostrarMensagem("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
     const dados = {
       id_usuario: usuario.id,
-      id_conta: idConta,
-      tipo,
-      valor,
-      data_transacao: new Date(dataBruta).toISOString(),  // formato ISO compatível
-      categoria,
-      descricao
+      id_conta: parseInt(document.getElementById("conta").value),
+      tipo: document.getElementById("tipo").value,
+      valor: parseFloat(document.getElementById("valor").value),
+      data_transacao: document.getElementById("data").value, // corrigido!
+      categoria: document.getElementById("categoria").value,
+      descricao: document.getElementById("descricao").value.trim()
     };
 
-    console.log("Enviando:", dados); // debug
+    console.log("Dados que serão enviados:", dados);
 
     try {
       const res = await fetch("/api/transacoes", {
@@ -52,13 +40,13 @@ document.addEventListener("DOMContentLoaded", () => {
         e.target.reset();
         carregarTransacoes(usuario.id);
       } else {
-        const erro = await res.text();
-        console.error("Erro ORDS:", erro);
-        mostrarMensagem("Erro ao registrar transação.");
+        const erroTexto = await res.text(); // captura resposta do ORDS
+        console.error("Erro ORDS:", erroTexto);
+        mostrarMensagem("Erro ao registrar transação. Verifique os dados.");
       }
     } catch (err) {
-      console.error(err);
-      mostrarMensagem("Erro de conexão.");
+      console.error("Erro de conexão:", err);
+      mostrarMensagem("Erro de conexão com servidor.");
     }
   });
 });
@@ -72,7 +60,7 @@ async function carregarContas(idUsuario) {
   const contas = await res.json();
   const minhas = contas.filter(c => c.id_usuario === idUsuario);
   const select = document.getElementById("conta");
-  select.innerHTML = "<option value=''>Selecione uma conta</option>"; // previne erros
+  select.innerHTML = "";
 
   minhas.forEach(c => {
     const opt = document.createElement("option");
@@ -87,30 +75,26 @@ async function carregarTransacoes(idUsuario) {
   tabela.innerHTML = "";
 
   try {
-    // Busca todas as transações
+    const resContas = await fetch("/api/contas");
+    const contas = await resContas.json();
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
     const minhas = todas.filter(t => t.id_usuario === idUsuario);
 
-    // Busca todas as contas do usuário para mapear nome por ID
-    const resContas = await fetch("/api/contas");
-    const contas = await resContas.json();
-    const mapaContas = {};
-    contas
-      .filter(c => c.id_usuario === idUsuario)
-      .forEach(c => {
-        mapaContas[c.id_conta] = c.nome_conta;
-      });
-
     minhas.forEach(t => {
+      const conta = contas.find(c => c.id_conta === t.id_conta);
+      const nomeConta = conta ? conta.nome_conta : "N/D";
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
-        <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
+        <td>${nomeConta}</td>
         <td>${t.tipo}</td>
-        <td>R$ ${Number(t.valor).toFixed(2)}</td>
+        <td>R$ ${t.valor.toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td>${t.descricao || ""}</td>
+        <td>
+          ${t.descricao ? `<details><summary>Ver</summary>${t.descricao}</details>` : "-"}
+        </td>
       `;
       tabela.appendChild(tr);
     });
