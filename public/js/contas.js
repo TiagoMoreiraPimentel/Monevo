@@ -6,20 +6,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Botão para voltar à dashboard
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
   });
 
   carregarContas();
 
-  // Envio do formulário de cadastro
   document.getElementById("form-conta").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nome = document.getElementById("nome-conta").value.trim();
-    const tipo = document.getElementById("tipo-conta").value;
-    const saldo = parseFloat(document.getElementById("saldo-conta").value);
+    const nome = document.getElementById("nome").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const saldo = parseFloat(document.getElementById("saldo").value);
 
     if (!nome || isNaN(saldo)) {
       mostrarMensagem("Preencha todos os campos corretamente.");
@@ -71,24 +69,22 @@ async function carregarContas() {
     tabela.innerHTML = "";
     minhasContas.forEach(conta => {
       const tr = document.createElement("tr");
+
       tr.innerHTML = `
-        <td data-label="Nome">
-          <input type="text" value="${conta.nome_conta}" data-id="${conta.id_conta}" data-campo="nome_conta">
-        </td>
+        <td data-label="Nome"><input type="text" value="${conta.nome_conta}" data-id="${conta.id_conta}" data-campo="nome_conta"></td>
         <td data-label="Tipo">
           <select data-id="${conta.id_conta}" data-campo="tipo">
             <option value="Carteira" ${conta.tipo === "Carteira" ? "selected" : ""}>Carteira</option>
             <option value="Conta Corrente" ${conta.tipo === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
           </select>
         </td>
-        <td data-label="Saldo">
-          <input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial">
-        </td>
+        <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
         <td data-label="Ações">
           <button onclick="salvarConta('${conta.id_conta}')">Salvar</button>
           <button onclick="excluirConta('${conta.id_conta}')">Excluir</button>
         </td>
       `;
+
       tabela.appendChild(tr);
     });
   } catch (err) {
@@ -109,22 +105,17 @@ window.salvarConta = async function (id) {
     data_criacao: new Date().toISOString()
   };
 
-  try {
-    const res = await fetch(`/api/contas/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(atualizada)
-    });
+  const res = await fetch(`/api/contas/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(atualizada)
+  });
 
-    if (res.ok) {
-      mostrarMensagem("Conta atualizada.");
-      carregarContas();
-    } else {
-      mostrarMensagem("Erro ao atualizar conta.");
-    }
-  } catch (err) {
-    console.error(err);
-    mostrarMensagem("Erro na atualização.");
+  if (res.ok) {
+    mostrarMensagem("Conta atualizada.");
+    carregarContas();
+  } else {
+    mostrarMensagem("Erro ao atualizar.");
   }
 };
 
@@ -132,19 +123,14 @@ window.excluirConta = async function (id) {
   const confirmacao = confirm("Deseja excluir esta conta? Todas as transações devem ser removidas antes.");
   if (!confirmacao) return;
 
-  try {
-    const res = await fetch(`/api/contas/${id}`, {
-      method: "DELETE"
-    });
+  const res = await fetch(`/api/contas/${id}`, {
+    method: "DELETE"
+  });
 
-    if (res.ok) {
-      mostrarMensagem("Conta excluída.");
-      carregarContas();
-    } else {
-      mostrarMensagem("Erro ao excluir. Verifique se existem transações vinculadas.");
-    }
-  } catch (err) {
-    console.error(err);
-    mostrarMensagem("Erro ao tentar excluir conta.");
+  if (res.ok) {
+    mostrarMensagem("Conta excluída.");
+    carregarContas();
+  } else {
+    mostrarMensagem("Erro ao excluir. Verifique se existem transações vinculadas.");
   }
 };
