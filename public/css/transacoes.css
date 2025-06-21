@@ -34,7 +34,7 @@ main {
   box-shadow: 0 0 10px #ccc;
 }
 
-#btn-toggle-form {
+#btn-toggle-form, #btn-toggle-filtros {
   margin-bottom: 1rem;
   padding: 0.6rem 1.5rem;
   background-color: #008B65;
@@ -45,7 +45,7 @@ main {
   cursor: pointer;
 }
 
-#form-transacao.hidden {
+#form-transacao.hidden, #filtros-container.hidden {
   display: none;
 }
 
@@ -72,6 +72,7 @@ form button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 0.5rem;
 }
 
 form button:hover {
@@ -82,6 +83,34 @@ form button:hover {
   font-size: 0.9rem;
   color: #008B65;
   margin-top: 0.5rem;
+}
+
+#filtros-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#filtros-container input,
+#filtros-container select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#filtros-container button {
+  padding: 0.5rem 1rem;
+  background-color: #008B65;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#filtros-container button:hover {
+  background-color: #006e4f;
 }
 
 table {
@@ -114,7 +143,6 @@ th, td {
   display: none;
 }
 
-/* Versão Mobile */
 @media (max-width: 600px) {
   #tabela-desktop {
     display: none;
@@ -138,5 +166,9 @@ th, td {
     margin: 0.3rem 0;
     word-wrap: break-word;
     white-space: normal;
+  }
+
+  #filtros-container {
+    flex-direction: column;
   }
 }
