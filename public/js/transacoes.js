@@ -21,12 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
       id_conta: parseInt(document.getElementById("conta").value),
       tipo: document.getElementById("tipo").value,
       valor: parseFloat(document.getElementById("valor").value),
-      data_transacao: document.getElementById("data").value + "T00:00:00",
+      data_transacao: document.getElementById("data").value, // corrigido
       categoria: document.getElementById("categoria").value,
       descricao: document.getElementById("descricao").value.trim()
     };
-
-    console.log("Dados que serão enviados:", dados);
 
     try {
       const res = await fetch("/api/transacoes", {
