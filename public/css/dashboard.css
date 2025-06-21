@@ -92,8 +92,8 @@ body, html {
   width: 100%;
   display: none;
   flex-direction: column;
-  padding: 0 1rem;
-  align-items: flex-start;
+  align-items: center;
+  padding: 0;
 }
 
 .sidebar.expanded .menu-opcoes {
@@ -109,7 +109,9 @@ body, html {
   border-radius: 6px;
   text-align: center;
   cursor: pointer;
-  width: 100%;
+  width: auto;
+  min-width: 180px;
+  max-width: 90%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
