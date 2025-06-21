@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       // Cria mapa de contas por id
       const mapaContas = {};
       contas.forEach(conta => {
-        mapaContas[conta.id] = {
+        mapaContas[conta.id_conta] = {
           tipo: conta.tipo || "Desconhecida",
           nome: conta.nome_conta || "Conta"
         };
