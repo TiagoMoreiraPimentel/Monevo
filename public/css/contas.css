@@ -94,6 +94,17 @@ td {
   text-align: left;
 }
 
+.footer {
+  background-color: #008B65;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #ccc;
+}
+
+
 @media (max-width: 600px) {
   header {
     font-size: 1.2rem;

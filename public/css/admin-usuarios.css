@@ -65,6 +65,17 @@ button.salvar:hover {
   background-color: #006e50;
 }
 
+.footer {
+  background-color: #008B65;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #ccc;
+}
+
+
 @media screen and (max-width: 600px) {
   h1 {
     font-size: 1.2rem;
