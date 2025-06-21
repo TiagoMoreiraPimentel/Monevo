@@ -104,20 +104,18 @@ body, html {
   background: var(--cor-primaria);
   color: white;
   border: none;
-  margin: 0.4rem 0;
+  margin: 0.5rem 0;
   padding: 0.6rem 1rem;
   border-radius: 6px;
   text-align: center;
   cursor: pointer;
-  width: 180px;
-  max-width: 90%;
+  width: 90%;
+  max-width: 180px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
 .menu-opcoes button:hover {
