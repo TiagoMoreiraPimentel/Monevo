@@ -84,7 +84,7 @@ async function carregarTransacoes(idUsuario) {
       const nomeConta = contasMap[t.id_conta] || "Conta desconhecida";
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
+        <td>${formatarDataLocal(t.data_transacao)}</td>
         <td>${nomeConta}</td>
         <td>${t.tipo}</td>
         <td>R$ ${t.valor.toFixed(2)}</td>
@@ -100,4 +100,10 @@ async function carregarTransacoes(idUsuario) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
   }
+
+  function formatarDataLocal(dataStr) {
+  const partes = dataStr.split("T")[0].split("-");
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
 }
