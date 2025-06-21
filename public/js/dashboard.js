@@ -47,8 +47,8 @@ function renderizarGraficoCategorias(transacoes) {
       datasets: [{
         label: "Categorias",
         data: valores,
-        backgroundColor: "#008B65"
-      }]
+        backgroundColor: "#008B65",
+      }],
     },
     options: {
       responsive: true,
@@ -57,13 +57,13 @@ function renderizarGraficoCategorias(transacoes) {
           anchor: "end",
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
-        }
+        },
       },
       scales: {
-        y: { beginAtZero: true }
-      }
+        y: { beginAtZero: true },
+      },
     },
-    plugins: [ChartDataLabels]
+    plugins: [ChartDataLabels],
   });
 }
 
@@ -80,8 +80,8 @@ function renderizarGraficoLinhas(receitas, despesas) {
       datasets: [{
         label: "Total",
         data: [receitas, despesas],
-        backgroundColor: ["#4caf50", "#f44336"]
-      }]
+        backgroundColor: ["#4caf50", "#f44336"],
+      }],
     },
     options: {
       responsive: true,
@@ -90,13 +90,13 @@ function renderizarGraficoLinhas(receitas, despesas) {
           anchor: "end",
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
-        }
+        },
       },
       scales: {
-        y: { beginAtZero: true }
-      }
+        y: { beginAtZero: true },
+      },
     },
-    plugins: [ChartDataLabels]
+    plugins: [ChartDataLabels],
   });
 }
 
@@ -121,8 +121,8 @@ function renderizarGraficoConta(transacoes) {
       datasets: [{
         label: "Tipo de Conta",
         data: valores,
-        backgroundColor: "#2196f3"
-      }]
+        backgroundColor: "#2196f3",
+      }],
     },
     options: {
       responsive: true,
@@ -131,13 +131,13 @@ function renderizarGraficoConta(transacoes) {
           anchor: "end",
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
-        }
+        },
       },
       scales: {
-        y: { beginAtZero: true }
-      }
+        y: { beginAtZero: true },
+      },
     },
-    plugins: [ChartDataLabels]
+    plugins: [ChartDataLabels],
   });
 }
 
@@ -156,18 +156,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const botaoAdmin = document.getElementById("admin-only");
   if (usuario.nivel_acesso === "ADMINISTRADOR") {
-    botaoAdmin.classList.remove("hidden");
-    botaoAdmin.addEventListener("click", () => {
-      window.location.href = "../telas/admin-usuarios.html";
-    });
-  } else {
+    if (botaoAdmin) {
+      botaoAdmin.classList.remove("hidden");
+      botaoAdmin.addEventListener("click", () => {
+        window.location.href = "../telas/admin-usuarios.html";
+      });
+    }
+  } else if (botaoAdmin) {
     botaoAdmin.style.display = "none";
   }
 
-  // Seleciona mês atual por padrão
-  const hoje = new Date();
-  document.getElementById("mes").value = String(hoje.getMonth() + 1).padStart(2, "0");
-  document.getElementById("ano").value = String(hoje.getFullYear());
+  const dataAtual = new Date();
+  const mesAtual = String(dataAtual.getMonth() + 1).padStart(2, "0");
+  const anoAtual = String(dataAtual.getFullYear());
+
+  const selectMes = document.getElementById("mes");
+  const selectAno = document.getElementById("ano");
+  selectMes.value = mesAtual;
+  selectAno.value = anoAtual;
 
   carregarResumo();
 });
