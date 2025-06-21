@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 2rem;
+  margin: 0;
   background-color: #f8f8f8;
 }
 
@@ -99,7 +99,7 @@ button.salvar:hover {
     font-size: 0.8rem;
   }
   .footer {
-    min-width: 650px;        /* acompanha largura da tabela */
+    min-width: 600px;        /* acompanha largura da tabela */
     width: max-content;      /* estica conforme o conteúdo */
     overflow-x: auto;
   }
