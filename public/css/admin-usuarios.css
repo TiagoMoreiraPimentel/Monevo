@@ -69,12 +69,11 @@ button.salvar:hover {
   background-color: #008B65;
   color: white;
   text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
-  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
   border-top: 1px solid #ccc;
 }
-
 
 @media screen and (max-width: 600px) {
   h1 {
