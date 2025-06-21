@@ -13,20 +13,22 @@
   </header>
   <button id="btn-voltar-dashboard">← Voltar para Dashboard</button>
   <main>
-    <table id="tabela-usuarios">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Nível de Acesso</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="corpo-tabela">
-        <!-- Linhas serão inseridas via JS -->
-      </tbody>
-    </table>
+    <div class="tabela-responsiva"></div>
+      <table id="tabela-usuarios">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Nível de Acesso</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="corpo-tabela">
+          <!-- Linhas serão inseridas via JS -->
+        </tbody>
+      </table>
+    </div>
   </main>
 
   <script type="module" src="/js/admin-usuarios.js"></script>
