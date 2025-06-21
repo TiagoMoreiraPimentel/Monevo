@@ -128,4 +128,26 @@ th, td {
     padding-left: 0.5rem;
     font-weight: bold;
   }
+  table {
+    display: none;
+  }
+  .card-transacao {
+    display: block;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-transacao .linha {
+    margin: 0.3rem 0;
+  }
+
+  .descricao-limitada {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
 }

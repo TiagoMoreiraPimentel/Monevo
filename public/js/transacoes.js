@@ -33,12 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
       id_conta: idConta,
       tipo,
       valor,
-      data_transacao: new Date(dataBruta).toISOString(),  // formato ISO compatível
+      data_transacao: new Date(dataBruta).toISOString(),
       categoria,
       descricao
     };
-
-    console.log("Enviando:", dados); // debug
 
     try {
       const res = await fetch("/api/transacoes", {
@@ -72,7 +70,7 @@ async function carregarContas(idUsuario) {
   const contas = await res.json();
   const minhas = contas.filter(c => c.id_usuario === idUsuario);
   const select = document.getElementById("conta");
-  select.innerHTML = "<option value=''>Selecione uma conta</option>"; // previne erros
+  select.innerHTML = "<option value=''>Selecione uma conta</option>";
 
   minhas.forEach(c => {
     const opt = document.createElement("option");
@@ -87,39 +85,60 @@ async function carregarTransacoes(idUsuario) {
   tabela.innerHTML = "";
 
   try {
-    // Busca todas as transações
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
     const minhas = todas.filter(t => t.id_usuario === idUsuario);
 
-    // Busca todas as contas do usuário para mapear nome por ID
     const resContas = await fetch("/api/contas");
     const contas = await resContas.json();
     const mapaContas = {};
-    contas
-      .filter(c => c.id_usuario === idUsuario)
-      .forEach(c => {
-        mapaContas[c.id_conta] = c.nome_conta;
-      });
-
-    minhas.forEach(t => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</td>
-        <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
-        <td>${t.tipo}</td>
-        <td>R$ ${Number(t.valor).toFixed(2)}</td>
-        <td>${t.categoria}</td>
-        <td title="${t.descricao || ''}">
-          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
-        </td>
-
-      `;
-      tabela.appendChild(tr);
+    contas.filter(c => c.id_usuario === idUsuario).forEach(c => {
+      mapaContas[c.id_conta] = c.nome_conta;
     });
 
+    if (window.innerWidth <= 600) {
+      renderizarTransacoesMobile(minhas, mapaContas);
+    } else {
+      minhas.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</td>
+          <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
+          <td>${t.tipo}</td>
+          <td>R$ ${Number(t.valor).toFixed(2)}</td>
+          <td>${t.categoria}</td>
+          <td title="${t.descricao || ''}">
+            ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
+          </td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
   }
+}
+
+function renderizarTransacoesMobile(transacoes, mapaContas) {
+  const tabela = document.getElementById("tabela-transacoes");
+  tabela.innerHTML = "";
+
+  transacoes.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "card-transacao";
+    card.innerHTML = `
+      <div class="linha"><strong>Data:</strong> ${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</div>
+      <div class="linha"><strong>Conta:</strong> ${mapaContas[t.id_conta] || "Conta desconhecida"}</div>
+      <div class="linha"><strong>Tipo:</strong> ${t.tipo}</div>
+      <div class="linha"><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</div>
+      <div class="linha"><strong>Categoria:</strong> ${t.categoria}</div>
+      <div class="linha descricao-limitada" title="Clique para ver mais">
+        <strong>Descrição:</strong> <span onclick="alert('${t.descricao?.replace(/'/g, "\\'") || 'Sem descrição'}')">
+          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
+        </span>
+      </div>
+    `;
+    tabela.appendChild(card);
+  });
 }
