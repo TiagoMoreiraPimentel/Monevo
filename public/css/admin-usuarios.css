@@ -73,6 +73,7 @@ button.salvar:hover {
   margin-top: 2rem;
   font-size: 0.9rem;
   border-top: 1px solid #ccc;
+  min-width: 600px; /* igual ao min-width da tabela */
 }
 
 
