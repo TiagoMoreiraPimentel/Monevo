@@ -105,7 +105,7 @@ async function carregarTransacoes(idUsuario) {
     minhas.forEach(t => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
+        <td>${t.data_transacao.slice(0, 10).split("-").reverse().join("/")}</td>
         <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
