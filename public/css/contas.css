@@ -16,7 +16,7 @@ header {
 
 #btn-voltar {
   display: block;
-  margin: 1rem auto 0 auto;
+  margin: 1rem auto 2rem auto;
   padding: 0.5rem 1rem;
   background-color: #008B65;
   color: white;
@@ -27,7 +27,7 @@ header {
 }
 
 main {
-  padding: 1rem;
+  padding: 2rem 1rem;
   max-width: 800px;
   margin: auto;
   background: white;
