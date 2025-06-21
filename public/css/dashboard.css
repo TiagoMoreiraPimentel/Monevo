@@ -43,6 +43,7 @@ body, html {
   margin: 0;
 }
 
+/* Botão de menu (mobile) */
 .mobile-toggle {
   display: none;
   background: var(--cor-primaria);
@@ -51,10 +52,10 @@ body, html {
   padding: 0.4rem 0.7rem;
   font-size: 1.2rem;
   border-radius: 4px;
-  position: absolute;
+  position: fixed;
   top: 1rem;
-  left: 1rem; /* AJUSTADO */
-  z-index: 2000;
+  left: 1rem;
+  z-index: 3000;
 }
 
 /* Sidebar (desktop) */
@@ -163,12 +164,14 @@ footer {
   overflow-x: auto;
   padding: 1rem 0;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 canvas {
-  min-width: 600px;
-  max-width: 100%;
-  height: 400px;
+  display: block;
+  min-width: 800px;
+  width: 800px;
+  height: 500px !important;
 }
 
 /* MOBILE */
@@ -181,7 +184,7 @@ canvas {
     display: flex;
     position: fixed;
     top: 0;
-    left: 0; /* AJUSTADO: menu abre pela esquerda */
+    left: 0;
     right: auto;
     height: 100vh;
     width: 200px;
@@ -220,7 +223,7 @@ canvas {
 
   .logo-header {
     height: 150px;
-    margin: 0 auto 0.5rem auto; /* Centralizado */
+    margin: 0 auto 0.5rem auto;
   }
 
   #saudacao {
@@ -237,7 +240,8 @@ canvas {
   }
 
   canvas {
-    min-width: 600px;
-    height: 600px !important; /* ALTURA MAIOR NO MOBILE */
+    min-width: 800px;
+    width: 800px;
+    height: 600px !important;
   }
 }
