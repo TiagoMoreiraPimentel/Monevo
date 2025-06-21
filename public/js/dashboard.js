@@ -1,20 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-  // 🔐 Redireciona se não estiver logado
   if (!usuario) {
     alert("Acesso negado. Faça login.");
     window.location.href = "../telas/login.html";
     return;
   }
 
-  // 👤 Saudação com nome
   const saudacao = document.getElementById("saudacao");
   if (saudacao) {
     saudacao.textContent = `Olá, ${usuario.nome}`;
   }
 
-  // 🔐 Exibe botão "Gerenciar Usuários" apenas para ADMINISTRADOR
   const botaoAdmin = document.getElementById("admin-only");
   if (usuario.nivel_acesso === "ADMINISTRADOR") {
     if (botaoAdmin) {
@@ -27,24 +24,94 @@ document.addEventListener("DOMContentLoaded", () => {
     botaoAdmin.style.display = "none";
   }
 
-  // ☰ Botão de menu lateral (caso não esteja usando onclick direto)
-  const menuBtn = document.getElementById("menu-toggle");
-  if (menuBtn) {
-    menuBtn.addEventListener("click", () => {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("expanded");
-    });
-  }
+  const hoje = new Date();
+  document.getElementById("mes").value = String(hoje.getMonth() + 1).padStart(2, '0');
+  document.getElementById("ano").value = String(hoje.getFullYear());
+  carregarResumo();
 });
 
-// Função de toggle global para uso com onclick="toggleSidebar()"
 window.toggleSidebar = function () {
   const sidebar = document.getElementById("sidebar");
   sidebar.classList.toggle("expanded");
 };
 
-// 🔓 Logout
 function logout() {
   localStorage.removeItem("usuarioLogado");
   window.location.href = "../telas/login.html";
+}
+
+async function carregarResumo() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const mes = document.getElementById("mes").value;
+  const ano = document.getElementById("ano").value;
+
+  const transacoes = await buscarTransacoes(usuario.id, mes, ano);
+
+  let totalReceitas = 0;
+  let totalDespesas = 0;
+  const porCategoria = {};
+
+  transacoes.forEach(t => {
+    const valor = parseFloat(t.valor);
+    if (t.tipo === "Receita") {
+      totalReceitas += valor;
+    } else {
+      totalDespesas += valor;
+    }
+
+    const cat = t.categoria || "Outros";
+    porCategoria[cat] = (porCategoria[cat] || 0) + valor;
+  });
+
+  document.getElementById("total-receitas").textContent = totalReceitas.toFixed(2);
+  document.getElementById("total-despesas").textContent = totalDespesas.toFixed(2);
+  document.getElementById("saldo").textContent = (totalReceitas - totalDespesas).toFixed(2);
+
+  desenharGraficoPizza(porCategoria);
+  desenharGraficoBarra(totalReceitas, totalDespesas);
+}
+
+async function buscarTransacoes(idUsuario, mes, ano) {
+  const url = `https://sua-api-ords/transacoes?id_usuario=${idUsuario}&mes=${mes}&ano=${ano}`;
+  try {
+    const res = await fetch(url);
+    return await res.json();
+  } catch (err) {
+    console.error("Erro ao buscar transações", err);
+    return [];
+  }
+}
+
+let graficoPizza, graficoBarra;
+
+function desenharGraficoPizza(dados) {
+  const ctx = document.getElementById("grafico-categorias").getContext("2d");
+  if (graficoPizza) graficoPizza.destroy();
+  graficoPizza = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: Object.keys(dados),
+      datasets: [{
+        label: 'Despesas por Categoria',
+        data: Object.values(dados),
+        backgroundColor: ['#008B65', '#FF6384', '#FFCE56', '#36A2EB', '#9966FF', '#FF9F40']
+      }]
+    }
+  });
+}
+
+function desenharGraficoBarra(receitas, despesas) {
+  const ctx = document.getElementById("grafico-linhas").getContext("2d");
+  if (graficoBarra) graficoBarra.destroy();
+  graficoBarra = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Receitas', 'Despesas'],
+      datasets: [{
+        label: 'Resumo do mês',
+        data: [receitas, despesas],
+        backgroundColor: ['#008B65', '#FF6384']
+      }]
+    }
+  });
 }

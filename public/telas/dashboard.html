@@ -6,10 +6,10 @@
   <title>Monevo - Painel Principal</title>
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/dashboard.js" defer></script>
 </head>
 <body>
-  
   <!-- Sidebar (Desktop) -->
   <aside class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
@@ -31,7 +31,44 @@
 
     <section class="conteudo">
       <h2>Resumo Financeiro</h2>
-      <p>Em breve, você verá aqui uma visão geral das suas receitas, despesas e limites de planejamento financeiro.</p>
+
+      <div class="filtros-relatorio">
+        <label for="mes">Mês:</label>
+        <select id="mes">
+          <option value="01">Janeiro</option>
+          <option value="02">Fevereiro</option>
+          <option value="03">Março</option>
+          <option value="04">Abril</option>
+          <option value="05">Maio</option>
+          <option value="06">Junho</option>
+          <option value="07">Julho</option>
+          <option value="08">Agosto</option>
+          <option value="09">Setembro</option>
+          <option value="10">Outubro</option>
+          <option value="11">Novembro</option>
+          <option value="12">Dezembro</option>
+        </select>
+
+        <label for="ano">Ano:</label>
+        <select id="ano">
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025" selected>2025</option>
+        </select>
+
+        <button onclick="carregarResumo()">Aplicar Filtro</button>
+      </div>
+
+      <div class="resumo-valores">
+        <p><strong>Total Receitas:</strong> R$ <span id="total-receitas">0,00</span></p>
+        <p><strong>Total Despesas:</strong> R$ <span id="total-despesas">0,00</span></p>
+        <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
+      </div>
+
+      <canvas id="grafico-categorias" height="200"></canvas>
+      <canvas id="grafico-linhas" height="200"></canvas>
     </section>
 
     <footer>

@@ -42,14 +42,13 @@ body, html {
   margin: 0;
 }
 
-/* Botão do menu (mobile) */
 .mobile-toggle {
   display: none;
   background: var(--cor-primaria);
   color: white;
   border: none;
   padding: 0.4rem 0.7rem;
-  font-size: 1.2rem; /* menor que antes */
+  font-size: 1.2rem;
   border-radius: 4px;
   position: absolute;
   top: 1rem;
@@ -57,7 +56,6 @@ body, html {
   z-index: 2000;
 }
 
-/* Sidebar (desktop) */
 .sidebar {
   position: fixed;
   top: 0;
@@ -113,13 +111,13 @@ body, html {
   margin: 0.4rem 0;
   padding: 0.6rem 1rem;
   border-radius: 6px;
-  text-align: center; /* centraliza o texto horizontalmente */
+  text-align: center;
   cursor: pointer;
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.5; /* melhora o alinhamento vertical */
+  line-height: 1.5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,6 +156,38 @@ footer {
   margin-top: 2rem;
 }
 
+.filtros-relatorio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filtros-relatorio select,
+.filtros-relatorio button {
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.resumo-valores {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+canvas {
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
   .sidebar {
@@ -177,15 +207,7 @@ footer {
     background: var(--cor-clara);
   }
 
-  .sidebar.expanded .menu-opcoes {
-    display: flex;
-  }
-
   .main-content {
-    margin-left: 0;
-  }
-
-  .sidebar.expanded ~ .main-content {
     margin-left: 0;
   }
 
