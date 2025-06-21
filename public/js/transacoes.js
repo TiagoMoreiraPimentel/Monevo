@@ -35,13 +35,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
+      console.log("Dados enviados:", transacao);
+
       const res = await fetch("/api/transacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transacao)
       });
 
-      const txt = await res.text();
+      const txt = await res.json();
 
       if (res.ok) {
         mostrarMensagem("Transação cadastrada com sucesso.");
