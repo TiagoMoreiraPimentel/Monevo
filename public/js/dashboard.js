@@ -189,3 +189,18 @@ function logout() {
   localStorage.removeItem("usuarioLogado");
   window.location.href = "../telas/login.html";
 }
+
+// Exibe/oculta gráficos no mobile
+function toggleGrafico(id) {
+  const wrapper = document.getElementById(id);
+  if (!wrapper) return;
+  wrapper.classList.toggle("ativo");
+
+  const btn = wrapper.previousElementSibling;
+  if (wrapper.classList.contains("ativo")) {
+    btn.textContent = "Ocultar Gráfico";
+  } else {
+    btn.textContent = "Ver Gráfico";
+  }
+}
+

@@ -66,14 +66,29 @@
         <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
       </div>
 
-      <h3>Distribuição por Categoria</h3>
-      <canvas id="grafico-categorias"></canvas>
+      <div class="grafico-bloco">
+        <h3>Distribuição por Categoria</h3>
+        <button class="btn-toggle-grafico" onclick="toggleGrafico('grafico-categorias-wrapper')">Ver Gráfico</button>
+        <div class="grafico-wrapper" id="grafico-categorias-wrapper">
+          <canvas id="grafico-categorias"></canvas>
+        </div>
+      </div>
 
-      <h3>Receitas vs Despesas</h3>
-      <canvas id="grafico-linhas"></canvas>
+      <div class="grafico-bloco">
+        <h3>Receitas vs Despesas</h3>
+        <button class="btn-toggle-grafico" onclick="toggleGrafico('grafico-linhas-wrapper')">Ver Gráfico</button>
+        <div class="grafico-wrapper" id="grafico-linhas-wrapper">
+          <canvas id="grafico-linhas"></canvas>
+        </div>
+      </div>
 
-      <h3>Movimentações por Tipo de Conta</h3>
-      <canvas id="grafico-conta"></canvas>
+      <div class="grafico-bloco">
+        <h3>Movimentações por Tipo de Conta</h3>
+        <button class="btn-toggle-grafico" onclick="toggleGrafico('grafico-conta-wrapper')">Ver Gráfico</button>
+        <div class="grafico-wrapper" id="grafico-conta-wrapper">
+          <canvas id="grafico-conta"></canvas>
+        </div>
+      </div>
     </section>
 
     <footer>
