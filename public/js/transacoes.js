@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const idConta = document.getElementById("conta").value;
+
     const novaTransacao = {
       id_usuario: parseInt(usuario.id),
       id_conta: parseInt(idConta),
@@ -25,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       categoria: categoriaSelecionada,
       descricao: descricao || null
     };
+
 
     try {
       const res = await fetch("/api/transacoes", {
