@@ -11,15 +11,13 @@ h1 {
 
 .tabela-responsiva {
   overflow-x: auto;
-  width: 100vw;         /* pega 100% da largura da tela */
-  margin: 0;            /* remove margens que empurram da esquerda */
-  padding: 0;           /* remove qualquer espaçamento lateral */
+  width: 100%;
   box-sizing: border-box;
 }
 
 table {
   width: 100%;
-  min-width: 600px; /* garante que não quebre feio no mobile */
+  min-width: 600px;
   border-collapse: collapse;
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -73,13 +71,10 @@ button.salvar:hover {
   color: white;
   text-align: center;
   padding: 1rem;
-  margin-top: 2rem;
   font-size: 0.9rem;
   border-top: 1px solid #ccc;
-  min-width: 600px; /* igual ao min-width da tabela */
-  width: 100%;          /* garante largura cheia interna */
+  min-width: 600px;   /* acompanha largura da tabela */
 }
-
 
 @media screen and (max-width: 600px) {
   h1 {
