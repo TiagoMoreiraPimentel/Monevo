@@ -158,7 +158,7 @@ footer {
 canvas {
   width: 100%;
   max-width: 100%;
-  height: 350px;
+  height: 250px;
   margin-bottom: 2rem;
 }
 
@@ -218,6 +218,6 @@ canvas {
   }
 
   canvas {
-    height: 450px;
+    height: 350px;
   }
 }

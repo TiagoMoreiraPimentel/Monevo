@@ -1,3 +1,5 @@
+// dashboard.js atualizado com percentuais e barras para todas as categorias
+
 let graficoCategorias, graficoLinhas, graficoConta;
 
 function carregarResumo() {
@@ -37,6 +39,7 @@ function renderizarGraficoCategorias(transacoes) {
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
+
   const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
 
   if (graficoCategorias) graficoCategorias.destroy();
@@ -156,25 +159,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const botaoAdmin = document.getElementById("admin-only");
   if (usuario.nivel_acesso === "ADMINISTRADOR") {
-    if (botaoAdmin) {
-      botaoAdmin.classList.remove("hidden");
-      botaoAdmin.addEventListener("click", () => {
-        window.location.href = "../telas/admin-usuarios.html";
-      });
-    }
-  } else if (botaoAdmin) {
+    botaoAdmin.classList.remove("hidden");
+    botaoAdmin.addEventListener("click", () => {
+      window.location.href = "../telas/admin-usuarios.html";
+    });
+  } else {
     botaoAdmin.style.display = "none";
   }
 
-  const dataAtual = new Date();
-  const mesAtual = String(dataAtual.getMonth() + 1).padStart(2, "0");
-  const anoAtual = String(dataAtual.getFullYear());
+  const menuBtn = document.getElementById("menu-toggle");
+  if (menuBtn) {
+    menuBtn.addEventListener("click", () => {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("expanded");
+    });
+  }
 
-  const selectMes = document.getElementById("mes");
-  const selectAno = document.getElementById("ano");
-  selectMes.value = mesAtual;
-  selectAno.value = anoAtual;
+  // Define mês e ano atuais
+  const hoje = new Date();
+  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
+  const anoAtual = String(hoje.getFullYear());
 
+  document.getElementById("mes").value = mesAtual;
+  document.getElementById("ano").value = anoAtual;
+
+  // Carrega resumo com filtro aplicado automaticamente
   carregarResumo();
 });
 
