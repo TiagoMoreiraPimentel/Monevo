@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Transações - Monevo</title>
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/transacoes.css" />
@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>Minhas Transações</h1>
-    <button id="btn-voltar">← Voltar para Dashboard</button>
+    <button id="btn-voltar">Voltar para Dashboard</button>
   </header>
 
   <main>
@@ -25,19 +25,22 @@
       </select>
 
       <label for="valor">Valor:</label>
-      <input type="number" id="valor" required step="0.01" min="0.01" />
+      <input type="number" id="valor" step="0.01" required min="0.01">
 
       <label for="data">Data:</label>
-      <input type="date" id="data" required />
+      <input type="date" id="data" required>
 
       <label for="categoria">Categoria:</label>
-      <input type="text" id="categoria" required maxlength="100" />
+      <input type="text" id="categoria" required>
 
-      <button type="submit">Cadastrar Transação</button>
+      <label for="descricao">Descrição (opcional):</label>
+      <input type="text" id="descricao" maxlength="200">
+
+      <button type="submit">Adicionar Transação</button>
       <p id="mensagem"></p>
     </form>
 
-    <h2>Transações Cadastradas</h2>
+    <h2>Histórico</h2>
     <table>
       <thead>
         <tr>
@@ -46,6 +49,7 @@
           <th>Valor</th>
           <th>Data</th>
           <th>Categoria</th>
+          <th>Descrição</th>
         </tr>
       </thead>
       <tbody id="tabela-transacoes"></tbody>

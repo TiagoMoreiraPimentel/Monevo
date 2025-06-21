@@ -1,6 +1,7 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
   margin: 0;
+  padding: 0;
   background-color: #f3f3f3;
 }
 
@@ -15,7 +16,7 @@ header {
 
 #btn-voltar {
   display: block;
-  margin: 1rem auto;
+  margin: 1rem auto 2rem auto;
   padding: 0.5rem 1rem;
   background-color: #008B65;
   color: white;
@@ -26,10 +27,12 @@ header {
 }
 
 main {
-  max-width: 800px;
-  margin: 2rem auto;
-  background: white;
+  margin-top: 2rem;
   padding: 2rem 1rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  background: white;
   border-radius: 10px;
   box-shadow: 0 0 10px #ccc;
 }
@@ -37,7 +40,7 @@ main {
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
@@ -65,7 +68,7 @@ form button {
 }
 
 form button:hover {
-  background-color: #006e50;
+  background-color: #006e4f;
 }
 
 #mensagem {
@@ -77,6 +80,7 @@ form button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.95rem;
 }
 
 thead {
@@ -84,7 +88,8 @@ thead {
   color: white;
 }
 
-th, td {
+th,
+td {
   padding: 0.75rem;
   border: 1px solid #ccc;
   text-align: left;
@@ -95,32 +100,48 @@ th, td {
   color: white;
   text-align: center;
   padding: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   border-top: 1px solid #ccc;
+  margin-top: 2rem;
 }
 
+/* Responsivo */
 @media (max-width: 600px) {
   header {
     font-size: 1.2rem;
   }
 
-  form, table {
-    font-size: 0.95rem;
+  #btn-voltar {
+    width: 100%;
+    font-size: 1rem;
   }
 
-  table, thead, tbody, th, td, tr {
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
     display: block;
   }
 
-  thead tr {
+  thead {
     display: none;
+  }
+
+  tr {
+    background-color: white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 8px;
   }
 
   td {
     position: relative;
     padding-left: 50%;
     border: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #eee;
   }
 
   td::before {
@@ -131,9 +152,5 @@ th, td {
     padding-left: 1rem;
     font-weight: bold;
     white-space: nowrap;
-  }
-
-  .footer {
-    font-size: 0.8rem;
   }
 }

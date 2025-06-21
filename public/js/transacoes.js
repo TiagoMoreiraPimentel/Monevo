@@ -1,7 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
-    alert("Acesso negado. Faça login.");
+    alert("Acesso negado.");
     window.location.href = "../telas/login.html";
     return;
   }
@@ -10,49 +10,39 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/telas/dashboard.html";
   });
 
-  carregarContas();
-  carregarTransacoes();
+  await carregarContas(usuario.id);
+  await carregarTransacoes(usuario.id);
 
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const id_conta = document.getElementById("conta").value;
-    const tipo = document.getElementById("tipo").value;
-    const valor = parseFloat(document.getElementById("valor").value);
-    const data = document.getElementById("data").value;
-    const categoria = document.getElementById("categoria").value.trim();
-
-    if (!id_conta || !tipo || isNaN(valor) || !data || !categoria) {
-      mostrarMensagem("Preencha todos os campos corretamente.");
-      return;
-    }
-
-    const transacao = {
+    const novaTransacao = {
       id_usuario: usuario.id,
-      id_conta,
-      tipo,
-      valor,
-      data_transacao: data,
-      categoria
+      id_conta: document.getElementById("conta").value,
+      tipo: document.getElementById("tipo").value,
+      valor: parseFloat(document.getElementById("valor").value),
+      data_transacao: document.getElementById("data").value,
+      categoria: document.getElementById("categoria").value.trim(),
+      descricao: document.getElementById("descricao").value.trim()
     };
 
     try {
       const res = await fetch("/api/transacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(transacao)
+        body: JSON.stringify(novaTransacao)
       });
 
       if (res.ok) {
-        mostrarMensagem("Transação cadastrada com sucesso.");
+        mostrarMensagem("Transação adicionada.");
         e.target.reset();
-        carregarTransacoes();
+        await carregarTransacoes(usuario.id);
       } else {
-        mostrarMensagem("Erro ao cadastrar transação.");
+        mostrarMensagem("Erro ao salvar transação.");
       }
     } catch (err) {
       console.error(err);
-      mostrarMensagem("Erro na conexão com o servidor.");
+      mostrarMensagem("Erro na conexão.");
     }
   });
 });
@@ -61,13 +51,11 @@ function mostrarMensagem(msg) {
   document.getElementById("mensagem").innerText = msg;
 }
 
-async function carregarContas() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  const select = document.getElementById("conta");
+async function carregarContas(idUsuario) {
   const res = await fetch("/api/contas");
   const contas = await res.json();
-  const minhas = contas.filter(c => c.id_usuario == usuario.id);
-
+  const minhas = contas.filter(c => c.id_usuario == idUsuario);
+  const select = document.getElementById("conta");
   minhas.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c.id_conta;
@@ -76,15 +64,12 @@ async function carregarContas() {
   });
 }
 
-async function carregarTransacoes() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+async function carregarTransacoes(idUsuario) {
   const res = await fetch("/api/transacoes");
-  const transacoes = await res.json();
-  const minhas = transacoes.filter(t => t.id_usuario == usuario.id);
-
+  const lista = await res.json();
+  const minhas = lista.filter(t => t.id_usuario == idUsuario);
   const tabela = document.getElementById("tabela-transacoes");
   tabela.innerHTML = "";
-
   minhas.forEach(t => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -93,6 +78,7 @@ async function carregarTransacoes() {
       <td>R$ ${parseFloat(t.valor).toFixed(2)}</td>
       <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
       <td>${t.categoria}</td>
+      <td>${t.descricao || ""}</td>
     `;
     tabela.appendChild(tr);
   });
