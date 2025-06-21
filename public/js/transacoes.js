@@ -33,10 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
       id_conta: idConta,
       tipo,
       valor,
-      data_transacao: dataBruta + "T03:00:00",  // Compensação UTC-3
+      data_transacao: new Date(dataBruta).toISOString(),  // formato ISO compatível
       categoria,
       descricao
     };
+
+    console.log("Enviando:", dados); // debug
 
     try {
       const res = await fetch("/api/transacoes", {
@@ -70,7 +72,7 @@ async function carregarContas(idUsuario) {
   const contas = await res.json();
   const minhas = contas.filter(c => c.id_usuario === idUsuario);
   const select = document.getElementById("conta");
-  select.innerHTML = "<option value=''>Selecione uma conta</option>";
+  select.innerHTML = "<option value=''>Selecione uma conta</option>"; // previne erros
 
   minhas.forEach(c => {
     const opt = document.createElement("option");
@@ -85,10 +87,12 @@ async function carregarTransacoes(idUsuario) {
   tabela.innerHTML = "";
 
   try {
+    // Busca todas as transações
     const res = await fetch("/api/transacoes");
     const todas = await res.json();
     const minhas = todas.filter(t => t.id_usuario === idUsuario);
 
+    // Busca todas as contas do usuário para mapear nome por ID
     const resContas = await fetch("/api/contas");
     const contas = await resContas.json();
     const mapaContas = {};
@@ -100,18 +104,13 @@ async function carregarTransacoes(idUsuario) {
 
     minhas.forEach(t => {
       const tr = document.createElement("tr");
-      const descricao = t.descricao ? t.descricao : "";
-      const descricaoHtml = descricao.length > 40
-        ? `<details><summary>${descricao.slice(0, 40)}...</summary>${descricao}</details>`
-        : descricao;
-
       tr.innerHTML = `
         <td>${new Date(t.data_transacao).toLocaleDateString()}</td>
         <td>${mapaContas[t.id_conta] || "Conta desconhecida"}</td>
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td>${descricaoHtml}</td>
+        <td>${t.descricao || ""}</td>
       `;
       tabela.appendChild(tr);
     });
