@@ -52,49 +52,48 @@ export default async function handler(req, res) {
 
       if (tipo === "Despesa") {
         if (!tag_distribuicao) {
-          return res.status(400).send("É obrigatório selecionar uma tag de distribuição para despesas.");
+          return res.status(400).send("Tag de distribuição obrigatória para despesas.");
         }
 
-        // Verifica saldo da tag
         const rTags = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
-        const json = await rTags.json();
-        const tags = json.items || [];
+        const tagsJson = await rTags.json();
+        const tags = tagsJson.items || [];
         const tag = tags.find(t => t.TAG_DISTRIBUICAO === tag_distribuicao);
 
         if (!tag) {
           return res.status(400).send("Tag de distribuição não encontrada.");
         }
 
-        const saldo = parseFloat(tag.VALOR_DISPONIVEL);
-        if (saldo < valor) {
-          return res.status(400).send("Saldo insuficiente na tag de distribuição.");
+        const valorAtual = parseFloat(tag.VALOR_DISPONIVEL);
+        const novoValor = valorAtual - valor;
+
+        if (novoValor < 0) {
+          return res.status(400).send("Saldo insuficiente na tag.");
         }
 
-        const novoSaldo = saldo - valor;
         await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ID_USUARIO: id_usuario,
             TAG_DISTRIBUICAO: tag_distribuicao,
-            VALOR_DISPONIVEL: novoSaldo
+            VALOR_DISPONIVEL: novoValor
           })
         });
       }
 
-      // Salvar transação com tag_distribuicao (mesmo que null)
+      // Salvar transação com tag_distribuicao
+      const payloadTransacao = {
+        ...body,
+        tag_distribuicao: tipo === "Receita" ? null : tag_distribuicao
+      };
+
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...body,
-          tag_distribuicao: tipo === "Despesa" ? tag_distribuicao : null
-        })
+        body: JSON.stringify(payloadTransacao)
       });
 
-      console.log("Transação salva. Status:", r.status);
-
-      // Se for receita, distribuir entre tags configuradas
       if (tipo === "Receita") {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
@@ -112,34 +111,31 @@ export default async function handler(req, res) {
 
           if (existente) {
             const novoValor = parseFloat(existente.VALOR_DISPONIVEL) + valorDistribuir;
-            const payload = {
-              ID_USUARIO: id_usuario,
-              TAG_DISTRIBUICAO: nome_categoria,
-              VALOR_DISPONIVEL: novoValor
-            };
 
             await fetch(`${BASE_DISTRIBUICAO}${existente.ID_DISTRIBUICAO_VALOR}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+              body: JSON.stringify({
+                ID_USUARIO: id_usuario,
+                TAG_DISTRIBUICAO: nome_categoria,
+                VALOR_DISPONIVEL: novoValor
+              })
             });
           } else {
-            const payload = {
-              ID_USUARIO: id_usuario,
-              TAG_DISTRIBUICAO: nome_categoria,
-              VALOR_DISPONIVEL: valorDistribuir
-            };
-
             await fetch(BASE_DISTRIBUICAO, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+              body: JSON.stringify({
+                ID_USUARIO: id_usuario,
+                TAG_DISTRIBUICAO: nome_categoria,
+                VALOR_DISPONIVEL: valorDistribuir
+              })
             });
           }
         }
       }
 
-      return res.status(201).end();
+      return res.status(r.status).end();
     } catch (err) {
       console.error("Erro ao registrar transação:", err);
       return res.status(500).send("Erro interno ao registrar transação.");
@@ -160,8 +156,7 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     const r = await fetch(BASE_TRANSACOES + id, {
-      method: "DELETE"
-    });
+      method: "DELETE" });
     return res.status(r.status).end();
   }
 
