@@ -108,6 +108,20 @@ td {
   text-align: left;
 }
 
+.btn-excluir {
+  padding: 0.4rem 1rem;
+  background-color: #cc0000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-excluir:hover {
+  background-color: #990000;
+}
+
 .footer {
   background-color: #008B65;
   color: white;
@@ -149,17 +163,6 @@ td {
 
   .card-transacao button.btn-excluir {
     margin-top: 0.5rem;
-    padding: 0.4rem 1rem;
-    background-color: #cc0000;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .card-transacao button.btn-excluir:hover {
-    background-color: #990000;
   }
 
   #filtros-container {
