@@ -150,7 +150,8 @@ async function carregarTransacoes(idUsuario) {
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
-        <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>`;
+        <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
+        <button onclick="excluirTransacao(${t.id_transacao})">Excluir</button>`;
       listaMobile.appendChild(card);
     });
   } catch (err) {
@@ -158,3 +159,22 @@ async function carregarTransacoes(idUsuario) {
     mostrarMensagem("Erro ao carregar transações.");
   }
 }
+
+window.excluirTransacao = async function (id) {
+  const confirmacao = confirm("Tem certeza que deseja excluir esta transação?");
+  if (!confirmacao) return;
+
+  try {
+    const res = await fetch(`/api/transacoes/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      mostrarMensagem("Transação excluída.");
+      const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+      carregarTransacoes(usuario.id);
+    } else {
+      mostrarMensagem("Erro ao excluir transação.");
+    }
+  } catch (err) {
+    console.error(err);
+    mostrarMensagem("Erro na exclusão.");
+  }
+};

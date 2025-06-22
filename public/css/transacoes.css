@@ -147,6 +147,21 @@ td {
     white-space: normal;
   }
 
+  .card-transacao button.btn-excluir {
+    margin-top: 0.5rem;
+    padding: 0.4rem 1rem;
+    background-color: #cc0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .card-transacao button.btn-excluir:hover {
+    background-color: #990000;
+  }
+
   #filtros-container {
     flex-direction: column;
   }
