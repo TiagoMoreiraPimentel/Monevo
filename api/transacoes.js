@@ -136,7 +136,7 @@ export default async function handler(req, res) {
         body: JSON.stringify(bodyLimpo)
       });
 
-      iif (!r.ok) {
+      if (!r.ok) {
         const erro = await r.text();
         console.error("Erro ORDS:", erro);
         console.error("Payload enviado:", JSON.stringify(bodyLimpo, null, 2));
