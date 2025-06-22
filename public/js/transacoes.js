@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const campoTag = document.getElementById("campo-tag");
+  const selectTag = document.getElementById("tagDistribuicao");
+
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
   });
@@ -23,17 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("tipo").addEventListener("change", (e) => {
-    const campoTag = document.getElementById("campo-tag");
-    campoTag.classList.toggle("hidden", e.target.value !== "Despesa");
+    if (e.target.value === "Despesa") {
+      campoTag.classList.remove("hidden");
+    } else {
+      campoTag.classList.add("hidden");
+    }
   });
 
   carregarContas(usuario.id);
-  carregarTagsDistribuicao(usuario.id);
   carregarTransacoes(usuario.id);
+  carregarTagsDistribuicao(usuario.id);
 
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const idConta = parseInt(document.getElementById("conta").value);
     const tipo = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
@@ -47,6 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (tipo === "Despesa" && !tagDistribuicao) {
+      mostrarMensagem("Selecione uma tag de distribuição para a despesa.");
+      return;
+    }
+
     const dados = {
       id_usuario: usuario.id,
       id_conta: idConta,
@@ -55,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data_transacao: new Date(dataBruta).toISOString(),
       categoria,
       descricao,
-      tag_distribuicao: tipo === "Despesa" ? tagDistribuicao || null : null
+      tag_distribuicao: tipo === "Despesa" ? tagDistribuicao : null
     };
 
     try {
@@ -68,7 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         mostrarMensagem("Transação registrada.");
         e.target.reset();
+        document.getElementById("form-transacao").classList.add("hidden");
         carregarTransacoes(usuario.id);
+        carregarTagsDistribuicao(usuario.id); // atualiza saldo
       } else {
         const erro = await res.text();
         console.error("Erro ORDS:", erro);
@@ -108,14 +120,14 @@ async function carregarContas(idUsuario) {
 async function carregarTagsDistribuicao(idUsuario) {
   try {
     const res = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
-    const tags = await res.json();
+    const json = await res.json();
     const select = document.getElementById("tagDistribuicao");
-    select.innerHTML = "<option value=''>Selecione a tag</option>";
+    select.innerHTML = `<option value="">Selecione a tag</option>`;
 
-    tags.forEach(tag => {
+    json.forEach(tag => {
       const opt = document.createElement("option");
-      opt.value = tag.nome_categoria;
-      opt.textContent = tag.nome_categoria;
+      opt.value = tag.TAG_DISTRIBUICAO;
+      opt.textContent = `${tag.TAG_DISTRIBUICAO} (R$ ${parseFloat(tag.VALOR_DISPONIVEL).toFixed(2)})`;
       select.appendChild(opt);
     });
   } catch (err) {
@@ -146,27 +158,17 @@ async function carregarTransacoes(idUsuario) {
 
     minhas.sort((a, b) => new Date(b.data_transacao) - new Date(a.data_transacao));
 
-    const resContas = await fetch("/api/contas");
-    const contas = await resContas.json();
-    const mapaContas = {};
-    contas.filter(c => c.id_usuario === idUsuario).forEach(c => {
-      mapaContas[c.id_conta] = c.nome_conta;
-    });
-
     minhas.forEach(t => {
       const dataFormatada = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
-      const conta = mapaContas[t.id_conta] || "Conta desconhecida";
-
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${dataFormatada}</td>
-        <td>${conta}</td>
+        <td>${t.nome_conta || "Conta"}</td>
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td title="${t.descricao || ''}">
-          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
-        </td>
+        <td title="${t.descricao || ''}">${(t.descricao?.length > 30) ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}</td>
+        <td>${t.tag_distribuicao || "-"}</td>
         <td><button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button></td>
       `;
       tabela.appendChild(tr);
@@ -175,11 +177,12 @@ async function carregarTransacoes(idUsuario) {
       card.classList.add("card-transacao");
       card.innerHTML = `
         <p><strong>Data:</strong> ${dataFormatada}</p>
-        <p><strong>Conta:</strong> ${conta}</p>
+        <p><strong>Conta:</strong> ${t.nome_conta || "Conta"}</p>
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
         <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
+        ${t.tag_distribuicao ? `<p><strong>Tag:</strong> ${t.tag_distribuicao}</p>` : ""}
         <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button>
       `;
       listaMobile.appendChild(card);
@@ -195,13 +198,12 @@ window.excluirTransacao = async function (id, idUsuario) {
   if (!confirmar) return;
 
   try {
-    const res = await fetch(`/api/transacoes?id=${id}`, {
-      method: "DELETE"
-    });
+    const res = await fetch(`/api/transacoes?id=${id}`, { method: "DELETE" });
 
     if (res.ok) {
       mostrarMensagem("Transação excluída.");
       carregarTransacoes(idUsuario);
+      carregarTagsDistribuicao(idUsuario);
     } else {
       const erro = await res.text();
       console.error("Erro ao excluir:", erro);

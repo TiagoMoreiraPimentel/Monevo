@@ -135,6 +135,11 @@ td {
   display: none;
 }
 
+#tagDistribuicao {
+  color: black;
+}
+
+
 /* Versão Mobile */
 @media (max-width: 600px) {
   #tabela-desktop {
