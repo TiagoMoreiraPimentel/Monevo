@@ -13,7 +13,8 @@ export default async function handler(req, res) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req.body)
     });
-    return res.status(r.status).end();
+    const dados = await r.json();
+    return res.status(r.status).json(dados);
   }
 
   const id = req.query.id;
