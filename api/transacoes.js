@@ -50,13 +50,55 @@ export default async function handler(req, res) {
       const body = req.body;
       const { tipo, valor, id_usuario, tag_distribuicao } = body;
 
-      if (tipo === "Receita") {
-        const r = await fetch(BASE_TRANSACOES, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...body, tag_distribuicao: null }),
-        });
+      // Despesa: validar se há saldo suficiente e se tag foi informada
+      if (tipo === "Despesa") {
+        if (!tag_distribuicao || tag_distribuicao.trim() === "") {
+          return res.status(400).send("Tag de distribuição não informada.");
+        }
 
+        const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
+        const checkJson = await rCheck.json();
+        const tags = checkJson.items || [];
+
+        const tag = tags.find(t => t.TAG_DISTRIBUICAO === tag_distribuicao);
+        if (!tag) {
+          return res.status(400).send("Tag de distribuição não encontrada.");
+        }
+
+        const saldoDisponivel = parseFloat(tag.VALOR_DISPONIVEL);
+        if (saldoDisponivel < valor) {
+          return res.status(400).send("Saldo insuficiente na tag.");
+        }
+
+        // Atualizar saldo
+        const payload = {
+          ID_USUARIO: id_usuario,
+          TAG_DISTRIBUICAO: tag_distribuicao,
+          VALOR_DISPONIVEL: saldoDisponivel - valor
+        };
+
+        await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      // Registrar transação (com ou sem tag)
+      const r = await fetch(BASE_TRANSACOES, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!r.ok) {
+        const erro = await r.text();
+        console.error("Erro ao registrar transação:", erro);
+        return res.status(r.status).send(erro);
+      }
+
+      // Receita: distribuir valor
+      if (tipo === "Receita") {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
         const configuracoes = configJson.items || [];
@@ -73,92 +115,78 @@ export default async function handler(req, res) {
 
           if (existente) {
             const novoValor = parseFloat(existente.VALOR_DISPONIVEL) + valorDistribuir;
+            const payload = {
+              ID_USUARIO: id_usuario,
+              TAG_DISTRIBUICAO: nome_categoria,
+              VALOR_DISPONIVEL: novoValor
+            };
+
             await fetch(`${BASE_DISTRIBUICAO}${existente.ID_DISTRIBUICAO_VALOR}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ID_USUARIO: id_usuario,
-                TAG_DISTRIBUICAO: nome_categoria,
-                VALOR_DISPONIVEL: novoValor
-              })
+              body: JSON.stringify(payload)
             });
           } else {
+            const payload = {
+              ID_USUARIO: id_usuario,
+              TAG_DISTRIBUICAO: nome_categoria,
+              VALOR_DISPONIVEL: valorDistribuir
+            };
+
             await fetch(BASE_DISTRIBUICAO, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ID_USUARIO: id_usuario,
-                TAG_DISTRIBUICAO: nome_categoria,
-                VALOR_DISPONIVEL: valorDistribuir
-              })
+              body: JSON.stringify(payload)
             });
           }
         }
-
-        return res.status(r.status).end();
       }
 
-      // Validações para despesa
-      if (tipo === "Despesa") {
-        if (!tag_distribuicao) return res.status(400).send("Tag de distribuição não informada.");
-
-        const rTags = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
-        const tagsJson = await rTags.json();
-        const tags = tagsJson.items || [];
-
-        const tag = tags.find(t => t.TAG_DISTRIBUICAO === tag_distribuicao);
-        if (!tag) return res.status(400).send("Tag de distribuição não encontrada.");
-
-        const saldoDisponivel = parseFloat(tag.VALOR_DISPONIVEL);
-        if (valor > saldoDisponivel) {
-          return res.status(400).send("Saldo insuficiente na tag.");
-        }
-
-        const novoSaldo = saldoDisponivel - valor;
-        await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ID_USUARIO: id_usuario,
-            TAG_DISTRIBUICAO: tag_distribuicao,
-            VALOR_DISPONIVEL: novoSaldo
-          })
-        });
-
-        // Registrar transação com tag associada
-        const r = await fetch(BASE_TRANSACOES, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...body, tag_distribuicao }),
-        });
-
-        return res.status(r.status).end();
-      }
-
-      return res.status(400).send("Tipo de transação inválido.");
+      return res.status(201).end();
     } catch (err) {
       console.error("Erro ao registrar transação:", err);
       return res.status(500).send("Erro interno ao registrar transação.");
     }
   }
 
-  const id = req.query.id;
-  if (!id) return res.status(400).send("ID obrigatório.");
-
-  if (req.method === "PUT") {
-    const r = await fetch(BASE_TRANSACOES + id, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body)
-    });
-    return res.status(r.status).end();
-  }
-
   if (req.method === "DELETE") {
-    const r = await fetch(BASE_TRANSACOES + id, {
-      method: "DELETE"
-    });
-    return res.status(r.status).end();
+    const id = req.query.id;
+    if (!id) return res.status(400).send("ID obrigatório.");
+
+    try {
+      // Buscar transação para verificar tipo e valor
+      const rTransacao = await fetch(BASE_TRANSACOES + id);
+      const t = await rTransacao.json();
+
+      // Se for Receita: reverter distribuição (não implementado)
+      // Se for Despesa: devolver valor à tag, se existir
+      if (t.tipo === "Despesa" && t.tag_distribuicao) {
+        const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${t.id_usuario}`);
+        const checkJson = await rCheck.json();
+        const tag = (checkJson.items || []).find(x => x.TAG_DISTRIBUICAO === t.tag_distribuicao);
+        if (tag) {
+          const novoValor = parseFloat(tag.VALOR_DISPONIVEL) + parseFloat(t.valor);
+          await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ID_USUARIO: t.id_usuario,
+              TAG_DISTRIBUICAO: t.tag_distribuicao,
+              VALOR_DISPONIVEL: novoValor
+            })
+          });
+        }
+      }
+
+      const r = await fetch(BASE_TRANSACOES + id, {
+        method: "DELETE"
+      });
+
+      return res.status(r.status).end();
+    } catch (err) {
+      console.error("Erro ao excluir transação:", err);
+      return res.status(500).send("Erro ao excluir transação.");
+    }
   }
 
   res.status(405).send("Método não permitido.");

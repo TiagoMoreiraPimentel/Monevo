@@ -22,34 +22,27 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarTransacoes(usuario.id);
   });
 
-  const tipoSelect = document.getElementById("tipo");
-  const campoTag = document.getElementById("campo-tag");
-  const selectTag = document.getElementById("tagDistribuicao");
-
-  tipoSelect.addEventListener("change", () => {
-    if (tipoSelect.value === "Despesa") {
+  document.getElementById("tipo").addEventListener("change", (e) => {
+    const campoTag = document.getElementById("campo-tag");
+    if (e.target.value === "Despesa") {
       campoTag.classList.remove("hidden");
-      selectTag.required = true;
       carregarTagsDistribuicao(usuario.id);
     } else {
       campoTag.classList.add("hidden");
-      selectTag.required = false;
-      selectTag.innerHTML = '<option value="">Selecione a tag</option>';
+      document.getElementById("tagDistribuicao").innerHTML = `<option value="">Selecione a tag</option>`;
     }
   });
 
-  carregarContas(usuario.id);
-  carregarTransacoes(usuario.id);
-
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const idConta = parseInt(document.getElementById("conta").value);
-    const tipo = tipoSelect.value;
+    const tipo = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value.trim();
-    const tag = selectTag.value || null;
+    const tag = document.getElementById("tagDistribuicao").value;
 
     if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
       mostrarMensagem("Preencha todos os campos obrigatórios.");
@@ -57,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (tipo === "Despesa" && !tag) {
-      mostrarMensagem("Selecione uma tag de distribuição.");
+      alert("Selecione uma tag de distribuição para despesas.");
       return;
     }
 
@@ -82,8 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         mostrarMensagem("Transação registrada.");
         e.target.reset();
-        campoTag.classList.add("hidden");
-        selectTag.innerHTML = '<option value="">Selecione a tag</option>';
+        document.getElementById("campo-tag").classList.add("hidden");
         carregarTransacoes(usuario.id);
       } else {
         const erro = await res.text();
@@ -95,6 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
       mostrarMensagem("Erro de conexão.");
     }
   });
+
+  carregarContas(usuario.id);
+  carregarTransacoes(usuario.id);
 });
 
 function mostrarMensagem(msg) {
@@ -119,32 +114,6 @@ async function carregarContas(idUsuario) {
     select.appendChild(opt1);
     filtroConta.appendChild(opt2);
   });
-}
-
-async function carregarTagsDistribuicao(idUsuario) {
-  try {
-    const res = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
-    const tags = await res.json();
-    const select = document.getElementById("tagDistribuicao");
-    const unicas = new Set();
-
-    select.innerHTML = '<option value="">Selecione a tag</option>';
-
-    tags.forEach(tag => {
-      const nome = tag.TAG_DISTRIBUICAO;
-      const valor = Number(tag.VALOR_DISPONIVEL).toFixed(2);
-
-      if (!unicas.has(nome)) {
-        const opt = document.createElement("option");
-        opt.value = nome;
-        opt.textContent = `${nome} (R$ ${valor})`;
-        select.appendChild(opt);
-        unicas.add(nome);
-      }
-    });
-  } catch (err) {
-    console.error("Erro ao carregar tags:", err);
-  }
 }
 
 async function carregarTransacoes(idUsuario) {
@@ -188,11 +157,9 @@ async function carregarTransacoes(idUsuario) {
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td>${t.tag_distribuicao || "-"}</td>
         <td title="${t.descricao || ''}">
           ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
         </td>
-        <td><button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button></td>
       `;
       tabela.appendChild(tr);
 
@@ -204,9 +171,7 @@ async function carregarTransacoes(idUsuario) {
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
-        <p><strong>Tag:</strong> ${t.tag_distribuicao || "-"}</p>
         <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
-        <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button>
       `;
       listaMobile.appendChild(card);
     });
@@ -216,25 +181,27 @@ async function carregarTransacoes(idUsuario) {
   }
 }
 
-window.excluirTransacao = async function (id, idUsuario) {
-  const confirmar = confirm("Deseja excluir esta transação?");
-  if (!confirmar) return;
-
+async function carregarTagsDistribuicao(idUsuario) {
   try {
-    const res = await fetch(`/api/transacoes?id=${id}`, {
-      method: "DELETE"
-    });
+    const res = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
+    const tags = await res.json();
 
-    if (res.ok) {
-      mostrarMensagem("Transação excluída.");
-      carregarTransacoes(idUsuario);
-    } else {
-      const erro = await res.text();
-      console.error("Erro ao excluir:", erro);
-      mostrarMensagem("Erro ao excluir transação.");
-    }
+    const select = document.getElementById("tagDistribuicao");
+    select.innerHTML = `<option value="">Selecione a tag</option>`;
+
+    const nomesAdicionados = new Set();
+
+    tags.forEach(tag => {
+      const nome = tag.TAG_DISTRIBUICAO;
+      if (!nomesAdicionados.has(nome)) {
+        nomesAdicionados.add(nome);
+        const option = document.createElement("option");
+        option.value = nome;
+        option.textContent = `${nome} (R$ ${Number(tag.VALOR_DISPONIVEL).toFixed(2)})`;
+        select.appendChild(option);
+      }
+    });
   } catch (err) {
-    console.error(err);
-    mostrarMensagem("Erro de conexão.");
+    console.error("Erro ao carregar tags:", err);
   }
-};
+}
