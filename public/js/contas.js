@@ -147,7 +147,7 @@ window.salvarConta = async function (id) {
     data_criacao: new Date().toISOString()
   };
 
-  const res = await fetch(`/api/contas/${id}`, {
+  const res = await fetch(`/api/contas?id=${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(atualizada)
