@@ -1,6 +1,4 @@
-// dashboard.js atualizado com percentuais e barras para todas as categorias
-
-let graficoCategorias, graficoLinhas, graficoConta;
+let graficoDespesas, graficoReceitas, graficoLinhas, graficoConta;
 
 function carregarResumo() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -23,39 +21,34 @@ function carregarResumo() {
       document.getElementById("total-despesas").textContent = totalDespesas.toFixed(2);
       document.getElementById("saldo").textContent = saldo.toFixed(2);
 
-      renderizarGraficoCategorias(transacoes);
+      renderizarGraficoCategoriasDespesas(despesas);
+      renderizarGraficoCategoriasReceitas(receitas);
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
       renderizarGraficoConta(transacoes);
     });
 }
 
-function renderizarGraficoCategorias(transacoes) {
+function renderizarGraficoCategoriasDespesas(transacoes) {
   const categorias = {};
-  const tipos = {};
   let total = 0;
-
-  // Agrupando valores por categoria e armazenando o tipo
   transacoes.forEach((t) => {
-    const cat = t.categoria;
-    categorias[cat] = (categorias[cat] || 0) + t.valor;
-    tipos[cat] = t.tipo; // Assumindo que cada categoria só tem um tipo (Receita ou Despesa)
+    categorias[t.categoria] = (categorias[t.categoria] || 0) + t.valor;
     total += t.valor;
   });
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
-  const cores = labels.map((cat) => tipos[cat] === "Receita" ? "#008B65" : "#f44336");
   const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
 
-  if (graficoCategorias) graficoCategorias.destroy();
-  graficoCategorias = new Chart(document.getElementById("grafico-categorias"), {
+  if (graficoDespesas) graficoDespesas.destroy();
+  graficoDespesas = new Chart(document.getElementById("grafico-despesas"), {
     type: "bar",
     data: {
       labels,
       datasets: [{
-        label: "Categorias",
+        label: "Despesas",
         data: valores,
-        backgroundColor: cores,
+        backgroundColor: "#f44336",
       }],
     },
     options: {
@@ -64,8 +57,7 @@ function renderizarGraficoCategorias(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) =>
-            `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -76,9 +68,48 @@ function renderizarGraficoCategorias(transacoes) {
   });
 }
 
+function renderizarGraficoCategoriasReceitas(transacoes) {
+  const categorias = {};
+  let total = 0;
+  transacoes.forEach((t) => {
+    categorias[t.categoria] = (categorias[t.categoria] || 0) + t.valor;
+    total += t.valor;
+  });
+
+  const labels = Object.keys(categorias);
+  const valores = Object.values(categorias);
+  const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
+
+  if (graficoReceitas) graficoReceitas.destroy();
+  graficoReceitas = new Chart(document.getElementById("grafico-receitas"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Receitas",
+        data: valores,
+        backgroundColor: "#008B65",
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        datalabels: {
+          anchor: "end",
+          align: "top",
+          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+        },
+      },
+      scales: {
+        y: { beginAtZero: true },
+      },
+    },
+    plugins: [ChartDataLabels],
+  });
+}
 
 function renderizarGraficoLinhas(receitas, despesas) {
-  const total = receitas + despesas || 1;
+  const total = receitas + despesas;
   const pReceitas = ((receitas / total) * 100).toFixed(1);
   const pDespesas = ((despesas / total) * 100).toFixed(1);
 
@@ -90,7 +121,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
       datasets: [{
         label: "Total",
         data: [receitas, despesas],
-        backgroundColor: ["#008B65", "#f44336"], // verde e vermelho fixos
+        backgroundColor: ["#4caf50", "#f44336"],
       }],
     },
     options: {
@@ -99,8 +130,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) =>
-            `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -175,29 +205,14 @@ document.addEventListener("DOMContentLoaded", () => {
     botaoAdmin.style.display = "none";
   }
 
-  const menuBtn = document.getElementById("menu-toggle");
-  if (menuBtn) {
-    menuBtn.addEventListener("click", () => {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("expanded");
-    });
-  }
+  document.getElementById("mes").value = String(new Date().getMonth() + 1).padStart(2, "0");
+  document.getElementById("ano").value = String(new Date().getFullYear());
 
-  // Define mês e ano atuais
-  const hoje = new Date();
-  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
-  const anoAtual = String(hoje.getFullYear());
-
-  document.getElementById("mes").value = mesAtual;
-  document.getElementById("ano").value = anoAtual;
-
-  // Carrega resumo com filtro aplicado automaticamente
   carregarResumo();
 });
 
 window.toggleSidebar = function () {
-  const sidebar = document.getElementById("sidebar");
-  sidebar.classList.toggle("expanded");
+  document.getElementById("sidebar").classList.toggle("expanded");
 };
 
 function logout() {
