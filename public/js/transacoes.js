@@ -109,14 +109,7 @@ async function carregarTransacoes(idUsuario) {
 
   try {
     const res = await fetch("/api/transacoes");
-    if (!res.ok) {
-      const erroTexto = await res.text();
-      console.error("Erro ao buscar transações:", erroTexto);
-      mostrarMensagem("Erro ao carregar transações.");
-      return;
-    }
     const todas = await res.json();
-
     let minhas = todas.filter(t => t.id_usuario === idUsuario);
 
     if (filtroData) minhas = minhas.filter(t => t.data_transacao.startsWith(filtroData));
