@@ -74,9 +74,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (!r.ok) {
-        const erro = await r.text();
-        console.error("Erro ORDS:", erro);
-        alert(erro);
+        const resp = await r.json();
+        console.error("Erro ORDS:", resp.erro);
+        console.log("Payload enviado:", resp.payload);
+        alert(resp.erro);
         return;
       }
 
