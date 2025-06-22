@@ -42,13 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let soma = 0;
 
     configuracoes.forEach((item, index) => {
-      soma += item.porcentagem;
+      const valor = parseFloat(item.porcentagem) || 0;
+      soma += valor;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${item.nome_categoria}</td>
         <td>
-          <input type="number" min="0" max="100" step="0.01" value="${item.porcentagem}" 
+          <input type="number" min="0" max="100" step="0.01" value="${valor}" 
                  onchange="atualizarPorcentagem(${index}, this.value)" />
         </td>
         <td><button onclick="removerCategoria(${index})">Remover</button></td>
@@ -76,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   salvarBtn.addEventListener("click", async () => {
-    const total = configuracoes.reduce((soma, item) => soma + item.porcentagem, 0);
+    const total = configuracoes.reduce((soma, item) => soma + parseFloat(item.porcentagem || 0), 0);
     if (total.toFixed(2) != 100.00) {
       alert(`A soma das porcentagens precisa ser exatamente 100%. Soma atual: ${total.toFixed(2)}%.`);
       return;
@@ -115,7 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const r = await fetch(`${BASE_URL}?id_usuario=${usuario.id}`);
       const json = await r.json();
-      configuracoes = json.items || [];
+
+      configuracoes = (json || []).map(item => ({
+        nome_categoria: item.nome_categoria,
+        porcentagem: parseFloat(item.porcentagem)
+      }));
+
       atualizarTabela();
     } catch (err) {
       console.error("Erro ao carregar configurações:", err);
