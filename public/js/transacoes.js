@@ -167,10 +167,10 @@ window.excluirTransacao = async function (id, idUsuario) {
   const confirmar = confirm("Deseja excluir esta transação?");
   if (!confirmar) return;
 
-  const res = await fetch(`/api/transacoes?id=${id}`, {
+  try {
+    const res = await fetch(`/api/transacoes?id=${id}`, {
       method: "DELETE"
     });
-
 
     if (res.ok) {
       mostrarMensagem("Transação excluída.");
