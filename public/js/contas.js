@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Verifica duplicidade
     const todasContas = await fetch("/api/contas").then(r => r.json());
     const minhasContas = todasContas.filter(c => c.id_usuario === usuario.id);
     const contaJaExiste = minhasContas.some(c =>
@@ -52,26 +53,30 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (res.ok) {
-        // Busca a conta recém criada
-        const contasAtualizadas = await fetch("/api/contas").then(r => r.json());
-        const nova = contasAtualizadas.find(c => c.id_usuario === usuario.id && c.nome_conta === nome && c.tipo === tipo);
+        const contasAtualizadas = await res.json(); // Supondo que retorne as contas
+        const contaNova = Array.isArray(contasAtualizadas)
+          ? contasAtualizadas.find(c =>
+              c.id_usuario === usuario.id &&
+              c.nome_conta === nome &&
+              c.tipo === tipo)
+          : null;
 
-        // Cria transação com o saldo inicial
-        if (nova && saldo > 0) {
-          const transacaoInicial = {
+        if (saldo > 0 && contaNova?.id_conta) {
+          const transacaoSaldoInicial = {
             id_usuario: usuario.id,
-            id_conta: nova.id_conta,
+            id_conta: contaNova.id_conta,
             tipo: "Receita",
             valor: saldo,
-            data: new Date().toISOString().split("T")[0],
+            data_transacao: new Date().toISOString(),
             categoria: "Saldo Inicial",
-            descricao: "Crédito inicial da conta"
+            descricao: "Registro automático do saldo inicial da conta",
+            tipo_conta: tipo
           };
 
           await fetch("/api/transacoes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(transacaoInicial)
+            body: JSON.stringify(transacaoSaldoInicial)
           });
         }
 
@@ -110,7 +115,8 @@ async function carregarContas() {
         <td data-label="Tipo">
           <select data-id="${conta.id_conta}" data-campo="tipo">
             <option value="Carteira" ${conta.tipo === "Carteira" ? "selected" : ""}>Carteira</option>
-            <option value="Conta Corrente" ${conta.tipo === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
+            <option value="Corrente" ${conta.tipo === "Corrente" ? "selected" : ""}>Corrente</option>
+            <option value="Poupança" ${conta.tipo === "Poupança" ? "selected" : ""}>Poupança</option>
           </select>
         </td>
         <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
