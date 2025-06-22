@@ -31,15 +31,20 @@ function carregarResumo() {
 
 function renderizarGraficoCategorias(transacoes) {
   const categorias = {};
+  const tipos = {};
   let total = 0;
+
+  // Agrupando valores por categoria e armazenando o tipo
   transacoes.forEach((t) => {
-    categorias[t.categoria] = (categorias[t.categoria] || 0) + t.valor;
+    const cat = t.categoria;
+    categorias[cat] = (categorias[cat] || 0) + t.valor;
+    tipos[cat] = t.tipo; // Assumindo que cada categoria só tem um tipo (Receita ou Despesa)
     total += t.valor;
   });
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
-
+  const cores = labels.map((cat) => tipos[cat] === "Receita" ? "#008B65" : "#f44336");
   const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
 
   if (graficoCategorias) graficoCategorias.destroy();
@@ -50,7 +55,7 @@ function renderizarGraficoCategorias(transacoes) {
       datasets: [{
         label: "Categorias",
         data: valores,
-        backgroundColor: "#008B65",
+        backgroundColor: cores,
       }],
     },
     options: {
@@ -59,7 +64,8 @@ function renderizarGraficoCategorias(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) =>
+            `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -69,6 +75,7 @@ function renderizarGraficoCategorias(transacoes) {
     plugins: [ChartDataLabels],
   });
 }
+
 
 function renderizarGraficoLinhas(receitas, despesas) {
   const total = receitas + despesas || 1;
