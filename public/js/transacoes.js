@@ -139,7 +139,9 @@ async function carregarTransacoes(idUsuario) {
         <td>${t.categoria}</td>
         <td title="${t.descricao || ''}">
           ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
-        </td>`;
+        </td>
+        <td><button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button></td>
+      `;
       tabela.appendChild(tr);
 
       const card = document.createElement("div");
@@ -151,7 +153,8 @@ async function carregarTransacoes(idUsuario) {
         <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
         <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
-        <button onclick="excluirTransacao(${t.id_transacao})">Excluir</button>`;
+        <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button>
+      `;
       listaMobile.appendChild(card);
     });
   } catch (err) {
@@ -160,21 +163,25 @@ async function carregarTransacoes(idUsuario) {
   }
 }
 
-window.excluirTransacao = async function (id) {
-  const confirmacao = confirm("Tem certeza que deseja excluir esta transação?");
-  if (!confirmacao) return;
+window.excluirTransacao = async function (id, idUsuario) {
+  const confirmar = confirm("Deseja excluir esta transação?");
+  if (!confirmar) return;
 
   try {
-    const res = await fetch(`/api/transacoes/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/transacoes/${id}`, {
+      method: "DELETE"
+    });
+
     if (res.ok) {
       mostrarMensagem("Transação excluída.");
-      const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-      carregarTransacoes(usuario.id);
+      carregarTransacoes(idUsuario);
     } else {
+      const erro = await res.text();
+      console.error("Erro ao excluir:", erro);
       mostrarMensagem("Erro ao excluir transação.");
     }
   } catch (err) {
     console.error(err);
-    mostrarMensagem("Erro na exclusão.");
+    mostrarMensagem("Erro de conexão.");
   }
 };
