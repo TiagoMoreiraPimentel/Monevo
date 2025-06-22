@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         ...t,
         tipo_conta: mapaContas[t.id_conta]?.tipo || "Desconhecida",
         nome_conta: mapaContas[t.id_conta]?.nome || "Conta",
-        data: t.data_transacao || t.data
+        data: t.data_transacao || t.data_transacao
       }));
 
       const filtradas = transacoesEnriquecidas.filter(t => {
@@ -52,15 +52,14 @@ export default async function handler(req, res) {
       const { tipo, valor, id_usuario, tag_distribuicao } = body;
       const valorNumerico = parseFloat(valor);
 
-      // Montar body com campos válidos
       const bodyLimpo = {
-        id_usuario: body.id_usuario,
-        id_conta: body.id_conta,
-        tipo: body.tipo,
-        valor: valorNumerico,
-        data: body.data,
-        categoria: body.categoria,
-        descricao: body.descricao
+        ID_USUARIO: body.id_usuario,
+        ID_CONTA: body.id_conta,
+        TIPO: body.tipo,
+        VALOR: valorNumerico,
+        DATA_TRANSACAO: body.data,
+        CATEGORIA: body.categoria,
+        DESCRICAO: body.descricao
       };
 
       if (tipo === "Despesa") {
@@ -68,7 +67,7 @@ export default async function handler(req, res) {
           return res.status(400).send("Tag de distribuição não informada.");
         }
 
-        // Verifica se a tag existe na configuração
+        // Validação da existência da tag
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
         const configTags = configJson.items || [];
@@ -80,17 +79,14 @@ export default async function handler(req, res) {
           return res.status(400).send("Tag de distribuição não encontrada.");
         }
 
-        // Verifica ou cria a tag na tabela de valores
+        // Verifica se a tag existe na tabela de valores
         const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
         const checkJson = await rCheck.json();
-        const tags = checkJson.items || [];
-
-        let tag = tags.find(t =>
+        let tag = checkJson.items?.find(t =>
           t.TAG_DISTRIBUICAO?.toLowerCase().trim() === tag_distribuicao.toLowerCase().trim()
         );
 
         if (!tag) {
-          // Criar tag com saldo 0
           const payloadNova = {
             ID_USUARIO: id_usuario,
             TAG_DISTRIBUICAO: tag_distribuicao,
@@ -107,12 +103,8 @@ export default async function handler(req, res) {
             return res.status(400).send("Erro ao criar tag de distribuição.");
           }
 
-          // Atualiza a lista após criar
-          const novaLista = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
-          const novaJson = await novaLista.json();
-          tag = novaJson.items.find(t =>
-            t.TAG_DISTRIBUICAO?.toLowerCase().trim() === tag_distribuicao.toLowerCase().trim()
-          );
+          const novaTag = await novaTagResp.json();
+          tag = novaTag;
         }
 
         if (!tag) {
@@ -124,7 +116,6 @@ export default async function handler(req, res) {
           return res.status(400).send("Saldo insuficiente na tag.");
         }
 
-        // Atualiza saldo
         await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -135,10 +126,9 @@ export default async function handler(req, res) {
           })
         });
 
-        bodyLimpo.tag_distribuicao = tag_distribuicao;
+        bodyLimpo.TAG_DISTRIBUICAO = tag_distribuicao;
       }
 
-      // Registrar transação no ORDS
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -151,7 +141,7 @@ export default async function handler(req, res) {
         return res.status(r.status).send(erro);
       }
 
-      // Distribuição de receita
+      // Distribuição automática da receita
       if (tipo === "Receita") {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
