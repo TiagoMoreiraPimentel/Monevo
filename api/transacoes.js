@@ -49,8 +49,19 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     try {
       const body = req.body;
-      body.valor = parseFloat(body.valor); // Garantir tipo numérico
       const { tipo, valor, id_usuario, tag_distribuicao } = body;
+      const valorNumerico = parseFloat(valor);
+
+      // Montar body com campos válidos
+      const bodyLimpo = {
+        id_usuario: body.id_usuario,
+        id_conta: body.id_conta,
+        tipo: body.tipo,
+        valor: valorNumerico,
+        data: body.data,
+        categoria: body.categoria,
+        descricao: body.descricao
+      };
 
       if (tipo === "Despesa") {
         if (!tag_distribuicao || tag_distribuicao.trim() === "") {
@@ -69,52 +80,69 @@ export default async function handler(req, res) {
           return res.status(400).send("Tag de distribuição não encontrada.");
         }
 
-        // Verifica saldo disponível
+        // Verifica ou cria a tag na tabela de valores
         const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
         const checkJson = await rCheck.json();
         const tags = checkJson.items || [];
 
-        const tag = tags.find(t =>
+        let tag = tags.find(t =>
           t.TAG_DISTRIBUICAO?.toLowerCase().trim() === tag_distribuicao.toLowerCase().trim()
         );
 
         if (!tag) {
-          return res.status(400).send("Tag de distribuição não encontrada na tabela de valores.");
+          // Criar tag com saldo 0
+          const payloadNova = {
+            ID_USUARIO: id_usuario,
+            TAG_DISTRIBUICAO: tag_distribuicao,
+            VALOR_DISPONIVEL: 0
+          };
+
+          const novaTagResp = await fetch(BASE_DISTRIBUICAO, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payloadNova)
+          });
+
+          if (!novaTagResp.ok) {
+            return res.status(400).send("Erro ao criar tag de distribuição.");
+          }
+
+          // Atualiza a lista após criar
+          const novaLista = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
+          const novaJson = await novaLista.json();
+          tag = novaJson.items.find(t =>
+            t.TAG_DISTRIBUICAO?.toLowerCase().trim() === tag_distribuicao.toLowerCase().trim()
+          );
+        }
+
+        if (!tag) {
+          return res.status(400).send("Tag de distribuição ainda não localizada.");
         }
 
         const saldoDisponivel = parseFloat(tag.VALOR_DISPONIVEL);
-        if (saldoDisponivel < valor) {
+        if (saldoDisponivel < valorNumerico) {
           return res.status(400).send("Saldo insuficiente na tag.");
         }
 
-        // Atualiza saldo da tag
-        const payload = {
-          ID_USUARIO: id_usuario,
-          TAG_DISTRIBUICAO: tag_distribuicao,
-          VALOR_DISPONIVEL: saldoDisponivel - valor
-        };
-
+        // Atualiza saldo
         await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            ID_USUARIO: id_usuario,
+            TAG_DISTRIBUICAO: tag_distribuicao,
+            VALOR_DISPONIVEL: saldoDisponivel - valorNumerico
+          })
         });
+
+        bodyLimpo.tag_distribuicao = tag_distribuicao;
       }
 
-      if (tipo === "Receita") {
-        delete body.tag_distribuicao; // Não envia tag em receitas
-      }
-
-      // Remove campos nulos/undefined
-      Object.keys(body).forEach(k => {
-        if (body[k] === null || body[k] === undefined) delete body[k];
-      });
-
-      // Registrar transação
+      // Registrar transação no ORDS
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify(bodyLimpo)
       });
 
       if (!r.ok) {
@@ -123,6 +151,7 @@ export default async function handler(req, res) {
         return res.status(r.status).send(erro);
       }
 
+      // Distribuição de receita
       if (tipo === "Receita") {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
@@ -130,7 +159,7 @@ export default async function handler(req, res) {
 
         for (const config of configuracoes) {
           const { nome_categoria, porcentagem } = config;
-          const valorDistribuir = (valor * porcentagem) / 100;
+          const valorDistribuir = (valorNumerico * porcentagem) / 100;
 
           const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
           const checkJson = await rCheck.json();
@@ -142,28 +171,25 @@ export default async function handler(req, res) {
 
           if (existente) {
             const novoValor = parseFloat(existente.VALOR_DISPONIVEL) + valorDistribuir;
-            const payload = {
-              ID_USUARIO: id_usuario,
-              TAG_DISTRIBUICAO: nome_categoria,
-              VALOR_DISPONIVEL: novoValor
-            };
 
             await fetch(`${BASE_DISTRIBUICAO}${existente.ID_DISTRIBUICAO_VALOR}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+              body: JSON.stringify({
+                ID_USUARIO: id_usuario,
+                TAG_DISTRIBUICAO: nome_categoria,
+                VALOR_DISPONIVEL: novoValor
+              })
             });
           } else {
-            const payload = {
-              ID_USUARIO: id_usuario,
-              TAG_DISTRIBUICAO: nome_categoria,
-              VALOR_DISPONIVEL: valorDistribuir
-            };
-
             await fetch(BASE_DISTRIBUICAO, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+              body: JSON.stringify({
+                ID_USUARIO: id_usuario,
+                TAG_DISTRIBUICAO: nome_categoria,
+                VALOR_DISPONIVEL: valorDistribuir
+              })
             });
           }
         }
