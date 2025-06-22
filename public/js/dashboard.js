@@ -71,7 +71,7 @@ function renderizarGraficoCategorias(transacoes) {
 }
 
 function renderizarGraficoLinhas(receitas, despesas) {
-  const total = receitas + despesas;
+  const total = receitas + despesas || 1;
   const pReceitas = ((receitas / total) * 100).toFixed(1);
   const pDespesas = ((despesas / total) * 100).toFixed(1);
 
@@ -83,7 +83,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
       datasets: [{
         label: "Total",
         data: [receitas, despesas],
-        backgroundColor: ["#4caf50", "#f44336"],
+        backgroundColor: ["#008B65", "#f44336"], // verde e vermelho fixos
       }],
     },
     options: {
@@ -92,7 +92,8 @@ function renderizarGraficoLinhas(receitas, despesas) {
         datalabels: {
           anchor: "end",
           align: "top",
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) =>
+            `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
       },
       scales: {
