@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  document.getElementById("btn-voltar").addEventListener("click", () => {
+    window.location.href = "/telas/dashboard.html";
+  });
+
   const BASE_URL = "/api/configuracao";
   const form = document.getElementById("form-distribuicao");
   const nomeInput = document.getElementById("nomeCategoria");

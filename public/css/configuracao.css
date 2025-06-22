@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   background: white;
   padding: 1.5rem;
@@ -19,14 +19,16 @@ h1 {
   color: #008b65;
 }
 
-form .inputs {
+.inputs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .inputs input {
   flex: 1;
+  min-width: 150px;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -62,6 +64,12 @@ form button:hover {
   background-color: #e0f3ec;
 }
 
+#tabelaDistribuicao input[type="number"] {
+  width: 80px;
+  padding: 0.3rem;
+  text-align: center;
+}
+
 .soma {
   font-weight: bold;
   margin-bottom: 1rem;
@@ -82,4 +90,38 @@ form button:hover {
 #salvarConfig:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.btn-voltar {
+  margin-bottom: 1rem;
+  background-color: #ccc;
+  color: #333;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-voltar:hover {
+  background-color: #bbb;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  .inputs {
+    flex-direction: column;
+  }
+
+  #tabelaDistribuicao th,
+  #tabelaDistribuicao td {
+    font-size: 0.9rem;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  #salvarConfig {
+    font-size: 1rem;
+  }
 }
