@@ -53,36 +53,24 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (res.ok) {
-        let contaNova = null;
-        try {
-          const contasAtualizadas = await fetch("/api/contas").then(r => r.json());
-          contaNova = contasAtualizadas.find(c =>
-            c.id_usuario === usuario.id &&
-            c.nome_conta === nome &&
-            c.tipo === tipo
-          );
-        } catch (erro) {
-          console.warn("Erro ao recuperar conta recém criada:", erro);
-        }
+        const contaCriada = await res.json();
 
-        if (saldo > 0 && contaNova?.id_conta) {
-          const transacaoSaldoInicial = {
-            id_usuario: usuario.id,
-            id_conta: contaNova.id_conta,
-            tipo: "Receita",
-            valor: saldo,
-            data_transacao: new Date().toISOString(),
-            categoria: "Saldo Inicial",
-            descricao: "Registro automático do saldo inicial da conta",
-            tipo_conta: tipo
-          };
+        // Criar transação de Saldo Inicial
+        const transacaoInicial = {
+          id_usuario: usuario.id,
+          id_conta: contaCriada.id_conta,
+          tipo: "Receita",
+          valor: saldo,
+          data_transacao: new Date().toISOString(),
+          categoria: "Saldo Inicial",
+          descricao: "Saldo inicial da conta"
+        };
 
-          await fetch("/api/transacoes", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(transacaoSaldoInicial)
-          });
-        }
+        await fetch("/api/transacoes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(transacaoInicial)
+        });
 
         mostrarMensagem("Conta cadastrada com sucesso.");
         e.target.reset();
@@ -120,6 +108,7 @@ async function carregarContas() {
           <select data-id="${conta.id_conta}" data-campo="tipo">
             <option value="Carteira" ${conta.tipo === "Carteira" ? "selected" : ""}>Carteira</option>
             <option value="Conta Corrente" ${conta.tipo === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
+            <option value="Polpança" ${conta.tipo === "Polpança" ? "selected" : ""}>Polpança</option>
           </select>
         </td>
         <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
@@ -141,6 +130,15 @@ window.salvarConta = async function (id) {
   const nome = document.querySelector(`input[data-id='${id}'][data-campo='nome_conta']`).value;
   const tipo = document.querySelector(`select[data-id='${id}'][data-campo='tipo']`).value;
   const saldo = parseFloat(document.querySelector(`input[data-id='${id}'][data-campo='saldo_inicial']`).value);
+
+  // Verifica se há transações vinculadas
+  const transacoes = await fetch("/api/transacoes").then(r => r.json());
+  const vinculadas = transacoes.some(t => t.id_conta == id);
+
+  if (vinculadas) {
+    mostrarMensagem("Não é possível editar esta conta pois existem transações vinculadas.");
+    return;
+  }
 
   const atualizada = {
     nome_conta: nome,
@@ -167,6 +165,15 @@ window.excluirConta = async function (id) {
   const confirmacao = confirm("Deseja excluir esta conta? Todas as transações devem ser removidas antes.");
   if (!confirmacao) return;
 
+  // Verifica se há transações vinculadas
+  const transacoes = await fetch("/api/transacoes").then(r => r.json());
+  const vinculadas = transacoes.some(t => t.id_conta == id);
+
+  if (vinculadas) {
+    mostrarMensagem("Erro ao excluir. Existem transações vinculadas a esta conta.");
+    return;
+  }
+
   const res = await fetch(`/api/contas/${id}`, {
     method: "DELETE"
   });
@@ -175,6 +182,6 @@ window.excluirConta = async function (id) {
     mostrarMensagem("Conta excluída.");
     carregarContas();
   } else {
-    mostrarMensagem("Erro ao excluir. Verifique se existem transações vinculadas.");
+    mostrarMensagem("Erro ao excluir conta.");
   }
 };
