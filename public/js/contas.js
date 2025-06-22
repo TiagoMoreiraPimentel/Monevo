@@ -174,7 +174,7 @@ window.excluirConta = async function (id) {
     return;
   }
 
-  const res = await fetch(`/api/contas/${id}`, {
+  await fetch(`/api/contas?id=${id}`, {
     method: "DELETE"
   });
 
