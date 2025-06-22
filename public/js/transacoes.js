@@ -6,9 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const campoTag = document.getElementById("campo-tag");
-  const selectTag = document.getElementById("tagDistribuicao");
-
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
   });
@@ -25,13 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarTransacoes(usuario.id);
   });
 
-  document.getElementById("tipo").addEventListener("change", (e) => {
-    const tipo = e.target.value;
-    if (tipo === "Despesa") {
+  const tipoSelect = document.getElementById("tipo");
+  const campoTag = document.getElementById("campo-tag");
+  const selectTag = document.getElementById("tagDistribuicao");
+
+  tipoSelect.addEventListener("change", () => {
+    if (tipoSelect.value === "Despesa") {
       campoTag.classList.remove("hidden");
+      selectTag.required = true;
       carregarTagsDistribuicao(usuario.id);
     } else {
       campoTag.classList.add("hidden");
+      selectTag.required = false;
       selectTag.innerHTML = '<option value="">Selecione a tag</option>';
     }
   });
@@ -42,19 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
     const idConta = parseInt(document.getElementById("conta").value);
-    const tipo = document.getElementById("tipo").value;
+    const tipo = tipoSelect.value;
     const valor = parseFloat(document.getElementById("valor").value);
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value.trim();
-    const tagDistribuicao = document.getElementById("tagDistribuicao").value;
+    const tag = selectTag.value || null;
 
     if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
       mostrarMensagem("Preencha todos os campos obrigatórios.");
       return;
     }
 
-    if (tipo === "Despesa" && !tagDistribuicao) {
+    if (tipo === "Despesa" && !tag) {
       mostrarMensagem("Selecione uma tag de distribuição.");
       return;
     }
@@ -66,8 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
       valor,
       data_transacao: new Date(dataBruta).toISOString(),
       categoria,
-      descricao: descricao || null,
-      tag_distribuicao: tipo === "Despesa" ? tagDistribuicao : null
+      descricao,
+      tag_distribuicao: tipo === "Despesa" ? tag : null
     };
 
     try {
@@ -81,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarMensagem("Transação registrada.");
         e.target.reset();
         campoTag.classList.add("hidden");
+        selectTag.innerHTML = '<option value="">Selecione a tag</option>';
         carregarTransacoes(usuario.id);
       } else {
         const erro = await res.text();
@@ -116,6 +119,32 @@ async function carregarContas(idUsuario) {
     select.appendChild(opt1);
     filtroConta.appendChild(opt2);
   });
+}
+
+async function carregarTagsDistribuicao(idUsuario) {
+  try {
+    const res = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
+    const tags = await res.json();
+    const select = document.getElementById("tagDistribuicao");
+    const unicas = new Set();
+
+    select.innerHTML = '<option value="">Selecione a tag</option>';
+
+    tags.forEach(tag => {
+      const nome = tag.TAG_DISTRIBUICAO;
+      const valor = Number(tag.VALOR_DISPONIVEL).toFixed(2);
+
+      if (!unicas.has(nome)) {
+        const opt = document.createElement("option");
+        opt.value = nome;
+        opt.textContent = `${nome} (R$ ${valor})`;
+        select.appendChild(opt);
+        unicas.add(nome);
+      }
+    });
+  } catch (err) {
+    console.error("Erro ao carregar tags:", err);
+  }
 }
 
 async function carregarTransacoes(idUsuario) {
@@ -159,6 +188,7 @@ async function carregarTransacoes(idUsuario) {
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
+        <td>${t.tag_distribuicao || "-"}</td>
         <td title="${t.descricao || ''}">
           ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
         </td>
@@ -174,6 +204,7 @@ async function carregarTransacoes(idUsuario) {
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
+        <p><strong>Tag:</strong> ${t.tag_distribuicao || "-"}</p>
         <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
         <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button>
       `;
@@ -182,26 +213,6 @@ async function carregarTransacoes(idUsuario) {
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
-  }
-}
-
-async function carregarTagsDistribuicao(idUsuario) {
-  try {
-    const r = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
-    const data = await r.json();
-    const tagsUnicas = [...new Set(data.map(d => d.TAG_DISTRIBUICAO))];
-
-    const select = document.getElementById("tagDistribuicao");
-    select.innerHTML = '<option value="">Selecione a tag</option>';
-
-    tagsUnicas.forEach(tag => {
-      const option = document.createElement("option");
-      option.value = tag;
-      option.textContent = tag;
-      select.appendChild(option);
-    });
-  } catch (err) {
-    console.error("Erro ao carregar tags:", err);
   }
 }
 

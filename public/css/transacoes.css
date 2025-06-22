@@ -175,15 +175,6 @@ table td {
   background-color: #fff;
 }
 
-/* Rodapé centralizado */
-.footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #f6f6f6;
-  font-size: 0.9rem;
-  color: #666;
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
   header {
@@ -213,4 +204,12 @@ table td {
   #lista-transacoes-mobile {
     display: none;
   }
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #f6f6f6;
+  color: #666;
+  font-size: 0.9rem;
 }

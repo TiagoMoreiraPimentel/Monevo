@@ -50,51 +50,13 @@ export default async function handler(req, res) {
       const body = req.body;
       const { tipo, valor, id_usuario, tag_distribuicao } = body;
 
-      if (tipo === "Despesa") {
-        if (!tag_distribuicao) {
-          return res.status(400).send("Tag de distribuição obrigatória para despesas.");
-        }
-
-        const rTags = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
-        const tagsJson = await rTags.json();
-        const tags = tagsJson.items || [];
-        const tag = tags.find(t => t.TAG_DISTRIBUICAO === tag_distribuicao);
-
-        if (!tag) {
-          return res.status(400).send("Tag de distribuição não encontrada.");
-        }
-
-        const valorAtual = parseFloat(tag.VALOR_DISPONIVEL);
-        const novoValor = valorAtual - valor;
-
-        if (novoValor < 0) {
-          return res.status(400).send("Saldo insuficiente na tag.");
-        }
-
-        await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ID_USUARIO: id_usuario,
-            TAG_DISTRIBUICAO: tag_distribuicao,
-            VALOR_DISPONIVEL: novoValor
-          })
-        });
-      }
-
-      // Salvar transação com tag_distribuicao
-      const payloadTransacao = {
-        ...body,
-        tag_distribuicao: tipo === "Receita" ? null : tag_distribuicao
-      };
-
-      const r = await fetch(BASE_TRANSACOES, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payloadTransacao)
-      });
-
       if (tipo === "Receita") {
+        const r = await fetch(BASE_TRANSACOES, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...body, tag_distribuicao: null }),
+        });
+
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
         const configuracoes = configJson.items || [];
@@ -111,7 +73,6 @@ export default async function handler(req, res) {
 
           if (existente) {
             const novoValor = parseFloat(existente.VALOR_DISPONIVEL) + valorDistribuir;
-
             await fetch(`${BASE_DISTRIBUICAO}${existente.ID_DISTRIBUICAO_VALOR}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -133,9 +94,48 @@ export default async function handler(req, res) {
             });
           }
         }
+
+        return res.status(r.status).end();
       }
 
-      return res.status(r.status).end();
+      // Validações para despesa
+      if (tipo === "Despesa") {
+        if (!tag_distribuicao) return res.status(400).send("Tag de distribuição não informada.");
+
+        const rTags = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
+        const tagsJson = await rTags.json();
+        const tags = tagsJson.items || [];
+
+        const tag = tags.find(t => t.TAG_DISTRIBUICAO === tag_distribuicao);
+        if (!tag) return res.status(400).send("Tag de distribuição não encontrada.");
+
+        const saldoDisponivel = parseFloat(tag.VALOR_DISPONIVEL);
+        if (valor > saldoDisponivel) {
+          return res.status(400).send("Saldo insuficiente na tag.");
+        }
+
+        const novoSaldo = saldoDisponivel - valor;
+        await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ID_USUARIO: id_usuario,
+            TAG_DISTRIBUICAO: tag_distribuicao,
+            VALOR_DISPONIVEL: novoSaldo
+          })
+        });
+
+        // Registrar transação com tag associada
+        const r = await fetch(BASE_TRANSACOES, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...body, tag_distribuicao }),
+        });
+
+        return res.status(r.status).end();
+      }
+
+      return res.status(400).send("Tipo de transação inválido.");
     } catch (err) {
       console.error("Erro ao registrar transação:", err);
       return res.status(500).send("Erro interno ao registrar transação.");
@@ -156,7 +156,8 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     const r = await fetch(BASE_TRANSACOES + id, {
-      method: "DELETE" });
+      method: "DELETE"
+    });
     return res.status(r.status).end();
   }
 
