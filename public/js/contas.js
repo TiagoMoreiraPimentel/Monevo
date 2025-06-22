@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Verifica duplicidade
     const todasContas = await fetch("/api/contas").then(r => r.json());
     const minhasContas = todasContas.filter(c => c.id_usuario === usuario.id);
     const contaJaExiste = minhasContas.some(c =>
@@ -52,8 +51,30 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(novaConta)
       });
 
-
       if (res.ok) {
+        // Busca a conta recém criada
+        const contasAtualizadas = await fetch("/api/contas").then(r => r.json());
+        const nova = contasAtualizadas.find(c => c.id_usuario === usuario.id && c.nome_conta === nome && c.tipo === tipo);
+
+        // Cria transação com o saldo inicial
+        if (nova && saldo > 0) {
+          const transacaoInicial = {
+            id_usuario: usuario.id,
+            id_conta: nova.id_conta,
+            tipo: "Receita",
+            valor: saldo,
+            data: new Date().toISOString().split("T")[0],
+            categoria: "Saldo Inicial",
+            descricao: "Crédito inicial da conta"
+          };
+
+          await fetch("/api/transacoes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(transacaoInicial)
+          });
+        }
+
         mostrarMensagem("Conta cadastrada com sucesso.");
         e.target.reset();
         carregarContas();
