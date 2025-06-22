@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tipo").addEventListener("change", async (e) => {
     if (e.target.value === "Despesa") {
       campoTag.classList.remove("hidden");
-      await carregarTagsDistribuicao(); // <-- chama aqui
+      await carregarTagsDistribuicao();
     } else {
       campoTag.classList.add("hidden");
       selectTag.innerHTML = '<option value="">Selecione a tag</option>';
@@ -132,15 +132,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function atualizarListaTransacoes() {
-    const params = new URLSearchParams({
-      id_usuario: usuario.id
-    });
-
+    const params = new URLSearchParams({ id_usuario: usuario.id });
     const r = await fetch(`${BASE_URL}?${params}`);
     const transacoes = await r.json();
 
-    // Desktop
     tabela.innerHTML = "";
+    listaMobile.innerHTML = "";
+
     transacoes.forEach(t => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -149,15 +147,12 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${t.tipo}</td>
         <td>R$ ${parseFloat(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
+        <td>${t.tag_distribuicao || "-"}</td>
         <td>${t.descricao || "-"}</td>
         <td><button class="btn-excluir" onclick="excluirTransacao(${t.id_transacao})">Excluir</button></td>
       `;
       tabela.appendChild(tr);
-    });
 
-    // Mobile
-    listaMobile.innerHTML = "";
-    transacoes.forEach(t => {
       const div = document.createElement("div");
       div.classList.add("card-transacao");
       div.innerHTML = `
@@ -166,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${parseFloat(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
+        <p><strong>Tag:</strong> ${t.tag_distribuicao || "-"}</p>
         <p><strong>Descrição:</strong> ${t.descricao || "-"}</p>
         <button class="btn-excluir" onclick="excluirTransacao(${t.id_transacao})">Excluir</button>
       `;
@@ -218,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${t.tipo}</td>
         <td>R$ ${parseFloat(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
+        <td>${t.tag_distribuicao || "-"}</td>
         <td>${t.descricao || "-"}</td>
         <td><button class="btn-excluir" onclick="excluirTransacao(${t.id_transacao})">Excluir</button></td>
       `;
@@ -231,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${parseFloat(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
+        <p><strong>Tag:</strong> ${t.tag_distribuicao || "-"}</p>
         <p><strong>Descrição:</strong> ${t.descricao || "-"}</p>
         <button class="btn-excluir" onclick="excluirTransacao(${t.id_transacao})">Excluir</button>
       `;
@@ -238,8 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Inicialização
   carregarContas();
-  carregarTagsDistribuicao();
   atualizarListaTransacoes();
 });
