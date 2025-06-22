@@ -113,7 +113,6 @@ async function carregarContas() {
         </td>
         <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
         <td data-label="Ações">
-          <button onclick="salvarConta('${conta.id_conta}')">Salvar</button>
           <button onclick="excluirConta('${conta.id_conta}')">Excluir</button>
         </td>
       `;
@@ -125,41 +124,6 @@ async function carregarContas() {
     mostrarMensagem("Erro ao carregar contas.");
   }
 }
-
-window.salvarConta = async function (id) {
-  const nome = document.querySelector(`input[data-id='${id}'][data-campo='nome_conta']`).value;
-  const tipo = document.querySelector(`select[data-id='${id}'][data-campo='tipo']`).value;
-  const saldo = parseFloat(document.querySelector(`input[data-id='${id}'][data-campo='saldo_inicial']`).value);
-
-  // Verifica se há transações vinculadas
-  const transacoes = await fetch("/api/transacoes").then(r => r.json());
-  const vinculadas = transacoes.some(t => t.id_conta == id);
-
-  if (vinculadas) {
-    mostrarMensagem("Não é possível editar esta conta pois existem transações vinculadas.");
-    return;
-  }
-
-  const atualizada = {
-    nome_conta: nome,
-    tipo,
-    saldo_inicial: saldo,
-    data_criacao: new Date().toISOString()
-  };
-
-  const res = await fetch(`/api/contas?id=${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(atualizada)
-  });
-
-  if (res.ok) {
-    mostrarMensagem("Conta atualizada.");
-    carregarContas();
-  } else {
-    mostrarMensagem("Erro ao atualizar.");
-  }
-};
 
 window.excluirConta = async function (id) {
   const confirmacao = confirm("Deseja excluir esta conta? Todas as transações devem ser removidas antes.");
