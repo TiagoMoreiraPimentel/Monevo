@@ -22,17 +22,25 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarTransacoes(usuario.id);
   });
 
+  document.getElementById("tipo").addEventListener("change", (e) => {
+    const campoTag = document.getElementById("campo-tag");
+    campoTag.classList.toggle("hidden", e.target.value !== "Despesa");
+  });
+
   carregarContas(usuario.id);
+  carregarTagsDistribuicao(usuario.id);
   carregarTransacoes(usuario.id);
 
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const idConta = parseInt(document.getElementById("conta").value);
     const tipo = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value.trim();
+    const tagDistribuicao = document.getElementById("tagDistribuicao").value;
 
     if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
       mostrarMensagem("Preencha todos os campos obrigatórios.");
@@ -46,7 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
       valor,
       data_transacao: new Date(dataBruta).toISOString(),
       categoria,
-      descricao
+      descricao,
+      tag_distribuicao: tipo === "Despesa" ? tagDistribuicao || null : null
     };
 
     try {
@@ -94,6 +103,24 @@ async function carregarContas(idUsuario) {
     select.appendChild(opt1);
     filtroConta.appendChild(opt2);
   });
+}
+
+async function carregarTagsDistribuicao(idUsuario) {
+  try {
+    const res = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
+    const tags = await res.json();
+    const select = document.getElementById("tagDistribuicao");
+    select.innerHTML = "<option value=''>Selecione a tag</option>";
+
+    tags.forEach(tag => {
+      const opt = document.createElement("option");
+      opt.value = tag.nome_categoria;
+      opt.textContent = tag.nome_categoria;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar tags:", err);
+  }
 }
 
 async function carregarTransacoes(idUsuario) {

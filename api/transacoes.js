@@ -6,17 +6,14 @@ export default async function handler(req, res) {
     try {
       const { id_usuario, mes, ano } = req.query;
 
-      // Busca transações
       const resTrans = await fetch(BASE_TRANSACOES);
       const jsonTrans = await resTrans.json();
       const transacoes = jsonTrans.items || [];
 
-      // Busca contas
       const resContas = await fetch(BASE_CONTAS);
       const jsonContas = await resContas.json();
       const contas = jsonContas.items || [];
 
-      // Cria mapa de contas por id
       const mapaContas = {};
       contas.forEach(conta => {
         mapaContas[conta.id_conta] = {
@@ -25,14 +22,12 @@ export default async function handler(req, res) {
         };
       });
 
-      // Enriquecer transações com tipo_conta e nome_conta
       const transacoesEnriquecidas = transacoes.map(t => ({
         ...t,
         tipo_conta: mapaContas[t.id_conta]?.tipo || "Desconhecida",
         nome_conta: mapaContas[t.id_conta]?.nome || "Conta"
       }));
 
-      // Filtrar se solicitado
       const filtradas = transacoesEnriquecidas.filter(t => {
         if (!t.data && !t.data_transacao) return false;
         const data = new Date(t.data || t.data_transacao);
@@ -52,12 +47,25 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const r = await fetch(BASE_TRANSACOES, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
-    });
-    return res.status(r.status).end();
+    try {
+      const payload = req.body;
+
+      // Garante que o campo exista, mesmo que null
+      if (!("tag_distribuicao" in payload)) {
+        payload.tag_distribuicao = null;
+      }
+
+      const r = await fetch(BASE_TRANSACOES, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      return res.status(r.status).end();
+    } catch (err) {
+      console.error("Erro ao cadastrar transação:", err);
+      return res.status(500).send("Erro ao cadastrar transação.");
+    }
   }
 
   const id = req.query.id;
