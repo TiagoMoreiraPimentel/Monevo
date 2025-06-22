@@ -174,14 +174,22 @@ window.excluirConta = async function (id) {
     return;
   }
 
-  await fetch(`/api/contas?id=${id}`, {
-    method: "DELETE"
-  });
+  try {
+    const res = await fetch(`/api/contas?id=${id}`, {
+      method: "DELETE"
+    });
 
-  if (res.ok) {
-    mostrarMensagem("Conta excluída.");
-    carregarContas();
-  } else {
-    mostrarMensagem("Erro ao excluir conta.");
+    if (res.ok) {
+      mostrarMensagem("Conta excluída.");
+      carregarContas();
+    } else {
+      const erro = await res.text();
+      console.error("Erro ao excluir conta:", erro);
+      mostrarMensagem("Erro ao excluir conta.");
+    }
+  } catch (err) {
+    console.error("Erro de conexão:", err);
+    mostrarMensagem("Erro de conexão ao excluir conta.");
   }
 };
+
