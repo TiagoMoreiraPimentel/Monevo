@@ -53,13 +53,17 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (res.ok) {
-        const contasAtualizadas = await res.json(); // Supondo que retorne as contas
-        const contaNova = Array.isArray(contasAtualizadas)
-          ? contasAtualizadas.find(c =>
-              c.id_usuario === usuario.id &&
-              c.nome_conta === nome &&
-              c.tipo === tipo)
-          : null;
+        let contaNova = null;
+        try {
+          const contasAtualizadas = await fetch("/api/contas").then(r => r.json());
+          contaNova = contasAtualizadas.find(c =>
+            c.id_usuario === usuario.id &&
+            c.nome_conta === nome &&
+            c.tipo === tipo
+          );
+        } catch (erro) {
+          console.warn("Erro ao recuperar conta recém criada:", erro);
+        }
 
         if (saldo > 0 && contaNova?.id_conta) {
           const transacaoSaldoInicial = {
@@ -115,8 +119,7 @@ async function carregarContas() {
         <td data-label="Tipo">
           <select data-id="${conta.id_conta}" data-campo="tipo">
             <option value="Carteira" ${conta.tipo === "Carteira" ? "selected" : ""}>Carteira</option>
-            <option value="Corrente" ${conta.tipo === "Corrente" ? "selected" : ""}>Corrente</option>
-            <option value="Poupança" ${conta.tipo === "Poupança" ? "selected" : ""}>Poupança</option>
+            <option value="Conta Corrente" ${conta.tipo === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
           </select>
         </td>
         <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
