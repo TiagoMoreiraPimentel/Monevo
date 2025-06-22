@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Configuração de Distribuição - Monevo</title>
+  <link rel="stylesheet" href="../estilos/configuracao.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Configuração de Distribuição de Receitas</h1>
+    <form id="form-distribuicao">
+      <div class="inputs">
+        <input type="text" id="nomeCategoria" placeholder="Nome da Categoria" required />
+        <input type="number" id="porcentagem" placeholder="Porcentagem (%)" required min="0" max="100" />
+        <button type="submit">Adicionar</button>
+      </div>
+    </form>
+
+    <div id="somaPorcentagem" class="soma">Total: 0%</div>
+
+    <table id="tabelaDistribuicao">
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Porcentagem</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <button id="salvarConfig" disabled>Salvar Configuração</button>
+  </div>
+
+  <script src="../scripts/configuracao.js"></script>
+</body>
+</html>
