@@ -112,24 +112,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function carregarTagsDistribuicao() {
-    try {
-      const res = await fetch(`${BASE_TAGS}?id_usuario=${usuario.id}`);
-      const json = await res.json();
-      const tags = json || [];
+  try {
+    const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${usuario.id}`);
+    const json = await res.json();
+    const categorias = json || [];
 
-      const nomesUnicos = [...new Set(tags.map(t => t.TAG_DISTRIBUICAO).filter(Boolean))];
-      selectTag.innerHTML = '<option value="">Selecione a tag</option>';
+    const nomesUnicos = [...new Set(categorias.map(c => c.nome_categoria).filter(Boolean))];
+    selectTag.innerHTML = '<option value="">Selecione a tag</option>';
 
-      nomesUnicos.forEach(tag => {
-        const opt = document.createElement("option");
-        opt.value = tag;
-        opt.textContent = tag;
-        selectTag.appendChild(opt);
-      });
-    } catch (err) {
-      console.error("Erro ao carregar tags:", err);
-    }
+    nomesUnicos.forEach(nome => {
+      const opt = document.createElement("option");
+      opt.value = nome;
+      opt.textContent = nome;
+      selectTag.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar tags:", err);
   }
+}
 
   async function atualizarListaTransacoes() {
     const params = new URLSearchParams({ id_usuario: usuario.id });
