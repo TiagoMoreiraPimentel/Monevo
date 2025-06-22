@@ -43,14 +43,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${item.nome_categoria}</td>
-        <td>${item.porcentagem}%</td>
+        <td>
+          <input type="number" min="0" max="100" step="0.01" value="${item.porcentagem}" 
+                 onchange="atualizarPorcentagem(${index}, this.value)" />
+        </td>
         <td><button onclick="removerCategoria(${index})">Remover</button></td>
       `;
       tabela.appendChild(tr);
     });
 
     somaDisplay.textContent = `Total: ${soma.toFixed(2)}%`;
-    salvarBtn.disabled = soma !== 100;
+    salvarBtn.disabled = soma.toFixed(2) != 100.00;
   }
 
   window.removerCategoria = (index) => {
@@ -58,9 +61,20 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarTabela();
   };
 
+  window.atualizarPorcentagem = (index, novoValor) => {
+    const valor = parseFloat(novoValor);
+    if (isNaN(valor) || valor < 0 || valor > 100) {
+      alert("Porcentagem inválida.");
+      return;
+    }
+    configuracoes[index].porcentagem = valor;
+    atualizarTabela();
+  };
+
   salvarBtn.addEventListener("click", async () => {
-    if (configuracoes.length === 0) {
-      alert("Adicione ao menos uma categoria.");
+    const total = configuracoes.reduce((soma, item) => soma + item.porcentagem, 0);
+    if (total.toFixed(2) != 100.00) {
+      alert(`A soma das porcentagens precisa ser exatamente 100%. Soma atual: ${total.toFixed(2)}%.`);
       return;
     }
 
@@ -69,8 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const existentes = await fetch(`${BASE_URL}?id_usuario=${usuario.id}`);
       const data = await existentes.json();
 
-      for (const item of data.items || []) {
-        await fetch(`${BASE_URL}${item.id_distribuicao}`, { method: "DELETE" });
+      for (const item of data || []) {
+        await fetch(`${BASE_URL}?id=${item.id_distribuicao}`, { method: "DELETE" });
       }
 
       // Salva as novas configurações
