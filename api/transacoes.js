@@ -67,7 +67,6 @@ export default async function handler(req, res) {
           return res.status(400).send("Tag de distribuição não informada.");
         }
 
-        // Validação da existência da tag
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
         const configTags = configJson.items || [];
@@ -79,7 +78,6 @@ export default async function handler(req, res) {
           return res.status(400).send("Tag de distribuição não encontrada.");
         }
 
-        // Verifica se a tag existe na tabela de valores
         const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
         const checkJson = await rCheck.json();
         let tag = checkJson.items?.find(t =>
@@ -129,6 +127,9 @@ export default async function handler(req, res) {
         bodyLimpo.TAG_DISTRIBUICAO = tag_distribuicao;
       }
 
+      // DEBUG: log do payload enviado
+      console.log("Enviando para ORDS:", JSON.stringify(bodyLimpo, null, 2));
+
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -137,11 +138,10 @@ export default async function handler(req, res) {
 
       if (!r.ok) {
         const erro = await r.text();
-        console.error("Erro ao registrar transação:", erro);
-        return res.status(r.status).send(erro);
+        console.error("Erro ORDS:", erro);
+        return res.status(r.status).json({ erro, payload: bodyLimpo });
       }
 
-      // Distribuição automática da receita
       if (tipo === "Receita") {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
@@ -187,7 +187,7 @@ export default async function handler(req, res) {
 
       return res.status(201).end();
     } catch (err) {
-      console.error("Erro ao registrar transação:", err);
+      console.error("Erro interno:", err);
       return res.status(500).send("Erro interno ao registrar transação.");
     }
   }
