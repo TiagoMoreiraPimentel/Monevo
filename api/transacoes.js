@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         ...t,
         tipo_conta: mapaContas[t.id_conta]?.tipo || "Desconhecida",
         nome_conta: mapaContas[t.id_conta]?.nome || "Conta",
-        data: t.data_transacao || t.data // <-- Corrigido aqui
+        data: t.data_transacao || t.data
       }));
 
       const filtradas = transacoesEnriquecidas.filter(t => {
@@ -49,9 +49,9 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     try {
       const body = req.body;
+      body.valor = parseFloat(body.valor); // Garantir tipo numérico
       const { tipo, valor, id_usuario, tag_distribuicao } = body;
 
-      // Despesa: validar tag no CONFIG e saldo no VALOR
       if (tipo === "Despesa") {
         if (!tag_distribuicao || tag_distribuicao.trim() === "") {
           return res.status(400).send("Tag de distribuição não informada.");
@@ -61,18 +61,23 @@ export default async function handler(req, res) {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
         const configTags = configJson.items || [];
-        const tagExiste = configTags.some(t => t.nome_categoria === tag_distribuicao);
+        const tagExiste = configTags.some(t =>
+          t.nome_categoria?.toLowerCase().trim() === tag_distribuicao.toLowerCase().trim()
+        );
 
         if (!tagExiste) {
           return res.status(400).send("Tag de distribuição não encontrada.");
         }
 
-        // Verifica se existe saldo suficiente na tabela de valor
+        // Verifica saldo disponível
         const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
         const checkJson = await rCheck.json();
         const tags = checkJson.items || [];
 
-        const tag = tags.find(t => t.TAG_DISTRIBUICAO === tag_distribuicao);
+        const tag = tags.find(t =>
+          t.TAG_DISTRIBUICAO?.toLowerCase().trim() === tag_distribuicao.toLowerCase().trim()
+        );
+
         if (!tag) {
           return res.status(400).send("Tag de distribuição não encontrada na tabela de valores.");
         }
@@ -82,7 +87,7 @@ export default async function handler(req, res) {
           return res.status(400).send("Saldo insuficiente na tag.");
         }
 
-        // Atualiza o saldo da tag
+        // Atualiza saldo da tag
         const payload = {
           ID_USUARIO: id_usuario,
           TAG_DISTRIBUICAO: tag_distribuicao,
@@ -96,11 +101,20 @@ export default async function handler(req, res) {
         });
       }
 
+      if (tipo === "Receita") {
+        delete body.tag_distribuicao; // Não envia tag em receitas
+      }
+
+      // Remove campos nulos/undefined
+      Object.keys(body).forEach(k => {
+        if (body[k] === null || body[k] === undefined) delete body[k];
+      });
+
       // Registrar transação
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       });
 
       if (!r.ok) {
@@ -109,7 +123,6 @@ export default async function handler(req, res) {
         return res.status(r.status).send(erro);
       }
 
-      // Receita: distribuir valor
       if (tipo === "Receita") {
         const rConfig = await fetch(`${BASE_CONFIG}?id_usuario=${id_usuario}`);
         const configJson = await rConfig.json();
@@ -123,7 +136,9 @@ export default async function handler(req, res) {
           const checkJson = await rCheck.json();
           const tags = checkJson.items || [];
 
-          const existente = tags.find(t => t.TAG_DISTRIBUICAO === nome_categoria);
+          const existente = tags.find(t =>
+            t.TAG_DISTRIBUICAO?.toLowerCase().trim() === nome_categoria.toLowerCase().trim()
+          );
 
           if (existente) {
             const novoValor = parseFloat(existente.VALOR_DISPONIVEL) + valorDistribuir;
@@ -169,11 +184,12 @@ export default async function handler(req, res) {
       const rTransacao = await fetch(BASE_TRANSACOES + id);
       const t = await rTransacao.json();
 
-      // Desfazer distribuição se for despesa com tag
       if (t.tipo === "Despesa" && t.tag_distribuicao) {
         const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${t.id_usuario}`);
         const checkJson = await rCheck.json();
-        const tag = (checkJson.items || []).find(x => x.TAG_DISTRIBUICAO === t.tag_distribuicao);
+        const tag = (checkJson.items || []).find(x =>
+          x.TAG_DISTRIBUICAO?.toLowerCase().trim() === t.tag_distribuicao.toLowerCase().trim()
+        );
         if (tag) {
           const novoValor = parseFloat(tag.VALOR_DISPONIVEL) + parseFloat(t.valor);
           await fetch(`${BASE_DISTRIBUICAO}${tag.ID_DISTRIBUICAO_VALOR}`, {
