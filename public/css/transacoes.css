@@ -176,11 +176,12 @@ table td {
 }
 
 /* Rodapé centralizado */
-footer.footer {
-  background-color: #f4f4f4;
-  padding: 1rem;
+.footer {
   text-align: center;
-  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f6f6f6;
+  font-size: 0.9rem;
+  color: #666;
 }
 
 /* Responsividade */

@@ -45,7 +45,9 @@
 
       <div id="campo-tag" class="hidden">
         <label for="tagDistribuicao">Retirar da Tag de Distribuição:</label>
-        <select id="tagDistribuicao"></select>
+        <select id="tagDistribuicao" required>
+          <option value="">Selecione a tag</option>
+        </select>
       </div>
 
       <label for="descricao">Descrição:</label>
@@ -94,8 +96,6 @@
           <th>Valor</th>
           <th>Categoria</th>
           <th>Descrição</th>
-          <th>Tag</th>
-          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-transacoes"></tbody>
