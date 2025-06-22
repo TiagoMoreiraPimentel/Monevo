@@ -175,6 +175,14 @@ table td {
   background-color: #fff;
 }
 
+/* Rodapé centralizado */
+footer.footer {
+  background-color: #f4f4f4;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   header {

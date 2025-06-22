@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const tagSelect = document.getElementById("tagDistribuicao");
   const campoTag = document.getElementById("campo-tag");
-  const selectTag = document.getElementById("tagDistribuicao");
 
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
@@ -26,10 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("tipo").addEventListener("change", (e) => {
-    if (e.target.value === "Despesa") {
+    const tipo = e.target.value;
+    if (tipo === "Despesa") {
       campoTag.classList.remove("hidden");
     } else {
       campoTag.classList.add("hidden");
+      tagSelect.value = "";
     }
   });
 
@@ -39,21 +41,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const idConta = parseInt(document.getElementById("conta").value);
     const tipo = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value.trim();
-    const tagDistribuicao = document.getElementById("tagDistribuicao").value;
+    const tag = tagSelect.value;
 
     if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
       mostrarMensagem("Preencha todos os campos obrigatórios.");
       return;
     }
 
-    if (tipo === "Despesa" && !tagDistribuicao) {
-      mostrarMensagem("Selecione uma tag de distribuição para a despesa.");
+    if (tipo === "Despesa" && !tag) {
+      mostrarMensagem("Selecione a tag da qual será retirada a despesa.");
       return;
     }
 
@@ -65,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data_transacao: new Date(dataBruta).toISOString(),
       categoria,
       descricao,
-      tag_distribuicao: tipo === "Despesa" ? tagDistribuicao : null
+      tag_distribuicao: tipo === "Despesa" ? tag : null
     };
 
     try {
@@ -78,9 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         mostrarMensagem("Transação registrada.");
         e.target.reset();
-        document.getElementById("form-transacao").classList.add("hidden");
+        campoTag.classList.add("hidden");
         carregarTransacoes(usuario.id);
-        carregarTagsDistribuicao(usuario.id); // atualiza saldo
+        carregarTagsDistribuicao(usuario.id);
       } else {
         const erro = await res.text();
         console.error("Erro ORDS:", erro);
@@ -120,14 +123,25 @@ async function carregarContas(idUsuario) {
 async function carregarTagsDistribuicao(idUsuario) {
   try {
     const res = await fetch(`/api/distribuicao_valor?id_usuario=${idUsuario}`);
-    const json = await res.json();
+    const tags = await res.json();
+
     const select = document.getElementById("tagDistribuicao");
     select.innerHTML = `<option value="">Selecione a tag</option>`;
 
-    json.forEach(tag => {
+    const tagsUnicas = [];
+    const nomesAdicionados = new Set();
+
+    for (const tag of tags) {
+      if (!nomesAdicionados.has(tag.TAG_DISTRIBUICAO)) {
+        nomesAdicionados.add(tag.TAG_DISTRIBUICAO);
+        tagsUnicas.push(tag);
+      }
+    }
+
+    tagsUnicas.forEach(tag => {
       const opt = document.createElement("option");
       opt.value = tag.TAG_DISTRIBUICAO;
-      opt.textContent = `${tag.TAG_DISTRIBUICAO} (R$ ${parseFloat(tag.VALOR_DISPONIVEL).toFixed(2)})`;
+      opt.textContent = `${tag.TAG_DISTRIBUICAO} (R$ ${Number(tag.VALOR_DISPONIVEL).toFixed(2)})`;
       select.appendChild(opt);
     });
   } catch (err) {
@@ -158,18 +172,22 @@ async function carregarTransacoes(idUsuario) {
 
     minhas.sort((a, b) => new Date(b.data_transacao) - new Date(a.data_transacao));
 
-    minhas.forEach(t => {
+    for (const t of minhas) {
       const dataFormatada = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
+      const conta = t.nome_conta || "Conta";
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${dataFormatada}</td>
-        <td>${t.nome_conta || "Conta"}</td>
+        <td>${conta}</td>
         <td>${t.tipo}</td>
         <td>R$ ${Number(t.valor).toFixed(2)}</td>
         <td>${t.categoria}</td>
-        <td title="${t.descricao || ''}">${(t.descricao?.length > 30) ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}</td>
+        <td title="${t.descricao || ''}">
+          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
+        </td>
         <td>${t.tag_distribuicao || "-"}</td>
-        <td><button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button></td>
+        <td><button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario}, '${t.tipo}', '${t.tag_distribuicao}', ${t.valor})">Excluir</button></td>
       `;
       tabela.appendChild(tr);
 
@@ -177,28 +195,30 @@ async function carregarTransacoes(idUsuario) {
       card.classList.add("card-transacao");
       card.innerHTML = `
         <p><strong>Data:</strong> ${dataFormatada}</p>
-        <p><strong>Conta:</strong> ${t.nome_conta || "Conta"}</p>
+        <p><strong>Conta:</strong> ${conta}</p>
         <p><strong>Tipo:</strong> ${t.tipo}</p>
         <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${t.categoria}</p>
         <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
-        ${t.tag_distribuicao ? `<p><strong>Tag:</strong> ${t.tag_distribuicao}</p>` : ""}
-        <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button>
+        <p><strong>Tag:</strong> ${t.tag_distribuicao || "-"}</p>
+        <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario}, '${t.tipo}', '${t.tag_distribuicao}', ${t.valor})">Excluir</button>
       `;
       listaMobile.appendChild(card);
-    });
+    }
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar transações.");
   }
 }
 
-window.excluirTransacao = async function (id, idUsuario) {
+window.excluirTransacao = async function (id, idUsuario, tipo, tag, valor) {
   const confirmar = confirm("Deseja excluir esta transação?");
   if (!confirmar) return;
 
   try {
-    const res = await fetch(`/api/transacoes?id=${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/transacoes?id=${id}`, {
+      method: "DELETE"
+    });
 
     if (res.ok) {
       mostrarMensagem("Transação excluída.");
