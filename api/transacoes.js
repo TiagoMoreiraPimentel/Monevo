@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
-  const BASE_TRANSACOES = "https://.../ords/admin/monevo_transacao/";
-  const BASE_CONTAS = "https://.../ords/admin/monevo_conta/";
-  const BASE_CONFIG = "https://.../ords/admin/monevo_distribuicao_config/";
-  const BASE_DISTRIBUICAO = "https://.../ords/admin/monevo_distribuicao_valor/";
+  const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
+  const BASE_CONTAS = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_conta/";
+  const BASE_CONFIG = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
+  const BASE_DISTRIBUICAO = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
 
   if (req.method === "GET") {
     try {
@@ -33,9 +33,11 @@ export default async function handler(req, res) {
       const filtradas = transacoesEnriquecidas.filter(t => {
         if (!t.data && !t.data_transacao) return false;
         const data = new Date(t.data || t.data_transacao);
+
         const mesmoMes = mes ? String(data.getMonth() + 1).padStart(2, "0") === mes : true;
         const mesmoAno = ano ? String(data.getFullYear()) === ano : true;
         const mesmoUsuario = id_usuario ? String(t.id_usuario) === id_usuario : true;
+
         return mesmoMes && mesmoAno && mesmoUsuario;
       });
 
@@ -50,40 +52,19 @@ export default async function handler(req, res) {
     try {
       const transacao = req.body;
 
-      // Validar saldo disponível para despesas com tag
-      if (transacao.tipo === "Despesa" && transacao.tag_distribuicao) {
-        const rSaldo = await fetch(BASE_DISTRIBUICAO);
-        const jsonSaldo = await rSaldo.json();
-        const saldos = jsonSaldo.items.filter(
-          s => s.id_usuario === transacao.id_usuario &&
-               s.tag_distribuicao === transacao.tag_distribuicao
-        );
-
-        const totalDisponivel = saldos.reduce((acc, s) => acc + parseFloat(s.valor_disponivel || 0), 0);
-
-        if (totalDisponivel < transacao.valor) {
-          return res.status(400).send("Saldo insuficiente na tag de distribuição.");
-        }
-      }
-
-      // Registrar transação no ORDS
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transacao),
       });
 
-      if (!r.ok) {
-        const erro = await r.text();
-        console.error("Erro ao registrar transação:", erro);
-        return res.status(r.status).send("Erro ao registrar transação.");
-      }
+      if (!r.ok) return res.status(r.status).send("Erro ao registrar transação");
 
-      // Se for receita, distribuir automaticamente
+      // Distribuição automática para receitas
       if (transacao.tipo === "Receita") {
-        const resConfig = await fetch(BASE_CONFIG);
-        const jsonConfig = await resConfig.json();
-        const configuracoes = jsonConfig.items.filter(c => c.id_usuario === transacao.id_usuario);
+        const configRes = await fetch(BASE_CONFIG);
+        const configJson = await configRes.json();
+        const configuracoes = configJson.items.filter(c => c.id_usuario === transacao.id_usuario);
 
         for (const conf of configuracoes) {
           const valorDistribuido = (transacao.valor * conf.porcentagem) / 100;
@@ -102,51 +83,31 @@ export default async function handler(req, res) {
         }
       }
 
-      // Se for despesa com tag, debitar valor negativo
-      if (transacao.tipo === "Despesa" && transacao.tag_distribuicao) {
-        const novoDebito = {
-          id_usuario: transacao.id_usuario,
-          tag_distribuicao: transacao.tag_distribuicao,
-          valor_disponivel: -Math.abs(transacao.valor)
-        };
-
-        await fetch(BASE_DISTRIBUICAO, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(novoDebito)
-        });
-      }
-
-      return res.status(201).send("Transação registrada.");
+      return res.status(201).send("Transação registrada e distribuída.");
     } catch (error) {
-      console.error("Erro interno ao registrar transação:", error);
-      return res.status(500).send("Erro interno ao registrar transação.");
+      console.error("Erro ao registrar transação e distribuir:", error);
+      return res.status(500).send("Erro interno.");
     }
   }
 
-  if (req.method === "DELETE") {
-    const id = req.query.id;
-    if (!id) return res.status(400).send("ID obrigatório.");
-
-    const r = await fetch(BASE_TRANSACOES + id, {
-      method: "DELETE"
-    });
-
-    return res.status(r.status).end();
-  }
+  const id = req.query.id;
+  if (!id) return res.status(400).send("ID obrigatório.");
 
   if (req.method === "PUT") {
-    const id = req.query.id;
-    if (!id) return res.status(400).send("ID obrigatório.");
-
     const r = await fetch(BASE_TRANSACOES + id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req.body)
     });
-
     return res.status(r.status).end();
   }
 
-  return res.status(405).send("Método não permitido.");
+  if (req.method === "DELETE") {
+    const r = await fetch(BASE_TRANSACOES + id, {
+      method: "DELETE"
+    });
+    return res.status(r.status).end();
+  }
+
+  res.status(405).send("Método não permitido.");
 }
