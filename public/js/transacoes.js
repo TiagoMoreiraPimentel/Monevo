@@ -95,7 +95,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function mostrarMensagem(msg) {
-  document.getElementById("mensagem").innerText = msg;
+  const el = document.getElementById("mensagem");
+  if (el) el.innerText = msg;
 }
 
 async function carregarTagsDistribuicao(idUsuario) {
