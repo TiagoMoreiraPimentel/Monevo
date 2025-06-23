@@ -54,7 +54,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             datalabels: {
               anchor: "end",
               align: "top",
-              formatter: valor => `R$ ${valor.toFixed(2)}`,
+              formatter: valor => valor != null ? `R$ ${valor.toFixed(2)}` : ''
             },
             title: {
               display: false
