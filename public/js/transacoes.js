@@ -6,6 +6,95 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const tipoInput = document.getElementById("tipo");
+  const campoTag = document.getElementById("campo-tag");
+  const selectTag = document.getElementById("tag-distribuicao");
+
+  tipoInput.addEventListener("change", async () => {
+    if (tipoInput.value === "Despesa") {
+      campoTag.classList.remove("hidden");
+      await carregarTagsDistribuicao(usuario.id);
+    } else {
+      campoTag.classList.add("hidden");
+      selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
+    }
+  });
+
+  document.getElementById("form-transacao").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const idConta = parseInt(document.getElementById("conta").value);
+    const tipo = tipoInput.value;
+    const valor = parseFloat(document.getElementById("valor").value);
+    const dataBruta = document.getElementById("data").value;
+    const categoria = document.getElementById("categoria").value;
+    const descricao = document.getElementById("descricao").value.trim();
+    const tag = selectTag.value;
+
+    if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
+      mostrarMensagem("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (tipo === "Despesa" && !tag) {
+      mostrarMensagem("Selecione uma tag de distribuição para despesas.");
+      return;
+    }
+
+    const dados = {
+      id_usuario: usuario.id,
+      id_conta: idConta,
+      tipo,
+      valor,
+      data_transacao: new Date(dataBruta).toISOString(),
+      categoria,
+      descricao,
+      tag_distribuicao: tipo === "Despesa" ? tag : null
+    };
+
+    try {
+      const res = await fetch("/api/transacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      });
+
+      if (res.ok) {
+        mostrarMensagem("Transação registrada.");
+        e.target.reset();
+        campoTag.classList.add("hidden");
+        carregarTransacoes(usuario.id);
+      } else {
+        const erro = await res.text();
+        console.error("Erro ORDS:", erro);
+        mostrarMensagem("Erro ao registrar transação.");
+      }
+    } catch (err) {
+      console.error(err);
+      mostrarMensagem("Erro de conexão.");
+    }
+  });
+
+  async function carregarTagsDistribuicao(idUsuario) {
+  try {
+    const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${idUsuario}`);
+    const tags = await res.json();
+
+    const selectTag = document.getElementById("tag-distribuicao");
+    selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
+
+    tags.forEach(tag => {
+      const option = document.createElement("option");
+      option.value = tag;
+      option.textContent = tag;
+      selectTag.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar tags de distribuição:", err);
+    mostrarMensagem("Erro ao carregar tags.");
+  }
+}
+
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
   });
@@ -24,52 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   carregarContas(usuario.id);
   carregarTransacoes(usuario.id);
-
-  document.getElementById("form-transacao").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const idConta = parseInt(document.getElementById("conta").value);
-    const tipo = document.getElementById("tipo").value;
-    const valor = parseFloat(document.getElementById("valor").value);
-    const dataBruta = document.getElementById("data").value;
-    const categoria = document.getElementById("categoria").value;
-    const descricao = document.getElementById("descricao").value.trim();
-
-    if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
-      mostrarMensagem("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    const dados = {
-      id_usuario: usuario.id,
-      id_conta: idConta,
-      tipo,
-      valor,
-      data_transacao: new Date(dataBruta).toISOString(),
-      categoria,
-      descricao
-    };
-
-    try {
-      const res = await fetch("/api/transacoes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados)
-      });
-
-      if (res.ok) {
-        mostrarMensagem("Transação registrada.");
-        e.target.reset();
-        carregarTransacoes(usuario.id);
-      } else {
-        const erro = await res.text();
-        console.error("Erro ORDS:", erro);
-        mostrarMensagem("Erro ao registrar transação.");
-      }
-    } catch (err) {
-      console.error(err);
-      mostrarMensagem("Erro de conexão.");
-    }
-  });
 });
 
 function mostrarMensagem(msg) {
