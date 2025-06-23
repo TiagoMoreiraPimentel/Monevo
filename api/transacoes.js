@@ -60,6 +60,9 @@ export default async function handler(req, res) {
 
       if (!r.ok) return res.status(r.status).send("Erro ao registrar transação");
 
+      const resposta = await r.json();
+      const idTransacao = resposta.id_transacao;
+
       // Distribuição automática para receitas
       if (transacao.tipo === "Receita") {
         const configRes = await fetch(BASE_CONFIG);
@@ -72,7 +75,8 @@ export default async function handler(req, res) {
           const novaDistribuicao = {
             id_usuario: transacao.id_usuario,
             tag_distribuicao: conf.nome_categoria,
-            valor_disponivel: valorDistribuido
+            valor_disponivel: valorDistribuido,
+            id_transacao: idTransacao
           };
 
           await fetch(BASE_DISTRIBUICAO, {
@@ -103,10 +107,28 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "DELETE") {
-    const r = await fetch(BASE_TRANSACOES + id, {
-      method: "DELETE"
-    });
-    return res.status(r.status).end();
+    try {
+      // Excluir distribuições vinculadas à transação
+      const distribRes = await fetch(BASE_DISTRIBUICAO);
+      const distribJson = await distribRes.json();
+      const vinculadas = distribJson.items.filter(d => d.id_transacao == id);
+
+      for (const d of vinculadas) {
+        await fetch(BASE_DISTRIBUICAO + d.id_distribuicao_valor, {
+          method: "DELETE"
+        });
+      }
+
+      // Excluir transação original
+      const r = await fetch(BASE_TRANSACOES + id, {
+        method: "DELETE"
+      });
+
+      return res.status(r.status).end();
+    } catch (error) {
+      console.error("Erro ao excluir transação e distribuições:", error);
+      return res.status(500).send("Erro ao excluir transação.");
+    }
   }
 
   res.status(405).send("Método não permitido.");
