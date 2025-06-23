@@ -24,14 +24,14 @@ export default async function handler(req, res) {
         return res.status(400).send("Formato inválido.");
       }
 
-      // Consulta todas configurações existentes
+      // Consulta todas as configurações existentes
       const r = await fetch(BASE);
       const json = await r.json();
       const existentes = (json.items || []).filter(item => item.id_usuario == id_usuario);
 
-      // Deleta todas as configurações do usuário
+      // Deleta configurações existentes do usuário
       for (const item of existentes) {
-        await fetch(`${BASE}${item.id_distribuicao_config}`, {
+        await fetch(`${BASE}${item.id_distribuicao}`, {
           method: "DELETE"
         });
       }
