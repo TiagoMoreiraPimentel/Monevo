@@ -84,26 +84,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // Deleta as configurações anteriores do usuário
-      const existentes = await fetch(`${BASE_URL}?id_usuario=${usuario.id}`);
-      const data = await existentes.json();
+      const body = {
+        id_usuario: usuario.id,
+        configuracoes
+      };
 
-      for (const item of data || []) {
-        await fetch(`${BASE_URL}?id=${item.id_distribuicao}`, { method: "DELETE" });
-      }
-
-      // Salva as novas configurações
-      for (const config of configuracoes) {
-        await fetch(BASE_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_usuario: usuario.id,
-            nome_categoria: config.nome_categoria,
-            porcentagem: config.porcentagem
-          })
-        });
-      }
+      await fetch(BASE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
 
       alert("Configuração salva com sucesso!");
     } catch (err) {

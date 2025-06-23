@@ -6,9 +6,10 @@ export default async function handler(req, res) {
     if (!id_usuario) return res.status(400).send("id_usuario obrigatório.");
 
     try {
-      const r = await fetch(`${BASE}?id_usuario=${id_usuario}`);
+      const r = await fetch(BASE);
       const json = await r.json();
-      return res.status(200).json(json.items || []);
+      const filtradas = (json.items || []).filter(c => c.id_usuario == id_usuario);
+      return res.status(200).json(filtradas);
     } catch (err) {
       console.error("Erro GET:", err);
       return res.status(500).send("Erro ao buscar configurações.");
@@ -17,28 +18,38 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const r = await fetch(BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req.body)
-      });
-      return res.status(r.status).end();
+      const { id_usuario, configuracoes } = req.body;
+
+      if (!id_usuario || !Array.isArray(configuracoes)) {
+        return res.status(400).send("Formato inválido.");
+      }
+
+      // Buscar todas as configs
+      const todas = await fetch(BASE).then(r => r.json());
+      const existentes = todas.items.filter(c => c.id_usuario == id_usuario);
+
+      // Deleta configs antigas
+      for (const item of existentes) {
+        await fetch(`${BASE}${item.id_distribuicao_config}`, { method: "DELETE" });
+      }
+
+      // Insere novas configs
+      for (const conf of configuracoes) {
+        await fetch(BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_usuario,
+            nome_categoria: conf.nome_categoria,
+            porcentagem: conf.porcentagem
+          })
+        });
+      }
+
+      return res.status(201).send("Configuração atualizada.");
     } catch (err) {
       console.error("Erro POST:", err);
       return res.status(500).send("Erro ao salvar configuração.");
-    }
-  }
-
-  if (req.method === "DELETE") {
-    const { id } = req.query;
-    if (!id) return res.status(400).send("ID obrigatório para deletar.");
-
-    try {
-      const r = await fetch(`${BASE}${id}`, { method: "DELETE" });
-      return res.status(r.status).end();
-    } catch (err) {
-      console.error("Erro DELETE:", err);
-      return res.status(500).send("Erro ao deletar configuração.");
     }
   }
 
