@@ -58,9 +58,12 @@ export default async function handler(req, res) {
         TIPO: body.tipo,
         VALOR: valorNumerico,
         DATA_TRANSACAO: body.data,
-        CATEGORIA: body.categoria,
-        DESCRICAO: body.descricao
+        CATEGORIA: body.categoria
       };
+
+      if (body.descricao && body.descricao.trim() !== "") {
+        bodyLimpo.DESCRICAO = body.descricao;
+      }
 
       if (tipo === "Despesa") {
         if (!tag_distribuicao || tag_distribuicao.trim() === "") {
@@ -127,7 +130,6 @@ export default async function handler(req, res) {
         bodyLimpo.TAG_DISTRIBUICAO = tag_distribuicao;
       }
 
-      // DEBUG: log do payload enviado
       console.log("Enviando para ORDS:", JSON.stringify(bodyLimpo, null, 2));
 
       const r = await fetch(BASE_TRANSACOES, {
@@ -139,7 +141,6 @@ export default async function handler(req, res) {
       if (!r.ok) {
         const erro = await r.text();
         console.error("Erro ORDS:", erro);
-        console.error("Payload enviado:", JSON.stringify(bodyLimpo, null, 2));
         return res.status(r.status).json({ erro, payload: bodyLimpo });
       }
 
@@ -148,9 +149,18 @@ export default async function handler(req, res) {
         const configJson = await rConfig.json();
         const configuracoes = configJson.items || [];
 
+        console.log("Configurações encontradas:", JSON.stringify(configuracoes, null, 2));
+
         for (const config of configuracoes) {
           const { nome_categoria, porcentagem } = config;
+
+          if (!nome_categoria || isNaN(porcentagem)) {
+            console.warn("Configuração inválida ignorada:", config);
+            continue;
+          }
+
           const valorDistribuir = (valorNumerico * porcentagem) / 100;
+          console.log(`Distribuindo ${valorDistribuir} para ${nome_categoria}`);
 
           const rCheck = await fetch(`${BASE_DISTRIBUICAO}?id_usuario=${id_usuario}`);
           const checkJson = await rCheck.json();
