@@ -40,7 +40,7 @@ function carregarGraficoSaldosTags(idUsuario) {
     .then((r) => r.json())
     .then((dados) => {
       const labels = dados.map(d => d.tag);
-      const valores = dados.map(d => parseFloat(d.valor) || 0);
+      const valores = dados.map(d => parseFloat(d.valor_disponivel) || 0);
 
       if (graficoSaldos) graficoSaldos.destroy();
       graficoSaldos = new Chart(document.getElementById("grafico-saldos-tags"), {
@@ -48,7 +48,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         data: {
           labels,
           datasets: [{
-            label: "Saldo por Tag",
+            label: "", // Remove legenda
             data: valores,
             backgroundColor: "#ff9800",
           }],
@@ -61,6 +61,13 @@ function carregarGraficoSaldosTags(idUsuario) {
               align: "top",
               formatter: valor => `R$ ${valor.toFixed(2)}`,
             },
+            title: {
+              display: false,
+              text: "",
+            },
+            legend: {
+              display: false,
+            }
           },
           scales: {
             y: { beginAtZero: true },
