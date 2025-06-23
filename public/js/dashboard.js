@@ -1,3 +1,4 @@
+let graficoSaldos;
 let graficoDespesas, graficoReceitas, graficoLinhas, graficoConta;
 
 function carregarResumo() {
@@ -25,6 +26,46 @@ function carregarResumo() {
       renderizarGraficoCategoriasReceitas(receitas);
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
       renderizarGraficoConta(transacoes);
+      carregarGraficoSaldosTags(usuario.id);
+    });
+}
+
+function carregarGraficoSaldosTags(idUsuario) {
+  fetch(`/api/saldos_tags?id_usuario=${idUsuario}`)
+    .then((r) => r.json())
+    .then((dados) => {
+      const labels = dados.map(d => d.tag);
+      const valores = dados.map(d => d.valor);
+
+      if (graficoSaldos) graficoSaldos.destroy();
+      graficoSaldos = new Chart(document.getElementById("grafico-saldos-tags"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Saldo por Tag",
+            data: valores,
+            backgroundColor: "#ff9800",
+          }],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            datalabels: {
+              anchor: "end",
+              align: "top",
+              formatter: valor => `R$ ${valor.toFixed(2)}`,
+            },
+            title: {
+              display: false
+            }
+          },
+          scales: {
+            y: { beginAtZero: true },
+          },
+        },
+        plugins: [ChartDataLabels],
+      });
     });
 }
 
@@ -59,6 +100,9 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
+        title: {
+          display: false
+        }
       },
       scales: {
         y: { beginAtZero: true },
@@ -99,6 +143,9 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
+        title: {
+          display: false
+        }
       },
       scales: {
         y: { beginAtZero: true },
@@ -132,6 +179,9 @@ function renderizarGraficoLinhas(receitas, despesas) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
+        title: {
+          display: false
+        }
       },
       scales: {
         y: { beginAtZero: true },
@@ -173,6 +223,9 @@ function renderizarGraficoConta(transacoes) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
+        title: {
+          display: false
+        }
       },
       scales: {
         y: { beginAtZero: true },

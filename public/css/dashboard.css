@@ -160,6 +160,13 @@ canvas {
   height: 250px;
   margin-bottom: 2rem;
 }
+.resumo-valores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 0; /* garante que não tenha margem à esquerda */
+}
+
 
 @media (max-width: 768px) {
   .sidebar {
@@ -220,3 +227,4 @@ canvas {
     height: 450px;
   }
 }
+
