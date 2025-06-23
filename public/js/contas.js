@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       nome_conta: nome,
       tipo,
       saldo_inicial: saldo,
-      data_criacao: new Date().toLocaleDateString("sv-SE")
+      data_criacao: new Date().toISOString()
     };
 
     try {
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
           id_conta: contaCriada.id_conta,
           tipo: "Receita",
           valor: saldo,
-          data_transacao: new Date().toLocaleDateString("sv-SE"),
+          data_transacao: new Date().toISOString(),
           categoria: "Saldo Inicial",
           descricao: "Saldo inicial da conta"
         };
