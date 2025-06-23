@@ -6,25 +6,43 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const tipoInput = document.getElementById("tipo");
-  const campoTag = document.getElementById("campo-tag");
+  const selectTipo = document.getElementById("tipo");
+  const tagContainer = document.getElementById("container-tag");
   const selectTag = document.getElementById("tag-distribuicao");
 
-  tipoInput.addEventListener("change", async () => {
-    if (tipoInput.value === "Despesa") {
-      campoTag.classList.remove("hidden");
+  document.getElementById("btn-voltar").addEventListener("click", () => {
+    window.location.href = "/telas/dashboard.html";
+  });
+
+  document.getElementById("btn-toggle-form").addEventListener("click", () => {
+    document.getElementById("form-transacao").classList.toggle("hidden");
+  });
+
+  document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
+    document.getElementById("filtros-container").classList.toggle("hidden");
+  });
+
+  document.getElementById("btn-aplicar-filtro").addEventListener("click", () => {
+    carregarTransacoes(usuario.id);
+  });
+
+  carregarContas(usuario.id);
+  carregarTransacoes(usuario.id);
+
+  selectTipo.addEventListener("change", async () => {
+    if (selectTipo.value === "Despesa") {
+      tagContainer.classList.remove("hidden");
       await carregarTagsDistribuicao(usuario.id);
     } else {
-      campoTag.classList.add("hidden");
+      tagContainer.classList.add("hidden");
       selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
     }
   });
 
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const idConta = parseInt(document.getElementById("conta").value);
-    const tipo = tipoInput.value;
+    const tipo = selectTipo.value;
     const valor = parseFloat(document.getElementById("valor").value);
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
@@ -37,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (tipo === "Despesa" && !tag) {
-      mostrarMensagem("Selecione uma tag de distribuição para despesas.");
+      mostrarMensagem("Selecione uma tag de distribuição.");
       return;
     }
 
@@ -62,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         mostrarMensagem("Transação registrada.");
         e.target.reset();
-        campoTag.classList.add("hidden");
+        tagContainer.classList.add("hidden");
         carregarTransacoes(usuario.id);
       } else {
         const erro = await res.text();
@@ -74,49 +92,29 @@ document.addEventListener("DOMContentLoaded", () => {
       mostrarMensagem("Erro de conexão.");
     }
   });
+});
 
-  async function carregarTagsDistribuicao(idUsuario) {
+function mostrarMensagem(msg) {
+  document.getElementById("mensagem").innerText = msg;
+}
+
+async function carregarTagsDistribuicao(idUsuario) {
   try {
     const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${idUsuario}`);
     const tags = await res.json();
 
     const selectTag = document.getElementById("tag-distribuicao");
     selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
-
     tags.forEach(tag => {
-      const option = document.createElement("option");
-      option.value = tag;
-      option.textContent = tag;
-      selectTag.appendChild(option);
+      const opt = document.createElement("option");
+      opt.value = tag;
+      opt.textContent = tag;
+      selectTag.appendChild(opt);
     });
   } catch (err) {
     console.error("Erro ao carregar tags de distribuição:", err);
     mostrarMensagem("Erro ao carregar tags.");
   }
-}
-
-  document.getElementById("btn-voltar").addEventListener("click", () => {
-    window.location.href = "/telas/dashboard.html";
-  });
-
-  document.getElementById("btn-toggle-form").addEventListener("click", () => {
-    document.getElementById("form-transacao").classList.toggle("hidden");
-  });
-
-  document.getElementById("btn-toggle-filtros").addEventListener("click", () => {
-    document.getElementById("filtros-container").classList.toggle("hidden");
-  });
-
-  document.getElementById("btn-aplicar-filtro").addEventListener("click", () => {
-    carregarTransacoes(usuario.id);
-  });
-
-  carregarContas(usuario.id);
-  carregarTransacoes(usuario.id);
-});
-
-function mostrarMensagem(msg) {
-  document.getElementById("mensagem").innerText = msg;
 }
 
 async function carregarContas(idUsuario) {

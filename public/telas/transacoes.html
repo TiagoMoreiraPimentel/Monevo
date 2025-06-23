@@ -18,16 +18,26 @@
 
     <form id="form-transacao" class="hidden">
       <label for="conta">Conta:</label>
-      <select id="conta" required></select>
+      <select id="conta" required>
+        <option value="">Selecione uma conta</option>
+      </select>
 
       <label for="tipo">Tipo:</label>
       <select id="tipo" required>
+        <option value="">Selecione</option>
         <option value="Receita">Receita</option>
         <option value="Despesa">Despesa</option>
       </select>
 
+      <div id="container-tag" class="hidden">
+        <label for="tag-distribuicao">Tag de Distribuição:</label>
+        <select id="tag-distribuicao">
+          <option value="">Selecione uma tag</option>
+        </select>
+      </div>
+
       <label for="valor">Valor:</label>
-      <input type="number" id="valor" required min="0.01" step="0.01">
+      <input type="number" id="valor" required>
 
       <label for="data">Data:</label>
       <input type="date" id="data" required>
@@ -35,20 +45,21 @@
       <label for="categoria">Categoria:</label>
       <select id="categoria" required>
         <option value="">Selecione</option>
-        <option>Salário</option>
-        <option>Renda Extra</option>
-        <option>Alimentação</option>
-        <option>Lazer</option>
-        <option>Farmácia</option>
-        <option>Emergência</option>
+        <option value="Salário">Salário</option>
+        <option value="Renda Extra">Renda Extra</option>
+        <option value="Alimentação">Alimentação</option>
+        <option value="Lazer">Lazer</option>
+        <option value="Farmácia">Farmácia</option>
+        <option value="Emergência">Emergência</option>
+        <option value="Saldo Inicial">Saldo Inicial</option>
       </select>
 
       <label for="descricao">Descrição:</label>
-      <input type="text" id="descricao" maxlength="200" placeholder="Opcional">
+      <textarea id="descricao" rows="2"></textarea>
 
-      <button type="submit">Cadastrar Transação</button>
-      <p id="mensagem"></p>
+      <button type="submit">Registrar Transação</button>
     </form>
+
 
     <button id="btn-toggle-filtros">Filtrar Transações</button>
     <div id="filtros-container" class="hidden">
