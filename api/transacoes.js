@@ -7,6 +7,7 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const { id_usuario, mes, ano } = req.query;
+
       const resTrans = await fetch(BASE_TRANSACOES);
       const jsonTrans = await resTrans.json();
       const transacoes = jsonTrans.items || [];
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
     try {
       const transacao = req.body;
 
-      // Se for DESPESA com TAG, validar saldo
+      // Validar saldo disponível para despesas com tag
       if (transacao.tipo === "Despesa" && transacao.tag_distribuicao) {
         const rSaldo = await fetch(BASE_DISTRIBUICAO);
         const jsonSaldo = await rSaldo.json();
@@ -65,16 +66,20 @@ export default async function handler(req, res) {
         }
       }
 
-      // Registrar transação
+      // Registrar transação no ORDS
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transacao),
       });
 
-      if (!r.ok) return res.status(r.status).send("Erro ao registrar transação");
+      if (!r.ok) {
+        const erro = await r.text();
+        console.error("Erro ao registrar transação:", erro);
+        return res.status(r.status).send("Erro ao registrar transação.");
+      }
 
-      // Se for RECEITA, distribuir
+      // Se for receita, distribuir automaticamente
       if (transacao.tipo === "Receita") {
         const resConfig = await fetch(BASE_CONFIG);
         const jsonConfig = await resConfig.json();
@@ -97,7 +102,7 @@ export default async function handler(req, res) {
         }
       }
 
-      // Se for DESPESA com TAG, registrar valor negativo
+      // Se for despesa com tag, debitar valor negativo
       if (transacao.tipo === "Despesa" && transacao.tag_distribuicao) {
         const novoDebito = {
           id_usuario: transacao.id_usuario,
@@ -114,7 +119,7 @@ export default async function handler(req, res) {
 
       return res.status(201).send("Transação registrada.");
     } catch (error) {
-      console.error("Erro ao registrar transação:", error);
+      console.error("Erro interno ao registrar transação:", error);
       return res.status(500).send("Erro interno ao registrar transação.");
     }
   }
