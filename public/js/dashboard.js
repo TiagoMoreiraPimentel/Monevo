@@ -1,7 +1,7 @@
 let graficoSaldos;
 let graficoDespesas, graficoReceitas, graficoLinhas, graficoConta;
 
-// Ajuste global: desativa título interno dos gráficos
+// Desativa globalmente o título dos gráficos
 if (typeof Chart !== "undefined") {
   Chart.defaults.plugins.title.display = false;
 }
@@ -48,7 +48,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         data: {
           labels,
           datasets: [{
-            label: "", // Remove legenda
+            label: "",
             data: valores,
             backgroundColor: "#ff9800",
           }],
@@ -61,13 +61,8 @@ function carregarGraficoSaldosTags(idUsuario) {
               align: "top",
               formatter: valor => `R$ ${valor.toFixed(2)}`,
             },
-            title: {
-              display: false,
-              text: "",
-            },
-            legend: {
-              display: false,
-            }
+            title: { display: false },
+            legend: { display: false },
           },
           scales: {
             y: { beginAtZero: true },
@@ -96,7 +91,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "Despesas",
+        label: "",
         data: valores,
         backgroundColor: "#f44336",
       }],
@@ -109,6 +104,8 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
+        title: { display: false },
+        legend: { display: false },
       },
       scales: {
         y: { beginAtZero: true },
@@ -136,7 +133,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "Receitas",
+        label: "",
         data: valores,
         backgroundColor: "#008B65",
       }],
@@ -149,6 +146,8 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
+        title: { display: false },
+        legend: { display: false },
       },
       scales: {
         y: { beginAtZero: true },
@@ -169,7 +168,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
     data: {
       labels: ["Receitas", "Despesas"],
       datasets: [{
-        label: "Total",
+        label: "",
         data: [receitas, despesas],
         backgroundColor: ["#4caf50", "#f44336"],
       }],
@@ -182,6 +181,8 @@ function renderizarGraficoLinhas(receitas, despesas) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
+        title: { display: false },
+        legend: { display: false },
       },
       scales: {
         y: { beginAtZero: true },
@@ -210,7 +211,7 @@ function renderizarGraficoConta(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "Tipo de Conta",
+        label: "",
         data: valores,
         backgroundColor: "#2196f3",
       }],
@@ -223,6 +224,8 @@ function renderizarGraficoConta(transacoes) {
           align: "top",
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
+        title: { display: false },
+        legend: { display: false },
       },
       scales: {
         y: { beginAtZero: true },
