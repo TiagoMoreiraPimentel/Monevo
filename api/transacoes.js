@@ -1,22 +1,21 @@
 export default async function handler(req, res) {
   const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
   const BASE_CONTAS = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_conta/";
+  const BASE_CONFIG = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
+  const BASE_DISTRIBUICAO = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
 
   if (req.method === "GET") {
     try {
       const { id_usuario, mes, ano } = req.query;
 
-      // Busca transações
       const resTrans = await fetch(BASE_TRANSACOES);
       const jsonTrans = await resTrans.json();
       const transacoes = jsonTrans.items || [];
 
-      // Busca contas
       const resContas = await fetch(BASE_CONTAS);
       const jsonContas = await resContas.json();
       const contas = jsonContas.items || [];
 
-      // Cria mapa de contas por id
       const mapaContas = {};
       contas.forEach(conta => {
         mapaContas[conta.id_conta] = {
@@ -25,14 +24,12 @@ export default async function handler(req, res) {
         };
       });
 
-      // Enriquecer transações com tipo_conta e nome_conta
       const transacoesEnriquecidas = transacoes.map(t => ({
         ...t,
         tipo_conta: mapaContas[t.id_conta]?.tipo || "Desconhecida",
         nome_conta: mapaContas[t.id_conta]?.nome || "Conta"
       }));
 
-      // Filtrar se solicitado
       const filtradas = transacoesEnriquecidas.filter(t => {
         if (!t.data && !t.data_transacao) return false;
         const data = new Date(t.data || t.data_transacao);
@@ -52,12 +49,45 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const r = await fetch(BASE_TRANSACOES, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
-    });
-    return res.status(r.status).end();
+    try {
+      const transacao = req.body;
+
+      const r = await fetch(BASE_TRANSACOES, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(transacao),
+      });
+
+      if (!r.ok) return res.status(r.status).send("Erro ao registrar transação");
+
+      // Distribuição automática para receitas
+      if (transacao.tipo === "Receita") {
+        const configRes = await fetch(BASE_CONFIG);
+        const configJson = await configRes.json();
+        const configuracoes = configJson.items.filter(c => c.id_usuario === transacao.id_usuario);
+
+        for (const conf of configuracoes) {
+          const valorDistribuido = (transacao.valor * conf.porcentagem) / 100;
+
+          const novaDistribuicao = {
+            id_usuario: transacao.id_usuario,
+            tag_distribuicao: conf.nome_categoria,
+            valor_disponivel: valorDistribuido
+          };
+
+          await fetch(BASE_DISTRIBUICAO, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(novaDistribuicao)
+          });
+        }
+      }
+
+      return res.status(201).send("Transação registrada e distribuída.");
+    } catch (error) {
+      console.error("Erro ao registrar transação e distribuir:", error);
+      return res.status(500).send("Erro interno.");
+    }
   }
 
   const id = req.query.id;
