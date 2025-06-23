@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
       // Receita
       if (transacao.tipo === "Receita") {
-        const configRes = await fetch(`${BASE_CONFIG}?id_usuario=${transacao.id_usuario}`);
+        const configRes = await fetch(`${BASE_CONFIG}?q={"id_usuario":${transacao.id_usuario}}`);
         const configJson = await configRes.json();
         const configuracoes = configJson.items || [];
 
