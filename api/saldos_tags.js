@@ -10,8 +10,8 @@ export default async function handler(req, res) {
     const dados = json.items || [];
 
     const resultado = dados.map(d => ({
-      tag: d.tag_distribuicao,
-      valor: parseFloat(d.VALOR_DISTRIBUIDO) || 0
+      tag: d.tag_distribuicao || d.nome_categoria,
+      valor: parseFloat(d.valor_disponivel ?? d.valor_distribuido ?? d.VALOR_DISTRIBUIDO ?? 0)
     }));
 
     res.status(200).json(resultado);
