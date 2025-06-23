@@ -107,9 +107,10 @@ async function carregarTagsDistribuicao(idUsuario) {
     const selectTag = document.getElementById("tag-distribuicao");
     selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
     tags.forEach(tag => {
+      const nome = tag.nome_categoria || tag; // se vier como string, mantém compatibilidade
       const opt = document.createElement("option");
-      opt.value = tag;
-      opt.textContent = tag;
+      opt.value = nome;
+      opt.textContent = nome;
       selectTag.appendChild(opt);
     });
   } catch (err) {
