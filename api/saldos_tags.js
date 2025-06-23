@@ -9,10 +9,12 @@ export default async function handler(req, res) {
     const json = await response.json();
     const dados = json.items || [];
 
-    res.status(200).json(dados.map(d => ({
+    const resultado = dados.map(d => ({
       tag: d.tag_distribuicao,
-      valor: d.valor_disponivel
-    })));
+      valor: parseFloat(d.VALOR_DISTRIBUIDO) || 0
+    }));
+
+    res.status(200).json(resultado);
   } catch (e) {
     console.error("Erro ao buscar saldos por tag:", e);
     res.status(500).send("Erro interno.");
