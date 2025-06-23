@@ -24,16 +24,19 @@ export default async function handler(req, res) {
         return res.status(400).send("Formato inválido.");
       }
 
-      // Buscar todas as configs
-      const todas = await fetch(BASE).then(r => r.json());
-      const existentes = todas.items.filter(c => c.id_usuario == id_usuario);
+      // Consulta todas configurações existentes
+      const r = await fetch(BASE);
+      const json = await r.json();
+      const existentes = (json.items || []).filter(item => item.id_usuario == id_usuario);
 
-      // Deleta configs antigas
+      // Deleta todas as configurações do usuário
       for (const item of existentes) {
-        await fetch(`${BASE}${item.id_distribuicao_config}`, { method: "DELETE" });
+        await fetch(`${BASE}${item.id_distribuicao_config}`, {
+          method: "DELETE"
+        });
       }
 
-      // Insere novas configs
+      // Insere novas configurações
       for (const conf of configuracoes) {
         await fetch(BASE, {
           method: "POST",
@@ -46,7 +49,7 @@ export default async function handler(req, res) {
         });
       }
 
-      return res.status(201).send("Configuração atualizada.");
+      return res.status(201).send("Configurações atualizadas.");
     } catch (err) {
       console.error("Erro POST:", err);
       return res.status(500).send("Erro ao salvar configuração.");
