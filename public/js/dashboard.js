@@ -55,24 +55,25 @@ function carregarGraficoSaldosTags(idUsuario) {
         options: {
           responsive: true,
           plugins: {
-            legend: { display: false }, // ✅ Isso remove a barrinha colorida
+            legend: { display: false },
             title: { display: false },
             datalabels: {
               anchor: "end",
               align: "top",
-              font: {
-                size: 10,
-                weight: "bold" // ✅ Negrito dentro de font
-              },
+              font: { size: 10, weight: "bold" },
               formatter: valor => `R$ ${valor.toFixed(2)}`,
             },
           },
           scales: {
-            x: { grid: { display: false } },
+            x: {
+              grid: { display: false },
+              ticks: { font: { weight: 'bold' } }
+            },
             y: {
               beginAtZero: true,
               suggestedMax: maxValor * 1.2,
-              grid: { display: false }
+              grid: { display: false },
+              ticks: { font: { weight: 'bold' } }
             },
           },
         },
@@ -108,24 +109,25 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        legend: { display: false }, // ✅ Isso remove a barrinha colorida
+        legend: { display: false },
         title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
-          font: {
-            size: 10,
-            weight: "bold" // ✅ Negrito dentro de font
-          },
+          font: { size: 10, weight: "bold" },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
-        x: { grid: { display: false } },
+        x: {
+          grid: { display: false },
+          ticks: { font: { weight: 'bold' } }
+        },
         y: {
           beginAtZero: true,
           suggestedMax: maxValor * 1.2,
-          grid: { display: false }
+          grid: { display: false },
+          ticks: { font: { weight: 'bold' } }
         },
       },
     },
@@ -160,24 +162,25 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        legend: { display: false }, // ✅ Isso remove a barrinha colorida
+        legend: { display: false },
         title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
-          font: {
-            size: 10,
-            weight: "bold" // ✅ Negrito dentro de font
-          },
+          font: { size: 10, weight: "bold" },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
-        x: { grid: { display: false } },
+        x: {
+          grid: { display: false },
+          ticks: { font: { weight: 'bold' } }
+        },
         y: {
           beginAtZero: true,
           suggestedMax: maxValor * 1.2,
-          grid: { display: false }
+          grid: { display: false },
+          ticks: { font: { weight: 'bold' } }
         },
       },
     },
@@ -207,10 +210,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
         title: { display: false },
         datalabels: {
           color: "#000",
-          font: {
-            size: 10,
-            weight: "bold" // ✅ Negrito dentro de font
-          },
+          font: { size: 12, weight: "bold" },
           formatter: (valor, ctx) => {
             const percent = ctx.chart.data.datasets[0].data[ctx.dataIndex] / total * 100;
             return `R$ ${valor.toFixed(2)} (${percent.toFixed(1)}%)`;
@@ -258,21 +258,20 @@ function renderizarGraficoConta(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          font: {
-            size: 10,
-            weight: "bold" // ✅ Negrito dentro de font
-          },
+          font: { size: 10, weight: "bold" },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { weight: 'bold' } }
+        },
         y: {
           beginAtZero: true,
           suggestedMax: maxValor,
-          grid: { display: false }
-        },
-        x: {
-          grid: { display: false }
+          grid: { display: false },
+          ticks: { font: { weight: 'bold' } }
         }
       },
     },
