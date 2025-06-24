@@ -61,9 +61,29 @@ document.addEventListener("DOMContentLoaded", () => {
     salvarBtn.disabled = soma.toFixed(2) != 100.00;
   }
 
-  window.removerCategoria = (index) => {
-    configuracoes.splice(index, 1);
-    atualizarTabela();
+  // Substitua a função window.removerCategoria pelo código abaixo:
+
+  window.removerCategoria = async (index) => {
+    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+    const nomeTag = configuracoes[index].nome_categoria;
+
+    try {
+      const res = await fetch(`/api/verificar_tag_valor?id_usuario=${usuario.id}&tag=${encodeURIComponent(nomeTag)}`);
+      const { podeRemover } = await res.json();
+
+      if (!podeRemover) {
+        alert("Não é possível remover esta TAG. Existem valores distribuídos vinculados a ela.");
+        return;
+      }
+
+      // Se puder remover:
+      configuracoes.splice(index, 1);
+      atualizarTabela();
+
+    } catch (err) {
+      console.error("Erro ao verificar remoção da TAG:", err);
+      alert("Erro ao validar remoção da TAG.");
+    }
   };
 
   window.atualizarPorcentagem = (index, novoValor) => {
