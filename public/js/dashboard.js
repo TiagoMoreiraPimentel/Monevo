@@ -60,7 +60,10 @@ function carregarGraficoSaldosTags(idUsuario) {
             datalabels: {
               anchor: "end",
               align: "top",
-              font: { size: 10 },
+              font: {
+                size: 10,
+                weight: "bold" // ✅ Negrito dentro de font
+              },
               formatter: valor => `R$ ${valor.toFixed(2)}`,
             },
           },
@@ -110,7 +113,10 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          font: { size: 10 },
+          font: {
+            size: 10,
+            weight: "bold" // ✅ Negrito dentro de font
+          },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
@@ -159,7 +165,10 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          font: { size: 10 },
+          font: {
+            size: 10,
+            weight: "bold" // ✅ Negrito dentro de font
+          },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
@@ -180,15 +189,13 @@ function renderizarGraficoLinhas(receitas, despesas) {
   const total = receitas + despesas;
   const pReceitas = ((receitas / total) * 100).toFixed(1);
   const pDespesas = ((despesas / total) * 100).toFixed(1);
-  const maxValor = Math.max(receitas, despesas) * 1.2;
 
   if (graficoLinhas) graficoLinhas.destroy();
   graficoLinhas = new Chart(document.getElementById("grafico-linhas"), {
-    type: "bar",
+    type: "pie",
     data: {
       labels: ["Receitas", "Despesas"],
       datasets: [{
-        label: "",
         data: [receitas, despesas],
         backgroundColor: ["#4caf50", "#f44336"],
       }],
@@ -196,21 +203,18 @@ function renderizarGraficoLinhas(receitas, despesas) {
     options: {
       responsive: true,
       plugins: {
-        legend: { display: false }, // ✅ Isso remove a barrinha colorida
+        legend: { display: true, position: "bottom" },
         title: { display: false },
         datalabels: {
-          anchor: "end",
-          align: "top",
-          font: { size: 10 },
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
-        },
-      },
-      scales: {
-        x: { grid: { display: false } },
-        y: {
-          beginAtZero: true,
-          suggestedMax: maxValor,
-          grid: { display: false }
+          color: "#000",
+          font: {
+            size: 10,
+            weight: "bold" // ✅ Negrito dentro de font
+          },
+          formatter: (valor, ctx) => {
+            const percent = ctx.chart.data.datasets[0].data[ctx.dataIndex] / total * 100;
+            return `R$ ${valor.toFixed(2)} (${percent.toFixed(1)}%)`;
+          },
         },
       },
     },
@@ -254,7 +258,10 @@ function renderizarGraficoConta(transacoes) {
         datalabels: {
           anchor: "end",
           align: "top",
-          font: { size: 10 },
+          font: {
+            size: 10,
+            weight: "bold" // ✅ Negrito dentro de font
+          },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
