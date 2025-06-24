@@ -110,12 +110,14 @@ export default async function handler(req, res) {
           return res.status(400).send("Tag de distribuição é obrigatória para despesas.");
         }
 
-        const tagRes = await fetch(`${BASE_CONFIG}?id_usuario=${transacao.id_usuario}`);
-        const tagJson = await tagRes.json();
-        const tagsUsuario = tagJson.items.map(t => t.nome_categoria);
+        if (tag !== "Poupança") {
+          const tagRes = await fetch(`${BASE_CONFIG}?id_usuario=${transacao.id_usuario}`);
+          const tagJson = await tagRes.json();
+          const tagsUsuario = tagJson.items.map(t => t.nome_categoria);
 
-        if (!tagsUsuario.includes(tag)) {
-          return res.status(400).send("Tag de distribuição inválida para o usuário.");
+          if (!tagsUsuario.includes(tag)) {
+            return res.status(400).send("Tag de distribuição inválida para o usuário.");
+          }
         }
 
         await fetch(BASE_DISTRIBUICAO, {
