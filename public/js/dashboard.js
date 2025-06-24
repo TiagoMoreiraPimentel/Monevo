@@ -47,6 +47,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         data: {
           labels,
           datasets: [{
+            label: "",
             data: valores,
             backgroundColor: "#ff9800",
           }],
@@ -54,6 +55,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         options: {
           responsive: true,
           plugins: {
+            legend: { display: false }, // ✅ Isso remove a barrinha colorida
             title: { display: false },
             datalabels: {
               anchor: "end",
@@ -95,6 +97,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     data: {
       labels,
       datasets: [{
+        label: "",
         data: valores,
         backgroundColor: "#f44336",
       }],
@@ -102,6 +105,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     options: {
       responsive: true,
       plugins: {
+        legend: { display: false }, // ✅ Isso remove a barrinha colorida
         title: { display: false },
         datalabels: {
           anchor: "end",
@@ -142,6 +146,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     data: {
       labels,
       datasets: [{
+        label: "",
         data: valores,
         backgroundColor: "#008B65",
       }],
@@ -149,6 +154,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     options: {
       responsive: true,
       plugins: {
+        legend: { display: false }, // ✅ Isso remove a barrinha colorida
         title: { display: false },
         datalabels: {
           anchor: "end",
@@ -182,6 +188,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
     data: {
       labels: ["Receitas", "Despesas"],
       datasets: [{
+        label: "",
         data: [receitas, despesas],
         backgroundColor: ["#4caf50", "#f44336"],
       }],
@@ -189,6 +196,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
     options: {
       responsive: true,
       plugins: {
+        legend: { display: false }, // ✅ Isso remove a barrinha colorida
         title: { display: false },
         datalabels: {
           anchor: "end",
@@ -230,6 +238,7 @@ function renderizarGraficoConta(transacoes) {
     data: {
       labels,
       datasets: [{
+        label: "",
         data: valores,
         backgroundColor: "#2196f3",
       }],
@@ -237,6 +246,7 @@ function renderizarGraficoConta(transacoes) {
     options: {
       responsive: true,
       plugins: {
+        legend: { display: false }, // ✅ Isso remove a barrinha colorida
         title: { display: false },
         datalabels: {
           anchor: "end",
