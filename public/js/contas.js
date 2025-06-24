@@ -108,7 +108,7 @@ async function carregarContas() {
           <select data-id="${conta.id_conta}" data-campo="tipo">
             <option value="Carteira" ${conta.tipo === "Carteira" ? "selected" : ""}>Carteira</option>
             <option value="Conta Corrente" ${conta.tipo === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
-            <option value="Polpança" ${conta.tipo === "Polpança" ? "selected" : ""}>Polpança</option>
+            <option value="Poupança" ${conta.tipo === "Poupança" ? "selected" : ""}>Poupança</option>
           </select>
         </td>
         <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
