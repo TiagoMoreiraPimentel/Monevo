@@ -55,6 +55,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         options: {
           responsive: true,
           plugins: {
+            title: { display: false },
             datalabels: {
               anchor: "end",
               align: "top",
@@ -101,6 +102,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     options: {
       responsive: true,
       plugins: {
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -146,6 +148,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     options: {
       responsive: true,
       plugins: {
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -184,6 +187,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
     options: {
       responsive: true,
       plugins: {
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -230,6 +234,7 @@ function renderizarGraficoConta(transacoes) {
     options: {
       responsive: true,
       plugins: {
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
