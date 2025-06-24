@@ -9,9 +9,21 @@ export default async function handler(req, res) {
     const json = await response.json();
     const dados = json.items || [];
 
-    const resultado = dados.map(d => ({
-      tag: d.tag_distribuicao || d.nome_categoria,
-      valor: parseFloat(d.valor_disponivel ?? d.valor_distribuido ?? d.VALOR_DISTRIBUIDO ?? 0)
+    // Agrupa e consolida valores por tag
+    const saldos = dados.reduce((acc, d) => {
+      const tag = d.tag_distribuicao || d.nome_categoria;
+      const valor = parseFloat(d.valor_disponivel ?? d.valor_distribuido ?? d.VALOR_DISTRIBUIDO ?? 0);
+
+      if (!acc[tag]) acc[tag] = 0;
+      acc[tag] += valor;
+
+      return acc;
+    }, {});
+
+    // Transforma o objeto em array para retorno
+    const resultado = Object.entries(saldos).map(([tag, valor]) => ({
+      tag,
+      valor
     }));
 
     res.status(200).json(resultado);

@@ -219,18 +219,21 @@ function renderizarGraficoLinhas(receitas, despesas) {
 }
 
 function renderizarGraficoConta(transacoes) {
-  const tipos = {};
-  let total = 0;
+  const saldosPorConta = {};
+
   transacoes.forEach((t) => {
     const tipo = t.tipo_conta || "Desconhecido";
-    tipos[tipo] = (tipos[tipo] || 0) + t.valor;
-    total += t.valor;
+    const valor = t.tipo === "Receita" ? t.valor : -t.valor;
+
+    if (!saldosPorConta[tipo]) saldosPorConta[tipo] = 0;
+    saldosPorConta[tipo] += valor;
   });
 
-  const labels = Object.keys(tipos);
-  const valores = Object.values(tipos);
-  const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
-  const maxValor = Math.max(...valores, 0);
+  const labels = Object.keys(saldosPorConta);
+  const valores = Object.values(saldosPorConta);
+  const total = valores.reduce((s, v) => s + v, 0);
+  const porcentagens = valores.map(v => ((v / total) * 100).toFixed(1));
+  const maxValor = Math.max(...valores, 0) * 1.2;
 
   if (graficoConta) graficoConta.destroy();
   graficoConta = new Chart(document.getElementById("grafico-conta"), {
@@ -238,7 +241,7 @@ function renderizarGraficoConta(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "",
+        label: "Saldo disponível por Tipo de Conta",
         data: valores,
         backgroundColor: "#2196f3",
       }],
@@ -246,7 +249,7 @@ function renderizarGraficoConta(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        legend: { display: false }, // ✅ Isso remove a barrinha colorida
+        legend: { display: false },
         title: { display: false },
         datalabels: {
           anchor: "end",
@@ -256,12 +259,14 @@ function renderizarGraficoConta(transacoes) {
         },
       },
       scales: {
-        x: { grid: { display: false } },
         y: {
           beginAtZero: true,
-          suggestedMax: maxValor * 1.2,
+          suggestedMax: maxValor,
           grid: { display: false }
         },
+        x: {
+          grid: { display: false }
+        }
       },
     },
     plugins: [ChartDataLabels],
