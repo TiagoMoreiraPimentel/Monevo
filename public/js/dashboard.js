@@ -55,9 +55,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         options: {
           responsive: true,
           plugins: {
-            title: {
-              display: false
-            },
+            title: { display: false },
             datalabels: {
               anchor: "end",
               align: "top",
@@ -66,9 +64,11 @@ function carregarGraficoSaldosTags(idUsuario) {
             },
           },
           scales: {
+            x: { grid: { display: false } },
             y: {
               beginAtZero: true,
-              suggestedMax: maxValor * 1.2
+              suggestedMax: maxValor * 1.2,
+              grid: { display: false }
             },
           },
         },
@@ -104,9 +104,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: false
-        },
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -115,9 +113,11 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
         },
       },
       scales: {
+        x: { grid: { display: false } },
         y: {
           beginAtZero: true,
-          suggestedMax: maxValor * 1.2
+          suggestedMax: maxValor * 1.2,
+          grid: { display: false }
         },
       },
     },
@@ -152,9 +152,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: false
-        },
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -163,9 +161,11 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
         },
       },
       scales: {
+        x: { grid: { display: false } },
         y: {
           beginAtZero: true,
-          suggestedMax: maxValor * 1.2
+          suggestedMax: maxValor * 1.2,
+          grid: { display: false }
         },
       },
     },
@@ -193,9 +193,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: false
-        },
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -204,9 +202,11 @@ function renderizarGraficoLinhas(receitas, despesas) {
         },
       },
       scales: {
+        x: { grid: { display: false } },
         y: {
           beginAtZero: true,
-          suggestedMax: maxValor
+          suggestedMax: maxValor,
+          grid: { display: false }
         },
       },
     },
@@ -242,9 +242,7 @@ function renderizarGraficoConta(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: false
-        },
+        title: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
@@ -253,9 +251,11 @@ function renderizarGraficoConta(transacoes) {
         },
       },
       scales: {
+        x: { grid: { display: false } },
         y: {
           beginAtZero: true,
-          suggestedMax: maxValor * 1.2
+          suggestedMax: maxValor * 1.2,
+          grid: { display: false }
         },
       },
     },
