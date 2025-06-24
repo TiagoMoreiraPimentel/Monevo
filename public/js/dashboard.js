@@ -46,11 +46,6 @@ function carregarGraficoSaldosTags(idUsuario) {
         type: "bar",
         data: {
           labels,
-          datasets: [{
-            label: "Saldo por Tag",
-            data: valores,
-            backgroundColor: "#ff9800",
-          }],
         },
         options: {
           responsive: true,
@@ -95,11 +90,6 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     type: "bar",
     data: {
       labels,
-      datasets: [{
-        label: "Despesas",
-        data: valores,
-        backgroundColor: "#f44336",
-      }],
     },
     options: {
       responsive: true,
@@ -143,11 +133,6 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     type: "bar",
     data: {
       labels,
-      datasets: [{
-        label: "Receitas",
-        data: valores,
-        backgroundColor: "#008B65",
-      }],
     },
     options: {
       responsive: true,
@@ -184,11 +169,6 @@ function renderizarGraficoLinhas(receitas, despesas) {
     type: "bar",
     data: {
       labels: ["Receitas", "Despesas"],
-      datasets: [{
-        label: "Total",
-        data: [receitas, despesas],
-        backgroundColor: ["#4caf50", "#f44336"],
-      }],
     },
     options: {
       responsive: true,
@@ -233,11 +213,6 @@ function renderizarGraficoConta(transacoes) {
     type: "bar",
     data: {
       labels,
-      datasets: [{
-        label: "Tipo de Conta",
-        data: valores,
-        backgroundColor: "#2196f3",
-      }],
     },
     options: {
       responsive: true,
