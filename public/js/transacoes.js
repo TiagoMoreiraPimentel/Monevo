@@ -1,3 +1,5 @@
+const contasPorId = {};
+
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -10,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tagContainer = document.getElementById("container-tag");
   const selectTag = document.getElementById("tag-distribuicao");
   const selectConta = document.getElementById("conta");
-  const contasPorId = {};
 
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
