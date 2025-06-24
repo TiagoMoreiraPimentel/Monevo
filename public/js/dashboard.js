@@ -1,5 +1,4 @@
-let graficoSaldos;
-let graficoDespesas, graficoReceitas, graficoLinhas, graficoConta;
+let graficoSaldos, graficoDespesas, graficoReceitas, graficoLinhas, graficoConta;
 
 if (typeof Chart !== "undefined") {
   Chart.defaults.plugins.title.display = false;
@@ -39,9 +38,8 @@ function carregarGraficoSaldosTags(idUsuario) {
     .then((r) => r.json())
     .then((dados) => {
       const labels = dados.map(d => d.tag);
-      const valores = dados.map(d =>
-        parseFloat(d.valor_disponivel ?? d.valor ?? 0)
-      );
+      const valores = dados.map(d => parseFloat(d.valor) || 0);
+      const maxValor = Math.max(...valores, 0);
 
       if (graficoSaldos) graficoSaldos.destroy();
       graficoSaldos = new Chart(document.getElementById("grafico-saldos-tags"), {
@@ -49,7 +47,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         data: {
           labels,
           datasets: [{
-            label: "",
+            label: "Saldo por Tag",
             data: valores,
             backgroundColor: "#ff9800",
           }],
@@ -57,16 +55,18 @@ function carregarGraficoSaldosTags(idUsuario) {
         options: {
           responsive: true,
           plugins: {
-            title: { display: false },
-            legend: { display: false },
             datalabels: {
               anchor: "end",
               align: "top",
+              font: { size: 10 },
               formatter: valor => `R$ ${valor.toFixed(2)}`,
             },
           },
           scales: {
-            y: { beginAtZero: true },
+            y: {
+              beginAtZero: true,
+              suggestedMax: maxValor * 1.2
+            },
           },
         },
         plugins: [ChartDataLabels],
@@ -77,14 +77,15 @@ function carregarGraficoSaldosTags(idUsuario) {
 function renderizarGraficoCategoriasDespesas(transacoes) {
   const categorias = {};
   let total = 0;
-  transacoes.forEach((t) => {
+  transacoes.forEach(t => {
     categorias[t.categoria] = (categorias[t.categoria] || 0) + t.valor;
     total += t.valor;
   });
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
-  const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
+  const porcentagens = valores.map(v => ((v / total) * 100).toFixed(1));
+  const maxValor = Math.max(...valores, 0);
 
   if (graficoDespesas) graficoDespesas.destroy();
   graficoDespesas = new Chart(document.getElementById("grafico-despesas"), {
@@ -92,7 +93,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "",
+        label: "Despesas",
         data: valores,
         backgroundColor: "#f44336",
       }],
@@ -100,16 +101,18 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        title: { display: false },
-        legend: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
+          font: { size: 10 },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
-        y: { beginAtZero: true },
+        y: {
+          beginAtZero: true,
+          suggestedMax: maxValor * 1.2
+        },
       },
     },
     plugins: [ChartDataLabels],
@@ -119,14 +122,15 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
 function renderizarGraficoCategoriasReceitas(transacoes) {
   const categorias = {};
   let total = 0;
-  transacoes.forEach((t) => {
+  transacoes.forEach(t => {
     categorias[t.categoria] = (categorias[t.categoria] || 0) + t.valor;
     total += t.valor;
   });
 
   const labels = Object.keys(categorias);
   const valores = Object.values(categorias);
-  const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
+  const porcentagens = valores.map(v => ((v / total) * 100).toFixed(1));
+  const maxValor = Math.max(...valores, 0);
 
   if (graficoReceitas) graficoReceitas.destroy();
   graficoReceitas = new Chart(document.getElementById("grafico-receitas"), {
@@ -134,7 +138,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "",
+        label: "Receitas",
         data: valores,
         backgroundColor: "#008B65",
       }],
@@ -142,16 +146,18 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        title: { display: false },
-        legend: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
+          font: { size: 10 },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
-        y: { beginAtZero: true },
+        y: {
+          beginAtZero: true,
+          suggestedMax: maxValor * 1.2
+        },
       },
     },
     plugins: [ChartDataLabels],
@@ -162,6 +168,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
   const total = receitas + despesas;
   const pReceitas = ((receitas / total) * 100).toFixed(1);
   const pDespesas = ((despesas / total) * 100).toFixed(1);
+  const maxValor = Math.max(receitas, despesas) * 1.2;
 
   if (graficoLinhas) graficoLinhas.destroy();
   graficoLinhas = new Chart(document.getElementById("grafico-linhas"), {
@@ -169,7 +176,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
     data: {
       labels: ["Receitas", "Despesas"],
       datasets: [{
-        label: "",
+        label: "Total",
         data: [receitas, despesas],
         backgroundColor: ["#4caf50", "#f44336"],
       }],
@@ -177,16 +184,18 @@ function renderizarGraficoLinhas(receitas, despesas) {
     options: {
       responsive: true,
       plugins: {
-        title: { display: false },
-        legend: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
+          font: { size: 10 },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${[pReceitas, pDespesas][ctx.dataIndex]}%)`,
         },
       },
       scales: {
-        y: { beginAtZero: true },
+        y: {
+          beginAtZero: true,
+          suggestedMax: maxValor
+        },
       },
     },
     plugins: [ChartDataLabels],
@@ -205,6 +214,7 @@ function renderizarGraficoConta(transacoes) {
   const labels = Object.keys(tipos);
   const valores = Object.values(tipos);
   const porcentagens = valores.map((v) => ((v / total) * 100).toFixed(1));
+  const maxValor = Math.max(...valores, 0);
 
   if (graficoConta) graficoConta.destroy();
   graficoConta = new Chart(document.getElementById("grafico-conta"), {
@@ -212,7 +222,7 @@ function renderizarGraficoConta(transacoes) {
     data: {
       labels,
       datasets: [{
-        label: "",
+        label: "Tipo de Conta",
         data: valores,
         backgroundColor: "#2196f3",
       }],
@@ -220,16 +230,18 @@ function renderizarGraficoConta(transacoes) {
     options: {
       responsive: true,
       plugins: {
-        title: { display: false },
-        legend: { display: false },
         datalabels: {
           anchor: "end",
           align: "top",
+          font: { size: 10 },
           formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
-        y: { beginAtZero: true },
+        y: {
+          beginAtZero: true,
+          suggestedMax: maxValor * 1.2
+        },
       },
     },
     plugins: [ChartDataLabels],
@@ -245,9 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const saudacao = document.getElementById("saudacao");
-  if (saudacao) {
-    saudacao.textContent = `Olá, ${usuario.nome}`;
-  }
+  if (saudacao) saudacao.textContent = `Olá, ${usuario.nome}`;
 
   const botaoAdmin = document.getElementById("admin-only");
   if (usuario.nivel_acesso === "ADMINISTRADOR") {
