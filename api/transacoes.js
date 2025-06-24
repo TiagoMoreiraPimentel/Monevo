@@ -50,6 +50,11 @@ export default async function handler(req, res) {
     try {
       const transacao = req.body;
 
+      // Buscar dados da conta para identificar se é do tipo Poupança
+      const contaRes = await fetch(`${BASE_CONTAS}${transacao.id_conta}`);
+      const contaJson = await contaRes.json();
+      const tipoConta = contaJson.tipo;
+
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,34 +66,55 @@ export default async function handler(req, res) {
       const resposta = await r.json();
       const idTransacao = resposta.id_transacao;
 
-      // Receita
+      // RECEITA
       if (transacao.tipo === "Receita") {
-        const configRes = await fetch(`${BASE_CONFIG}?q={"id_usuario":${transacao.id_usuario}}`);
-        const configJson = await configRes.json();
-        const configuracoes = configJson.items || [];
-
-        for (const conf of configuracoes) {
-          const valorDistribuido = (transacao.valor * conf.porcentagem) / 100;
+        if (tipoConta === "Poupança") {
+          // Receita em conta Poupança vai 100% para TAG "Poupança"
           await fetch(BASE_DISTRIBUICAO, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               id_usuario: transacao.id_usuario,
-              tag_distribuicao: conf.nome_categoria,
-              valor_distribuido: valorDistribuido,
+              tag_distribuicao: "Poupança",
+              valor_distribuido: transacao.valor,
               id_transacao: idTransacao
             })
           });
+        } else {
+          // Receita normal distribuída proporcionalmente
+          const configRes = await fetch(`${BASE_CONFIG}?q={"id_usuario":${transacao.id_usuario}}`);
+          const configJson = await configRes.json();
+          const configuracoes = configJson.items || [];
+
+          for (const conf of configuracoes) {
+            const valorDistribuido = (transacao.valor * conf.porcentagem) / 100;
+            await fetch(BASE_DISTRIBUICAO, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id_usuario: transacao.id_usuario,
+                tag_distribuicao: conf.nome_categoria,
+                valor_distribuido: valorDistribuido,
+                id_transacao: idTransacao
+              })
+            });
+          }
         }
       }
 
-      // Despesa
-      if (transacao.tipo === "Despesa" && transacao.tag_distribuicao) {
+      // DESPESA
+      if (transacao.tipo === "Despesa") {
+        const tag = tipoConta === "Poupança" ? "Poupança" : transacao.tag_distribuicao;
+
+        if (!tag) {
+          return res.status(400).send("Tag de distribuição é obrigatória para despesas.");
+        }
+
         const tagRes = await fetch(`${BASE_CONFIG}?id_usuario=${transacao.id_usuario}`);
         const tagJson = await tagRes.json();
         const tagsUsuario = tagJson.items.map(t => t.nome_categoria);
 
-        if (!tagsUsuario.includes(transacao.tag_distribuicao)) {
+        if (!tagsUsuario.includes(tag)) {
           return res.status(400).send("Tag de distribuição inválida para o usuário.");
         }
 
@@ -97,7 +123,7 @@ export default async function handler(req, res) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id_usuario: transacao.id_usuario,
-            tag_distribuicao: transacao.tag_distribuicao,
+            tag_distribuicao: tag,
             valor_distribuido: -transacao.valor,
             id_transacao: idTransacao
           })

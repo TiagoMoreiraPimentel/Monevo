@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectTipo = document.getElementById("tipo");
   const tagContainer = document.getElementById("container-tag");
   const selectTag = document.getElementById("tag-distribuicao");
+  const selectConta = document.getElementById("conta");
+  const contasPorId = {};
 
   document.getElementById("btn-voltar").addEventListener("click", () => {
     window.location.href = "/telas/dashboard.html";
@@ -26,35 +28,26 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarTransacoes(usuario.id);
   });
 
-  carregarContas(usuario.id);
-  carregarTransacoes(usuario.id);
-
-  selectTipo.addEventListener("change", async () => {
-    if (selectTipo.value === "Despesa") {
-      tagContainer.classList.remove("hidden");
-      await carregarTagsDistribuicao(usuario.id);
-    } else {
-      tagContainer.classList.add("hidden");
-      selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
-    }
-  });
+  selectTipo.addEventListener("change", atualizarVisibilidadeTag);
+  selectConta.addEventListener("change", atualizarVisibilidadeTag);
 
   document.getElementById("form-transacao").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const idConta = parseInt(document.getElementById("conta").value);
+    const idConta = parseInt(selectConta.value);
     const tipo = selectTipo.value;
     const valor = parseFloat(document.getElementById("valor").value);
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value.trim();
     const tag = selectTag.value;
+    const tipoConta = contasPorId[idConta]?.tipo || "";
 
     if (!idConta || !tipo || isNaN(valor) || !dataBruta || !categoria) {
       mostrarMensagem("Preencha todos os campos obrigatórios.");
       return;
     }
 
-    if (tipo === "Despesa" && !tag) {
+    if (tipo === "Despesa" && tipoConta !== "Poupança" && !tag) {
       mostrarMensagem("Selecione uma tag de distribuição.");
       return;
     }
@@ -67,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data_transacao: new Date(dataBruta).toISOString(),
       categoria,
       descricao,
-      tag_distribuicao: tipo === "Despesa" ? tag : null
+      tag_distribuicao: (tipo === "Despesa" && tipoConta !== "Poupança") ? tag : null
     };
 
     try {
@@ -92,6 +85,23 @@ document.addEventListener("DOMContentLoaded", () => {
       mostrarMensagem("Erro de conexão.");
     }
   });
+
+  carregarContas(usuario.id);
+  carregarTransacoes(usuario.id);
+
+  async function atualizarVisibilidadeTag() {
+    const tipo = selectTipo.value;
+    const idConta = parseInt(selectConta.value);
+    const tipoConta = contasPorId[idConta]?.tipo || "";
+
+    if (tipo === "Despesa" && tipoConta !== "Poupança") {
+      tagContainer.classList.remove("hidden");
+      await carregarTagsDistribuicao(usuario.id);
+    } else {
+      tagContainer.classList.add("hidden");
+      selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
+    }
+  }
 });
 
 function mostrarMensagem(msg) {
@@ -107,7 +117,7 @@ async function carregarTagsDistribuicao(idUsuario) {
     const selectTag = document.getElementById("tag-distribuicao");
     selectTag.innerHTML = "<option value=''>Selecione uma tag</option>";
     tags.forEach(tag => {
-      const nome = tag.nome_categoria || tag; // se vier como string, mantém compatibilidade
+      const nome = tag.nome_categoria || tag;
       const opt = document.createElement("option");
       opt.value = nome;
       opt.textContent = nome;
@@ -129,6 +139,7 @@ async function carregarContas(idUsuario) {
   filtroConta.innerHTML = "<option value=''>Todas</option>";
 
   minhas.forEach(c => {
+    contasPorId[c.id_conta] = c;
     const opt1 = document.createElement("option");
     const opt2 = document.createElement("option");
     opt1.value = c.id_conta;
