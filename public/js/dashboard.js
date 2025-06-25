@@ -286,6 +286,7 @@ async function carregarTicketsTags() {
       const erroTexto = await res.text();
       throw new Error(`Erro do servidor: ${erroTexto}`);
     }
+
     const dados = await res.json();
 
     const container = document.createElement("div");
@@ -300,8 +301,7 @@ async function carregarTicketsTags() {
           <th>Gasto Hoje</th>
           <th>Saldo Restante</th>
           <th>Dias Restantes</th>
-          <th>Ticket Base</th>
-          <th>Ticket de Hoje</th>
+          <th>Ticket Diário</th>
         </tr>
       </thead>
       <tbody>
@@ -312,8 +312,7 @@ async function carregarTicketsTags() {
             <td>R$ ${tag.gasto_hoje}</td>
             <td>R$ ${tag.saldo_restante}</td>
             <td>${tag.dias_restantes}</td>
-            <td>R$ ${tag.ticket_base}</td>
-            <td><strong>R$ ${tag.ticket_hoje}</strong></td>
+            <td><strong>R$ ${tag.ticket_diario}</strong></td>
           </tr>
         `).join("")}
       </tbody>
