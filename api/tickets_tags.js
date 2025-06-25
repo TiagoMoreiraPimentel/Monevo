@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     const dataISO = (d) => d.toISOString().split("T")[0];
 
-    const queryTransacoes = {
+    const filtroTransacoes = {
       id_usuario: Number(id_usuario),
       tipo: "Despesa",
       $and: [
@@ -33,28 +33,28 @@ export default async function handler(req, res) {
         { data_transacao: { $lt: dataISO(fimDia) } }
       ]
     };
-    const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?q=${encodeURIComponent(JSON.stringify(queryTransacoes))}`;
+    const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?q=${encodeURIComponent(JSON.stringify(filtroTransacoes))}`;
 
-    const [resConfig, resValor, resTransacoes] = await Promise.all([
+    const [configRes, valorRes, transacoesRes] = await Promise.all([
       fetch(urlConfig),
       fetch(urlValor),
-      fetch(urlTransacoesHoje)
+      fetch(urlTransacoesHoje),
     ]);
 
     const status = {
-      config: resConfig.status,
-      valor: resValor.status,
-      transacoes: resTransacoes.status,
+      config: configRes.status,
+      valor: valorRes.status,
+      transacoes: transacoesRes.status,
     };
 
-    if (!resConfig.ok || !resValor.ok || !resTransacoes.ok) {
+    if (!configRes.ok || !valorRes.ok || !transacoesRes.ok) {
       return res.status(500).json({ erro: "Falha ao buscar dados", status });
     }
 
     const [configData, valorData, transacoesData] = await Promise.all([
-      resConfig.json(),
-      resValor.json(),
-      resTransacoes.json()
+      configRes.json(),
+      valorRes.json(),
+      transacoesRes.json(),
     ]);
 
     const configuracoes = configData.items || [];
@@ -63,13 +63,10 @@ export default async function handler(req, res) {
 
     const resultado = configuracoes.map((conf) => {
       const tag = conf.nome_categoria;
-
-      // Calcula saldo somando todas as distribuições dessa tag
       const saldo = valores
         .filter(v => v.tag_distribuicao === tag && v.id_usuario == id_usuario)
         .reduce((soma, v) => soma + parseFloat(v.valor_distribuido || 0), 0);
 
-      // Total gasto hoje com essa categoria
       const gastoHoje = transacoesHoje
         .filter(t => t.categoria === tag)
         .reduce((soma, t) => soma + parseFloat(t.valor), 0);
