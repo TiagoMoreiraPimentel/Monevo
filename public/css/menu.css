@@ -1,4 +1,3 @@
-/* MENU LATERAL */
 .sidebar {
   position: fixed;
   top: 0;
@@ -54,25 +53,46 @@
   background-color: var(--cor-primaria-hover);
 }
 
-/* BOTÃO TOGGLE DO MENU (FORA DA SIDEBAR) */
+.main-content {
+  margin-left: 60px;
+  transition: margin-left 0.3s ease;
+  padding: 1rem;
+}
+
+.sidebar.expanded ~ .main-content {
+  margin-left: 240px;
+}
+
+/* Botão toggle do menu */
 .toggle-btn {
   position: fixed;
-  top: 1rem;
-  left: 1rem;
   background: var(--cor-primaria);
   color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   z-index: 2000;
 }
 
-/* MOBILE */
+/* BOTÃO NO DESKTOP: pequeno e mais à esquerda */
+@media (min-width: 769px) {
+  .toggle-btn {
+    top: 1rem;
+    left: 0.5rem;
+  }
+
+  .sidebar.expanded ~ .main-content .toggle-btn {
+    display: none;
+  }
+}
+
+/* BOTÃO NO MOBILE: topo da parte branca */
 @media (max-width: 768px) {
   .toggle-btn {
-    right: 1rem;
+    top: 0.5rem;
+    right: 0.5rem;
     left: auto;
   }
 
@@ -94,22 +114,15 @@
   }
 
   .main-content {
-    margin-left: 0 !important;
+    margin-left: 0;
+  }
+
+  .sidebar.expanded ~ .main-content {
+    margin-left: 0;
   }
 }
 
-/* CONTEÚDO PRINCIPAL */
-.main-content {
-  margin-left: 60px;
-  transition: margin-left 0.3s ease;
-  padding: 1rem;
-}
-
-/* AJUSTE AO EXPANDIR NO DESKTOP */
-.sidebar.expanded ~ .main-content {
-  margin-left: 240px;
-}
-
+/* Espaçamento lateral no desktop */
 @media (min-width: 769px) {
   .main-content,
   .container,

@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(html => {
       document.getElementById("menu-container").innerHTML = html;
 
+      // Só depois que o menu foi carregado no DOM
       const toggleBtn = document.querySelector(".toggle-btn");
       const sidebar = document.getElementById("sidebar");
 

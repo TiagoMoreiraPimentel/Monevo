@@ -26,12 +26,24 @@ header h1 {
 }
 
 main {
-  max-width: 900px;
-  margin: 2rem auto;
   padding: 1rem;
+}
+
+/* Centraliza o conteúdo no desktop */
+.conteudo {
   background: white;
   border-radius: 10px;
   box-shadow: 0 0 10px #ccc;
+  margin: 2rem auto;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 769px) {
+  .conteudo {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+  }
 }
 
 #btn-toggle-form,
@@ -189,5 +201,3 @@ td {
     width: auto;
   }
 }
-
-
