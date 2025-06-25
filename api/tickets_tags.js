@@ -23,9 +23,17 @@ export default async function handler(req, res) {
     // Buscar transações do dia
     const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
     const transData = await transResp.json();
-    const transacoesHoje = (transData.items || []).filter(t => 
-      t.tipo === "Despesa" && t.data_transacao?.startsWith(hojeStr)
-    );
+    const transacoesHoje = (transData.items || []).filter(t => {
+      if (!t.data_transacao || t.tipo !== "Despesa") return false;
+      const data = new Date(t.data_transacao);
+      return (
+        data.getFullYear() === hoje.getFullYear() &&
+        data.getMonth() === hoje.getMonth() &&
+        data.getDate() === hoje.getDate()
+      );
+    });
+
+    console.log(`📌 Tag ${tag} - Gasto hoje: R$ ${gastoHoje}`);
 
     const resposta = configuracoes.map(cfg => {
       const tag = cfg.nome_categoria;
