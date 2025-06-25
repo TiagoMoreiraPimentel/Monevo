@@ -1,3 +1,5 @@
+// /api/tickets_tags.js
+
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
@@ -13,31 +15,29 @@ export default async function handler(req, res) {
   try {
     const baseURL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com";
 
-    // Formato de data para ORDS: DATE'YYYY-MM-DD'
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-    const dia = String(hoje.getDate()).padStart(2, "0");
-
-    const dataInicio = `DATE'${ano}-${mes}-${dia}'`;
-    const dataFimObj = new Date(hoje);
-    dataFimObj.setDate(hoje.getDate() + 1);
-    const anoFim = dataFimObj.getFullYear();
-    const mesFim = String(dataFimObj.getMonth() + 1).padStart(2, "0");
-    const diaFim = String(dataFimObj.getDate()).padStart(2, "0");
-    const dataFim = `DATE'${anoFim}-${mesFim}-${diaFim}'`;
-
     const urlConfig = `${baseURL}/ords/admin/monevo_distribuicao_config?q={"id_usuario":${id_usuario}}`;
     const urlValor = `${baseURL}/ords/admin/monevo_distribuicao_valor?q={"id_usuario":${id_usuario}}`;
 
-    const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?limit=1000&q={
-      "id_usuario": ${id_usuario},
-      "tipo": "Despesa",
-      "$and": [
-        {"data_transacao": { "$gte": ${dataInicio} }},
-        {"data_transacao": { "$lt": ${dataFim} }}
+    const hoje = new Date();
+    const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const fimDia = new Date(inicioDia);
+    fimDia.setDate(fimDia.getDate() + 1);
+
+    const formatData = (d) => d.toISOString().split("T")[0];
+
+    const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?q=${encodeURIComponent(JSON.stringify({
+      id_usuario: Number(id_usuario),
+      tipo: "Despesa",
+      $and: [
+        { data_transacao: { $gte: `DATE'${formatData(inicioDia)}'` } },
+        { data_transacao: { $lt: `DATE'${formatData(fimDia)}'` } }
       ]
-    }`.replace(/\s+/g, ""); // remove quebras para URL
+    }))}`;
+
+    // 🔍 Logs de depuração
+    console.log("[URL Config]", urlConfig);
+    console.log("[URL Valor]", urlValor);
+    console.log("[URL Transações Hoje]", urlTransacoesHoje);
 
     const [configRes, valorRes, transacoesRes] = await Promise.all([
       fetch(urlConfig),
@@ -45,27 +45,40 @@ export default async function handler(req, res) {
       fetch(urlTransacoesHoje),
     ]);
 
+    // 📡 Checar status HTTP
+    console.log("[Status Config]", configRes.status);
+    console.log("[Status Valor]", valorRes.status);
+    console.log("[Status Transações]", transacoesRes.status);
+
+    if (!configRes.ok || !valorRes.ok || !transacoesRes.ok) {
+      return res.status(500).json({ erro: "Falha ao buscar dados", status: {
+        config: configRes.status,
+        valor: valorRes.status,
+        transacoes: transacoesRes.status
+      }});
+    }
+
     const [configData, valorData, transacoesData] = await Promise.all([
       configRes.json(),
       valorRes.json(),
       transacoesRes.json(),
     ]);
 
-    const configuracoes = configData.items || [];
-    const valores = valorData.items || [];
-    const transacoesHoje = transacoesData.items || [];
-
-    const diasRestantes = 5;
+    const configuracoes = configData.items;
+    const valores = valorData.items;
+    const transacoesHoje = transacoesData.items;
 
     const resultado = configuracoes.map((conf) => {
       const tag = conf.nome_categoria;
+      const percentual = parseFloat(conf.porcentagem || 0);
       const valorTag = valores.find(v => v.tag_distribuicao === tag && v.id_usuario == id_usuario);
-      const saldo = valorTag ? parseFloat(valorTag.valor_disponivel || 0) : 0;
+      const saldo = valorTag ? parseFloat(valorTag.valor_distribuido || 0) : 0;
 
       const gastoHoje = transacoesHoje
         .filter(t => t.categoria === tag)
-        .reduce((soma, t) => soma + parseFloat(t.valor || 0), 0);
+        .reduce((soma, t) => soma + parseFloat(t.valor), 0);
 
+      const diasRestantes = 5;
       const saldoRestante = saldo - gastoHoje;
       const ticketBase = diasRestantes > 0 ? saldo / diasRestantes : 0;
       const ticketHoje = diasRestantes > 0 ? saldoRestante / diasRestantes : 0;
@@ -82,6 +95,7 @@ export default async function handler(req, res) {
     });
 
     return res.status(200).json(resultado);
+
   } catch (e) {
     console.error("Erro ao carregar tickets por tag:", e);
     return res.status(500).json({ erro: "Erro ao carregar tickets", detalhes: e.message });
