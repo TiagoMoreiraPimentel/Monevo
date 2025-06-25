@@ -190,8 +190,6 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
 
 function renderizarGraficoLinhas(receitas, despesas) {
   const total = receitas + despesas;
-  const pReceitas = ((receitas / total) * 100).toFixed(1);
-  const pDespesas = ((despesas / total) * 100).toFixed(1);
 
   if (graficoLinhas) graficoLinhas.destroy();
   graficoLinhas = new Chart(document.getElementById("grafico-linhas"), {
@@ -228,7 +226,6 @@ function renderizarGraficoConta(transacoes) {
   transacoes.forEach((t) => {
     const tipo = t.tipo_conta || "Desconhecido";
     const valor = t.tipo === "Receita" ? t.valor : -t.valor;
-
     if (!saldosPorConta[tipo]) saldosPorConta[tipo] = 0;
     saldosPorConta[tipo] += valor;
   });
@@ -279,6 +276,58 @@ function renderizarGraficoConta(transacoes) {
   });
 }
 
+async function carregarTicketsTags() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario) return;
+
+  try {
+    const res = await fetch(`/api/tickets_tags?id_usuario=${usuario.id}`);
+    if (!res.ok) {
+      const erroTexto = await res.text();
+      throw new Error(`Erro do servidor: ${erroTexto}`);
+    }
+    const dados = await res.json();
+
+    const container = document.createElement("div");
+    container.className = "tabela-tickets";
+
+    const tabela = document.createElement("table");
+    tabela.innerHTML = `
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Saldo</th>
+          <th>Gasto Hoje</th>
+          <th>Saldo Restante</th>
+          <th>Dias Restantes</th>
+          <th>Ticket Base</th>
+          <th>Ticket de Hoje</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${dados.map(tag => `
+          <tr>
+            <td>${tag.tag}</td>
+            <td>R$ ${tag.saldo}</td>
+            <td>R$ ${tag.gasto_hoje}</td>
+            <td>R$ ${tag.saldo_restante}</td>
+            <td>${tag.dias_restantes}</td>
+            <td>R$ ${tag.ticket_base}</td>
+            <td><strong>R$ ${tag.ticket_hoje}</strong></td>
+          </tr>
+        `).join("")}
+      </tbody>
+    `;
+
+    container.appendChild(tabela);
+    document.querySelector("#tabela-ticket-tags").innerHTML = "";
+    document.querySelector("#tabela-ticket-tags").appendChild(container);
+
+  } catch (err) {
+    console.error("Erro ao carregar tickets por tag:", err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -304,67 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("ano").value = String(new Date().getFullYear());
 
   carregarResumo();
-
-  async function carregarTicketsTags() {
-    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-    if (!usuario) return;
-
-    const id_usuario = usuario.id;
-
-    try {
-      const res = await fetch(`/api/tickets_tags?id_usuario=${id_usuario}`);
-      if (!res.ok) {
-        const erroTexto = await res.text();
-        throw new Error(`Erro do servidor: ${erroTexto}`);
-      }
-
-      const dados = await res.json();
-
-      const container = document.createElement("div");
-      container.className = "tabela-tickets";
-
-      const tabela = document.createElement("table");
-      tabela.innerHTML = `
-        <thead>
-          <tr>
-            <th>Categoria</th>
-            <th>Saldo</th>
-            <th>Gasto Hoje</th>
-            <th>Saldo Restante</th>
-            <th>Dias Restantes</th>
-            <th>Ticket Base</th>
-            <th>Ticket de Hoje</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${dados.map(tag => `
-            <tr>
-              <td>${tag.tag}</td>
-              <td>R$ ${tag.saldo}</td>
-              <td>R$ ${tag.gasto_hoje}</td>
-              <td>R$ ${tag.saldo_restante}</td>
-              <td>${tag.dias_restantes}</td>
-              <td>R$ ${tag.ticket_base}</td>
-              <td><strong>R$ ${tag.ticket_hoje}</strong></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      `;
-
-      container.appendChild(tabela);
-      document.querySelector("#tabela-ticket-tags").innerHTML = "";
-      document.querySelector("#tabela-ticket-tags").appendChild(container);
-
-    } catch (err) {
-      console.error("Erro ao carregar tickets por tag:", err);
-    }
-  }
-
-window.onload = function () {
-  carregarResumo();
-  carregarTicketsTags(); // ⬅️ Incluído
-};
-
+  carregarTicketsTags();
 });
 
 window.toggleSidebar = function () {
