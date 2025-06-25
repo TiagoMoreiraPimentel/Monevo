@@ -62,7 +62,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             ctx.fillStyle = cor;
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`${ticket.toFixed(2)}`, x, y + 1);
+            ctx.fillText(`${ticket.toFixed(2)}`, x, y - 5);
             ctx.restore();
           });
         }
@@ -97,7 +97,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             },
             y: {
               beginAtZero: true,
-              suggestedMax: maxValor * 1.2,
+              suggestedMax: maxValor + 20,
               grid: { display: false },
               ticks: { font: { weight: 'bold' } }
             },
