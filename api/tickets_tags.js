@@ -51,7 +51,9 @@ export default async function handler(req, res) {
       const diffMs = proximaRenovacao - hoje;
       const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
-      const ticketDiario = saldoRestante / diasRestantes;
+      // Aplica a lógica correta do ticket de hoje
+      const ticketBase = saldoTotal / diasRestantes;
+      const ticketHoje = Math.max(ticketBase - gastoHoje, 0);
 
       return {
         tag,
@@ -60,7 +62,7 @@ export default async function handler(req, res) {
         saldo_restante: saldoRestante.toFixed(2),
         dia_renovacao: diaRenovacao,
         dias_restantes: diasRestantes,
-        ticket_diario: ticketDiario.toFixed(2)
+        ticket_diario: ticketHoje.toFixed(2)
       };
     });
 
