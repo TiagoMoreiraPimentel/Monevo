@@ -56,13 +56,13 @@ function carregarGraficoSaldosTags(idUsuario) {
             if (!bar) return;
 
             const { x, y } = bar.tooltipPosition();
-            const cor = ticket < 0 ? '#f44336' : ticket === 0 ? '#2196f3' : '#4caf50';
+            const cor = ticket < 0 ? '#FF4638' : ticket === 0 ? '#2272FF' : '#1AE330';
 
             ctx.save();
             ctx.fillStyle = cor;
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`R$ ${ticket.toFixed(2)}`, x, y + 25); // << mais abaixo
+            ctx.fillText(`${ticket.toFixed(2)}`, x, y + 15);
             ctx.restore();
           });
         }
