@@ -39,9 +39,35 @@ function carregarGraficoSaldosTags(idUsuario) {
     .then((dados) => {
       const labels = dados.map(d => d.tag);
       const valores = dados.map(d => parseFloat(d.valor) || 0);
+      const ticketsHoje = dados.map(d => parseFloat(d.ticket_hoje) || 0);
       const maxValor = Math.max(...valores, 0);
 
       if (graficoSaldos) graficoSaldos.destroy();
+
+      const pluginTicketHoje = {
+        id: 'pluginTicketHoje',
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const dataset = chart.data.datasets[0];
+          const meta = chart.getDatasetMeta(0);
+
+          ticketsHoje.forEach((ticket, index) => {
+            const bar = meta.data[index];
+            if (!bar) return;
+
+            const { x, y } = bar.tooltipPosition();
+            const cor = ticket < 0 ? '#f44336' : ticket === 0 ? '#2196f3' : '#4caf50';
+
+            ctx.save();
+            ctx.fillStyle = cor;
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Ticket Hoje: R$ ${ticket.toFixed(2)}`, x, y + 15);
+            ctx.restore();
+          });
+        }
+      };
+
       graficoSaldos = new Chart(document.getElementById("grafico-saldos-tags"), {
         type: "bar",
         data: {
@@ -77,7 +103,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             },
           },
         },
-        plugins: [ChartDataLabels],
+        plugins: [ChartDataLabels, pluginTicketHoje],
       });
     });
 }
@@ -309,9 +335,9 @@ async function carregarTicketsTags() {
       <tbody>
         ${dados.map(tag => {
           const ticketHojeNum = parseFloat(tag.ticket_hoje);
-          let cor = "#4caf50"; // verde padrão
-          if (ticketHojeNum === 0) cor = "#2196f3"; // azul
-          else if (ticketHojeNum < 0) cor = "#f44336"; // vermelho
+          let cor = "#4caf50";
+          if (ticketHojeNum === 0) cor = "#2196f3";
+          else if (ticketHojeNum < 0) cor = "#f44336";
 
           return `
             <tr>
@@ -321,9 +347,7 @@ async function carregarTicketsTags() {
               <td>R$ ${tag.saldo_restante}</td>
               <td>${tag.dias_restantes}</td>
               <td>R$ ${tag.ticket_base}</td>
-              <td style="color: ${cor}; font-weight: bold;">
-                R$ ${ticketHojeNum.toFixed(2)}
-              </td>
+              <td style="color: ${cor}; font-weight: bold;">R$ ${ticketHojeNum.toFixed(2)}</td>
               <td>R$ ${tag.ticket_ajustado}</td>
             </tr>
           `;
