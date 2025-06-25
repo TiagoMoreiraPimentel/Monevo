@@ -11,47 +11,40 @@
 <body>
   <div id="menu-container"></div>
 
-  <main class="main-content">
-    <header class="header-bar">
-      <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-    </header>
+  <main class="conteudo">
+    <h1>Configurações complementares</h1>
 
-    <section class="conteudo">
-      <h1>Configurações complementares</h1>
+    <form id="form-distribuicao">
+      <div class="inputs">
+        <input type="text" id="nomeCategoria" placeholder="Nome da Categoria" required />
+        <input type="number" id="porcentagem" placeholder="Porcentagem (%)" required min="0" max="100" />
+        <input type="number" id="diaRenovacao" placeholder="Dia de Renovação" min="1" max="31" />
+        <button type="submit">Adicionar</button>
+      </div>
+    </form>
 
-      <form id="form-distribuicao">
-        <div class="inputs">
-          <input type="text" id="nomeCategoria" placeholder="Nome da Categoria" required />
-          <input type="number" id="porcentagem" placeholder="Porcentagem (%)" required min="0" max="100" />
-          <input type="number" id="diaRenovacao" placeholder="Dia de Renovação" min="1" max="31" />
-          <button type="submit">Adicionar</button>
-        </div>
-      </form>
+    <div id="somaPorcentagem" class="soma">Total: 0%</div>
 
-      <div id="somaPorcentagem" class="soma">Total: 0%</div>
+    <table id="tabelaDistribuicao">
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Porcentagem</th>
+          <th>Dia de Renovação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-      <table id="tabelaDistribuicao">
-        <thead>
-          <tr>
-            <th>Categoria</th>
-            <th>Porcentagem</th>
-            <th>Dia de Renovação</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <div id="cardsDistribuicao" class="cards-container"></div>
 
-      <!-- Cards para mobile -->
-      <div id="cardsDistribuicao" class="cards-container"></div>
-
-      <button id="salvarConfig" disabled>Salvar Configuração</button>
-    </section>
-
-    <footer class="footer">
-      &copy; 2025 Monevo. Todos os direitos reservados.
-    </footer>
+    <button id="salvarConfig" disabled>Salvar Configuração</button>
   </main>
+
+  <footer class="footer">
+    &copy; 2025 Monevo. Todos os direitos reservados.
+  </footer>
 
   <script src="../js/menu.js"></script>
   <script src="../js/configuracao.js" defer></script>

@@ -13,27 +13,10 @@
   z-index: 1500;
 }
 
-.toggle-btn {
-  position: fixed;
-  top: 1rem;
-  background: var(--cor-primaria);
-  color: white;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  cursor: pointer;
-  z-index: 1600;
-  font-size: 1.4rem;
-  display: block;
-  left: 1rem;
-}
-
-.sidebar.expanded ~ .toggle-btn {
-  display: none;
-}
-
-.sidebar.expanded ~ .main-content .toggle-btn {
-  display: none; /* ocultar quando menu expandido */
+.sidebar.expanded {
+  width: 240px;
+  align-items: flex-start;
+  padding-left: 1rem;
 }
 
 .menu-opcoes {
@@ -72,32 +55,48 @@
 
 .main-content {
   margin-left: 60px;
-  padding: 1rem;
   transition: margin-left 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  padding: 1rem;
 }
 
+/* Alinha conteúdo ao expandir o menu */
 .sidebar.expanded ~ .main-content {
   margin-left: 240px;
 }
 
-.header-bar {
-  display: none; /* mobile apenas */
+/* Botão toggle do menu */
+.toggle-btn {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: var(--cor-primaria);
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  z-index: 2000;
 }
 
-/* Footer sempre no final */
-.footer {
-  text-align: center;
-  margin-top: auto;
-  padding: 1rem 0;
-  color: #555;
-  background-color: transparent;
+/* BOTÃO DESKTOP: aparece só com menu recolhido */
+@media (min-width: 769px) {
+  .toggle-btn {
+    display: block;
+  }
+
+  .sidebar.expanded ~ .toggle-btn {
+    display: none;
+  }
 }
 
-/* MOBILE */
+/* BOTÃO MOBILE: sempre visível no topo direito */
 @media (max-width: 768px) {
+  .toggle-btn {
+    right: 1rem;
+    left: auto;
+  }
+
   .sidebar {
     display: none;
   }
@@ -113,7 +112,6 @@
     padding-left: 1rem;
     border-left: 1px solid #ccc;
     background: var(--cor-clara, white);
-    z-index: 1500;
   }
 
   .main-content {
@@ -123,21 +121,20 @@
   .sidebar.expanded ~ .main-content {
     margin-left: 0;
   }
-
-  .header-bar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-
-  .toggle-btn {
-    display: block;
-  }
 }
 
-/* DESKTOP */
+/* Espaçamento lateral no desktop */
 @media (min-width: 769px) {
-  .toggle-btn {
-    display: none;
+  .main-content,
+  .container,
+  main {
+    margin-left: 60px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .sidebar.expanded ~ .main-content,
+  .sidebar.expanded ~ .container,
+  .sidebar.expanded ~ main {
+    margin-left: 240px;
   }
 }

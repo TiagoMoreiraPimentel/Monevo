@@ -5,29 +5,21 @@ body {
   padding: 0;
 }
 
-.main-content {
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-  min-height: 100vh;
-  box-sizing: border-box;
-}
-
-.container {
+.conteudo {
   width: 100%;
   max-width: 700px;
   background: white;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   border-radius: 10px;
   box-shadow: 0 0 10px #ccc;
+  margin: 2rem auto;
   box-sizing: border-box;
 }
 
 h1 {
   text-align: center;
   color: #000000;
-  margin-top: 5rem;   /* força o afastamento do botão no mobile */
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .inputs {
@@ -176,14 +168,24 @@ form button:hover {
   background-color: #c9302c;
 }
 
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 600px) {
   .inputs {
     flex-direction: column;
   }
 
-  .container {
+  .conteudo {
     padding: 1rem;
+    margin-top: 3rem;
   }
 
   #tabelaDistribuicao {
@@ -208,22 +210,3 @@ form button:hover {
     display: table;
   }
 }
-
-/* Rodapé centralizado e com espaçamento no fim */
-.footer {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #444;
-  margin-top: 2rem;
-  padding-bottom: 2rem;
-}
-
-.conteudo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-
