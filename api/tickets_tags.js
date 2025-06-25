@@ -9,32 +9,29 @@ export default async function handler(req, res) {
   try {
     console.log("Calculando tickets para ID:", id_usuario);
 
-    // 1. Buscar configurações de TAGs
-    console.log("Buscando configurações...");
     const rConfig = await fetch(BASE_CONFIG);
     const configJson = await rConfig.json();
     const configUsuario = (configJson.items || []).filter(c => c.id_usuario == id_usuario);
     console.log("Configurações recebidas:", configUsuario);
 
-    // 2. Buscar saldos por TAG
-    console.log("Buscando saldos de TAGs...");
     const rValor = await fetch(BASE_VALOR);
     const valorJson = await rValor.json();
     const saldosUsuario = (valorJson.items || []).filter(v => v.id_usuario == id_usuario);
     console.log("Saldos recebidos:", saldosUsuario);
 
-    // 3. Buscar transações do dia
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0]; // YYYY-MM-DD
-    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","DATA_TRANSACAO":"${hojeStr}"}`;
 
-    console.log("Buscando transações de hoje:", queryTransacoes);
+    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","data_transacao":"${hojeStr}"}`;
+    console.log("Buscando transações do dia com:", queryTransacoes);
+
     const rTrans = await fetch(BASE_TRANSACOES + queryTransacoes);
-    const transJson = await rTrans.json();
-    const transacoesHoje = transJson.items || [];
-    console.log("Transações de hoje:", transacoesHoje);
+    const rawText = await rTrans.text();
+    console.log("Resposta bruta das transações:", rawText);
 
-    // 4. Processar tickets
+    const transJson = JSON.parse(rawText);
+    const transacoesHoje = transJson.items || [];
+
     const resultado = configUsuario.map(conf => {
       const tag = conf.nome_categoria;
       const diaRenovacao = parseInt(conf.dia_renovacao);
@@ -52,7 +49,6 @@ export default async function handler(req, res) {
 
       const saldoRestante = saldo - gastoHoje;
 
-      // Calcular dias restantes até próximo ciclo
       const hojeDia = hoje.getDate();
       const hojeMes = hoje.getMonth();
       const hojeAno = hoje.getFullYear();
@@ -82,6 +78,7 @@ export default async function handler(req, res) {
 
     console.log("Resultado final:", resultado);
     return res.status(200).json(resultado);
+
   } catch (err) {
     console.error("Erro completo no cálculo de tickets:", err);
     return res.status(500).send("Erro ao calcular tickets.");

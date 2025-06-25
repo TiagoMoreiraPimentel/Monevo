@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "node-fetch": "^3.3.2",
     "resend": "^4.6.0"
