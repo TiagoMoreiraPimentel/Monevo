@@ -2,66 +2,62 @@ export default async function handler(req, res) {
   const { id_usuario } = req.query;
   if (!id_usuario) return res.status(400).send("id_usuario obrigatório.");
 
-  const BASE_CONFIG = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
   const BASE_VALOR = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
+  const BASE_CONFIG = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
   const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
 
   try {
-    console.log("Calculando tickets para ID:", id_usuario);
-
-    const rConfig = await fetch(BASE_CONFIG);
-    const configJson = await rConfig.json();
-    const configUsuario = (configJson.items || []).filter(c => c.id_usuario == id_usuario);
-    console.log("Configurações recebidas:", configUsuario);
-
-    const rValor = await fetch(BASE_VALOR);
-    const valorJson = await rValor.json();
-    const saldosUsuario = (valorJson.items || []).filter(v => v.id_usuario == id_usuario);
-    console.log("Saldos recebidos:", saldosUsuario);
-
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    const rTrans = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
-    const transRaw = await rTrans.text();
-    const transJson = JSON.parse(transRaw);
-    const transacoesHoje = (transJson.items || []).filter(t =>
-      t.tipo === "Despesa" &&
-      t.data_transacao?.startsWith(hojeStr)
-    );
+    // Buscar saldos por TAG
+    const rValor = await fetch(BASE_VALOR);
+    const valorJson = await rValor.json();
+    const saldos = (valorJson.items || []).filter(v => v.id_usuario == id_usuario);
 
-    console.log("Transações de hoje:", transacoesHoje);
+    // Buscar config (para pegar dia de renovação por TAG)
+    const rConfig = await fetch(BASE_CONFIG);
+    const configJson = await rConfig.json();
+    const config = (configJson.items || []).filter(c => c.id_usuario == id_usuario);
 
-    const resultado = configUsuario.map(conf => {
-      const tag = conf.nome_categoria;
-      const diaRenovacao = parseInt(conf.dia_renovacao);
+    // Buscar transações do dia
+    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","data_transacao":"${hojeStr}"}`;
+    const rTrans = await fetch(BASE_TRANSACOES + queryTransacoes);
+    const transJson = await rTrans.json();
+    const transacoesHoje = transJson.items || [];
 
-      if (!diaRenovacao || isNaN(diaRenovacao)) {
+    const resultado = saldos.map(tagObj => {
+      const tag = tagObj.tag_distribuicao;
+      const saldo = parseFloat(tagObj.valor_disponivel || 0);
+
+      // Buscar configuração correspondente
+      const conf = config.find(c => c.nome_categoria?.toLowerCase() === tag.toLowerCase());
+      const diaRenovacao = parseInt(conf?.dia_renovacao);
+
+      if (!conf || isNaN(diaRenovacao)) {
         return { tag, erro: "Dia de renovação não definido." };
       }
 
-      const saldoObj = saldosUsuario.find(s => s.tag_distribuicao?.toLowerCase() === tag.toLowerCase());
-      const saldo = parseFloat(saldoObj?.valor_disponivel || 0);
-
+      // Gasto hoje para essa TAG
       const gastoHoje = transacoesHoje
         .filter(t => t.categoria?.toLowerCase() === tag.toLowerCase())
         .reduce((soma, t) => soma + parseFloat(t.valor || 0), 0);
 
       const saldoRestante = saldo - gastoHoje;
 
-      const hojeDia = hoje.getDate();
-      const hojeMes = hoje.getMonth();
-      const hojeAno = hoje.getFullYear();
-      let dataFim;
+      // Calcular dias restantes até próxima renovação
+      const hojeData = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+      let dataFim = new Date(hojeData);
 
-      if (hojeDia < diaRenovacao) {
-        dataFim = new Date(hojeAno, hojeMes, diaRenovacao);
+      if (hoje.getDate() < diaRenovacao) {
+        dataFim.setDate(diaRenovacao);
       } else {
-        dataFim = new Date(hojeAno, hojeMes + 1, diaRenovacao);
+        dataFim.setMonth(dataFim.getMonth() + 1);
+        dataFim.setDate(diaRenovacao);
       }
 
-      const diffMs = dataFim - hoje;
-      const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+      const diffDias = Math.ceil((dataFim - hojeData) / (1000 * 60 * 60 * 24));
+      const diasRestantes = Math.max(1, diffDias);
 
       const ticket = saldoRestante / diasRestantes;
 
@@ -76,7 +72,6 @@ export default async function handler(req, res) {
       };
     });
 
-    console.log("Resultado final:", resultado);
     return res.status(200).json(resultado);
 
   } catch (err) {
