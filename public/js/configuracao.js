@@ -42,32 +42,73 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function atualizarTabela() {
-    tabela.innerHTML = "";
-    let soma = 0;
+  const isMobile = window.innerWidth <= 768;
+  const container = document.getElementById("tabelaDistribuicao");
+  container.innerHTML = "";
 
+  let soma = 0;
+
+  if (isMobile) {
     configuracoes.forEach((item, index) => {
       const valor = parseFloat(item.porcentagem) || 0;
       soma += valor;
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${item.nome_categoria}</td>
-        <td>
+      const card = document.createElement("div");
+      card.className = "tag-card";
+      card.innerHTML = `
+        <strong>${item.nome_categoria}</strong>
+        <div>
+          <label>Porcentagem:</label>
           <input type="number" min="0" max="100" step="0.01" value="${valor}" 
-                 onchange="atualizarPorcentagem(${index}, this.value)" />
-        </td>
-        <td>
+            onchange="atualizarPorcentagem(${index}, this.value)" />
+        </div>
+        <div>
+          <label>Dia Renovação:</label>
           <input type="number" min="1" max="31" value="${item.dia_renovacao || ''}" 
-                 onchange="atualizarRenovacao(${index}, this.value)" />
-        </td>
-        <td><button onclick="removerCategoria(${index})">Remover</button></td>
+            onchange="atualizarRenovacao(${index}, this.value)" />
+        </div>
+        <button onclick="removerCategoria(${index})">Remover</button>
       `;
-      tabela.appendChild(tr);
+      container.appendChild(card);
     });
-
-    somaDisplay.textContent = `Total: ${soma.toFixed(2)}%`;
-    salvarBtn.disabled = soma.toFixed(2) != 100.00;
+  } else {
+    const tabela = document.createElement("table");
+    tabela.innerHTML = `
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Porcentagem</th>
+          <th>Dia Renovação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${configuracoes.map((item, index) => {
+          const valor = parseFloat(item.porcentagem) || 0;
+          soma += valor;
+          return `
+            <tr>
+              <td>${item.nome_categoria}</td>
+              <td>
+                <input type="number" min="0" max="100" step="0.01" value="${valor}" 
+                  onchange="atualizarPorcentagem(${index}, this.value)" />
+              </td>
+              <td>
+                <input type="number" min="1" max="31" value="${item.dia_renovacao || ''}" 
+                  onchange="atualizarRenovacao(${index}, this.value)" />
+              </td>
+              <td><button onclick="removerCategoria(${index})">Remover</button></td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    `;
+    container.appendChild(tabela);
   }
+
+  somaDisplay.textContent = `Total: ${soma.toFixed(2)}%`;
+  salvarBtn.disabled = soma.toFixed(2) != 100.00;
+}
 
   window.removerCategoria = async (index) => {
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
