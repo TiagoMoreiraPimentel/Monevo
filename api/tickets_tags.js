@@ -2,9 +2,9 @@ export default async function handler(req, res) {
   const { id_usuario } = req.query;
   if (!id_usuario) return res.status(400).send("id_usuario obrigatório.");
 
-  const BASE_CONFIG = "https://.../ords/admin/monevo_distribuicao_config/";
-  const BASE_VALOR = "https://.../ords/admin/monevo_distribuicao_valor/";
-  const BASE_TRANSACOES = "https://.../ords/admin/monevo_transacao/";
+  const BASE_CONFIG = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
+  const BASE_VALOR = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
+  const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
 
   try {
     console.log("Calculando tickets para ID:", id_usuario);
