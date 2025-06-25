@@ -315,7 +315,7 @@ async function carregarTicketsTags() {
             <td>R$ ${tag.saldo_restante}</td>
             <td>${tag.dias_restantes}</td>
             <td>R$ ${tag.ticket_base}</td>
-            <td style="color: ${tag.ticket_hoje === "0.00" ? "#f44336" : "#4caf50"}">
+            <td style="color: ${parseFloat(tag.ticket_hoje) < 0 ? 'red' : 'inherit'}">
               <strong>R$ ${tag.ticket_hoje}</strong>
             </td>
             <td>R$ ${tag.ticket_ajustado}</td>
