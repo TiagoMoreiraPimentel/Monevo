@@ -10,28 +10,34 @@ export default async function handler(req, res) {
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0];
 
-    // Buscar configurações
+    // Buscar configurações de TAGs
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
     const configData = await configResp.json();
     const configuracoes = configData.items || [];
 
-    // Buscar saldos
+    // Buscar saldos atuais por TAG
     const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
     const valorData = await valorResp.json();
     const saldos = valorData.items || [];
 
-    // Buscar transações do dia
+    // Buscar transações do usuário
     const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
     const transData = await transResp.json();
-    const transacoesHoje = (transData.items || []).filter(t => {
+    const transacoes = transData.items || [];
+
+    // Filtrar transações do dia (Despesa)
+    const transacoesHoje = transacoes.filter(t => {
       if (!t.data_transacao || t.tipo !== "Despesa") return false;
-      const data = new Date(t.data_transacao);
-      return (
-        data.getFullYear() === hoje.getFullYear() &&
-        data.getMonth() === hoje.getMonth() &&
-        data.getDate() === hoje.getDate()
-      );
+      const dataStr = t.data_transacao.split("T")[0];
+      return dataStr === hojeStr;
     });
+
+    // Debug opcional
+    console.log("📅 Transações de hoje:", transacoesHoje.map(t => ({
+      categoria: t.categoria,
+      valor: t.valor,
+      data: t.data_transacao
+    })));
 
     const resposta = configuracoes.map(cfg => {
       const tag = cfg.nome_categoria;
@@ -47,10 +53,12 @@ export default async function handler(req, res) {
 
       const saldoRestante = saldoTotal - gastoHoje;
 
-      // Calcular dias restantes
+      // Calcular dias restantes até a próxima renovação
       const proximaRenovacao = new Date(hoje);
       proximaRenovacao.setDate(diaRenovacao);
-      if (proximaRenovacao < hoje) proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
+      if (proximaRenovacao < hoje) {
+        proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
+      }
 
       const diffMs = proximaRenovacao - hoje;
       const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
@@ -66,13 +74,13 @@ export default async function handler(req, res) {
         dia_renovacao: diaRenovacao,
         dias_restantes: diasRestantes,
         ticket_base: ticketBase.toFixed(2),
-        ticket_hoje: ticketHoje.toFixed(2)
+        ticket_diario: ticketHoje.toFixed(2)
       };
     });
 
     res.status(200).json(resposta);
   } catch (erro) {
-    console.error("❌ Erro completo no cálculo de tickets:", erro);
+    console.error("❌ Erro no cálculo de tickets:", erro);
     res.status(500).json({ erro: "Erro ao calcular tickets." });
   }
 }
