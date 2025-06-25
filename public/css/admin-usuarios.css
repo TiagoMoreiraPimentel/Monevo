@@ -9,17 +9,6 @@ h1 {
   color: #000000;
 }
 
-/* CONTAINER CENTRAL */
-.conteudo {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
-
-/* TABELA - VISÍVEL NO DESKTOP */
 .tabela-responsiva {
   overflow-x: auto;
   max-width: 100%;
@@ -30,10 +19,11 @@ table {
   min-width: 600px;
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
-th, td {
+th,
+td {
   padding: 0.8rem;
   border: 1px solid #ddd;
   text-align: left;
@@ -44,7 +34,8 @@ th {
   color: white;
 }
 
-select, button {
+select,
+button {
   padding: 0.4rem;
   font-size: 0.9rem;
   border-radius: 4px;
@@ -55,10 +46,24 @@ button.salvar {
   background-color: #008b65;
   color: white;
   cursor: pointer;
-  border: none;
 }
 
 button.salvar:hover {
+  background-color: #006e50;
+}
+
+#btn-voltar-dashboard {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #008b65;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#btn-voltar-dashboard:hover {
   background-color: #006e50;
 }
 
@@ -66,20 +71,57 @@ button.salvar:hover {
   background-color: #008B65;
   color: white;
   text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
-  font-size: 0.85rem;
+  padding: 0.3rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
   border-top: 1px solid #ccc;
 }
 
-/* === MOBILE === */
-@media (max-width: 600px) {
-  /* Esconde tabela no mobile */
+/* VISIBILIDADE POR DISPOSITIVO */
+.lista-mobile {
+  display: none;
+}
+
+/* MOBILE */
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  #btn-voltar-dashboard {
+    width: 100%;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  select,
+  button {
+    font-size: 0.8rem;
+  }
+
+  .footer {
+    min-width: 600px;
+    width: max-content;
+    overflow-x: auto;
+  }
+
+  body {
+    overflow-x: auto;
+  }
+
   .tabela-responsiva {
     display: none;
   }
 
-  /* Lista de cards no mobile */
   .lista-mobile {
     display: flex;
     flex-direction: column;
@@ -87,31 +129,33 @@ button.salvar:hover {
   }
 
   .card-usuario {
-    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     padding: 1rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
   .card-usuario p {
-    margin: 0.4rem 0;
+    margin: 0.5rem 0;
     font-size: 0.9rem;
-  }
-
-  .card-usuario label {
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-top: 0.6rem;
   }
 
   .card-usuario select,
   .card-usuario button {
     margin-top: 0.3rem;
     width: 100%;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
-  button.salvar {
-    margin-top: 0.6rem;
+  .card-usuario button.salvar {
+    margin-top: 0.5rem;
+    background-color: #008b65;
+    color: white;
+    font-weight: bold;
+  }
+
+  .card-usuario button.salvar:hover {
+    background-color: #006e50;
   }
 }
