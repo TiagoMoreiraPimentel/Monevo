@@ -22,15 +22,15 @@ export default async function handler(req, res) {
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","data_transacao":"${hojeStr}"}`;
-    console.log("Buscando transações do dia com:", queryTransacoes);
+    const rTrans = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
+    const transRaw = await rTrans.text();
+    const transJson = JSON.parse(transRaw);
+    const transacoesHoje = (transJson.items || []).filter(t =>
+      t.tipo === "Despesa" &&
+      t.data_transacao?.startsWith(hojeStr)
+    );
 
-    const rTrans = await fetch(BASE_TRANSACOES + queryTransacoes);
-    const rawText = await rTrans.text();
-    console.log("Resposta bruta das transações:", rawText);
-
-    const transJson = JSON.parse(rawText);
-    const transacoesHoje = transJson.items || [];
+    console.log("Transações de hoje:", transacoesHoje);
 
     const resultado = configUsuario.map(conf => {
       const tag = conf.nome_categoria;
