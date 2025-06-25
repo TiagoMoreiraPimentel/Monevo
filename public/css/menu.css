@@ -13,16 +13,9 @@
   z-index: 1500;
 }
 
-.sidebar.expanded {
-  width: 240px;
-  align-items: flex-start;
-  padding-left: 1rem;
-}
-
 .toggle-btn {
-  position: absolute;
+  position: fixed;
   top: 1rem;
-  right: 1rem;
   background: var(--cor-primaria);
   color: white;
   border: none;
@@ -31,7 +24,12 @@
   cursor: pointer;
   z-index: 1600;
   font-size: 1.4rem;
-  display: block; /* mostrar por padrão */
+  display: block;
+  left: 1rem;
+}
+
+.sidebar.expanded ~ .toggle-btn {
+  display: none;
 }
 
 .sidebar.expanded ~ .main-content .toggle-btn {
