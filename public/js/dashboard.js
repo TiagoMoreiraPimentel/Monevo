@@ -62,7 +62,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             ctx.fillStyle = cor;
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`R$ ${ticket.toFixed(2)}`, x, y + 15);
+            ctx.fillText(`R$ ${ticket.toFixed(2)}`, x, y + 25); // << mais abaixo
             ctx.restore();
           });
         }
