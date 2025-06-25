@@ -1,4 +1,5 @@
 // /api/tickets_tags.js
+
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
@@ -8,79 +9,69 @@ export default async function handler(req, res) {
 
   const { id_usuario } = req.query;
   if (!id_usuario) {
-    return res.status(400).json({ erro: "ID do usuário não informado" });
+    return res.status(400).json({ erro: "ID do usuário é obrigatório" });
   }
 
-  const urlConfig = `https://<SEU_ORDS>/ords/admin/monevo_distribuicao_config?limit=1000`;
-  const urlValor = `https://<SEU_ORDS>/ords/admin/monevo_distribuicao_valor?limit=1000`;
-  const urlTransacoesHoje = `https://<SEU_ORDS>/ords/admin/monevo_transacao/?q={"id_usuario":${id_usuario},"tipo":"Despesa"}`;
-
   try {
-    // 1. Buscar as configurações de distribuição
-    const [rConfig, rValor] = await Promise.all([
+    const baseURL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com";
+
+    const urlConfig = `${baseURL}/ords/admin/monevo_distribuicao_config?limit=1000`;
+    const urlValor = `${baseURL}/ords/admin/monevo_distribuicao_valor?limit=1000&where=ID_USUARIO=${id_usuario}`;
+
+    const hoje = new Date();
+    const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const fimDia = new Date(inicioDia);
+    fimDia.setDate(fimDia.getDate() + 1);
+
+    const formatData = (d) => d.toISOString().split("T")[0];
+
+    const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?limit=1000&where=ID_USUARIO=${id_usuario}+AND+TIPO='Despesa'+AND+DATA_TRANSACAO>=DATE'${formatData(inicioDia)}'+AND+DATA_TRANSACAO<DATE'${formatData(fimDia)}'`;
+
+    const [configRes, valorRes, transacoesRes] = await Promise.all([
       fetch(urlConfig),
-      fetch(urlValor)
+      fetch(urlValor),
+      fetch(urlTransacoesHoje),
     ]);
 
-    const configData = await rConfig.json();
-    const valorData = await rValor.json();
+    const [configData, valorData, transacoesData] = await Promise.all([
+      configRes.json(),
+      valorRes.json(),
+      transacoesRes.json(),
+    ]);
 
-    // 2. Filtrar configs e saldos do usuário
-    const configTags = configData.items.filter(t => t.id_usuario === parseInt(id_usuario));
-    const valoresTags = valorData.items.filter(t => t.id_usuario === parseInt(id_usuario));
+    const configuracoes = configData.items;
+    const valores = valorData.items;
+    const transacoesHoje = transacoesData.items;
 
-    // 3. Buscar despesas de hoje (filtro por TRUNC(DATA_TRANSACAO) = TRUNC(SYSDATE))
-    const hoje = new Date();
-    const hojeISO = hoje.toISOString().split("T")[0]; // yyyy-mm-dd
+    const resultado = configuracoes.map((conf) => {
+      const tag = conf.nome_categoria;
+      const percentual = parseFloat(conf.percentual || 0);
+      const valorTag = valores.find(v => v.tag_distribuicao === tag && v.id_usuario == id_usuario);
+      const saldo = valorTag ? parseFloat(valorTag.valor_disponivel || 0) : 0;
 
-    const urlDespesasHoje = `https://<SEU_ORDS>/ords/admin/monevo_transacao/`;
-    const queryDespesasHoje = {
-      q: {
-        id_usuario: parseInt(id_usuario),
-        tipo: "Despesa"
-      }
-    };
+      const gastoHoje = transacoesHoje
+        .filter(t => t.categoria === tag)
+        .reduce((soma, t) => soma + parseFloat(t.valor), 0);
 
-    const rDespesasHoje = await fetch(
-      `${urlDespesasHoje}?q=${encodeURIComponent(JSON.stringify(queryDespesasHoje))}&limit=1000`
-    );
-    const transacoesHoje = await rDespesasHoje.json();
-
-    const hojeStr = hoje.toISOString().split("T")[0];
-
-    const transacoesDeHoje = transacoesHoje.items.filter(t => {
-      const dataTransacao = new Date(t.data_transacao);
-      const dataStr = dataTransacao.toISOString().split("T")[0];
-      return dataStr === hojeStr;
-    });
-
-    // 4. Calcular tickets
-    const resultado = configTags.map(tag => {
-      const valor = valoresTags.find(v => v.tag_distribuicao === tag.nome_categoria);
-      const saldo = valor ? parseFloat(valor.valor_disponivel) : 0;
-
-      const gastoHoje = transacoesDeHoje
-        .filter(t => t.categoria === tag.nome_categoria)
-        .reduce((s, t) => s + parseFloat(t.valor), 0);
-
-      const dias_restantes = Math.max(1, Math.ceil((new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1) - hoje) / (1000 * 60 * 60 * 24)));
-      const ticket_base = saldo / dias_restantes;
-      const ticket_hoje = ticket_base - gastoHoje;
+      const diasRestantes = 5;
+      const saldoRestante = saldo - gastoHoje;
+      const ticketBase = diasRestantes > 0 ? saldo / diasRestantes : 0;
+      const ticketHoje = diasRestantes > 0 ? saldoRestante / diasRestantes : 0;
 
       return {
-        tag: tag.nome_categoria,
+        tag,
         saldo: saldo.toFixed(2),
         gasto_hoje: gastoHoje.toFixed(2),
-        saldo_restante: (saldo - gastoHoje).toFixed(2),
-        dias_restantes,
-        ticket_base: ticket_base.toFixed(2),
-        ticket_hoje: ticket_hoje.toFixed(2)
+        saldo_restante: saldoRestante.toFixed(2),
+        dias_restantes: diasRestantes,
+        ticket_base: ticketBase.toFixed(2),
+        ticket_hoje: ticketHoje.toFixed(2),
       };
     });
 
-    res.status(200).json(resultado);
-  } catch (erro) {
-    console.error("Erro ao carregar tickets:", erro);
-    res.status(500).json({ erro: "Erro ao carregar tickets", detalhes: erro.message });
+    return res.status(200).json(resultado);
+  } catch (e) {
+    console.error("Erro ao carregar tickets por tag:", e);
+    return res.status(500).json({ erro: "Erro ao carregar tickets", detalhes: e.message });
   }
 }
