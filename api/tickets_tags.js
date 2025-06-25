@@ -7,50 +7,56 @@ export default async function handler(req, res) {
   const BASE_TRANSACOES = "https://.../ords/admin/monevo_transacao/";
 
   try {
-    // 1. Buscar configurações de TAGs (com dia de renovação)
+    console.log("Calculando tickets para ID:", id_usuario);
+
+    // 1. Buscar configurações de TAGs
+    console.log("Buscando configurações...");
     const rConfig = await fetch(BASE_CONFIG);
     const configJson = await rConfig.json();
     const configUsuario = (configJson.items || []).filter(c => c.id_usuario == id_usuario);
+    console.log("Configurações recebidas:", configUsuario);
 
     // 2. Buscar saldos por TAG
+    console.log("Buscando saldos de TAGs...");
     const rValor = await fetch(BASE_VALOR);
     const valorJson = await rValor.json();
     const saldosUsuario = (valorJson.items || []).filter(v => v.id_usuario == id_usuario);
+    console.log("Saldos recebidos:", saldosUsuario);
 
-    // 3. Buscar transações de hoje (despesas)
+    // 3. Buscar transações do dia
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0]; // YYYY-MM-DD
-    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","data_transacao":"${hojeStr}"}`;
+    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","DATA_TRANSACAO":"${hojeStr}"}`;
 
+    console.log("Buscando transações de hoje:", queryTransacoes);
     const rTrans = await fetch(BASE_TRANSACOES + queryTransacoes);
     const transJson = await rTrans.json();
     const transacoesHoje = transJson.items || [];
+    console.log("Transações de hoje:", transacoesHoje);
 
-    // 4. Processar tickets por TAG
+    // 4. Processar tickets
     const resultado = configUsuario.map(conf => {
       const tag = conf.nome_categoria;
       const diaRenovacao = parseInt(conf.dia_renovacao);
 
-      // Saldo atual da TAG
+      if (!diaRenovacao || isNaN(diaRenovacao)) {
+        return { tag, erro: "Dia de renovação não definido." };
+      }
+
       const saldoObj = saldosUsuario.find(s => s.tag_distribuicao?.toLowerCase() === tag.toLowerCase());
       const saldo = parseFloat(saldoObj?.valor_disponivel || 0);
 
-      // Valor gasto hoje na TAG
       const gastoHoje = transacoesHoje
         .filter(t => t.categoria?.toLowerCase() === tag.toLowerCase())
         .reduce((soma, t) => soma + parseFloat(t.valor || 0), 0);
 
       const saldoRestante = saldo - gastoHoje;
 
-      // Calcular dias restantes até o próximo ciclo
+      // Calcular dias restantes até próximo ciclo
       const hojeDia = hoje.getDate();
       const hojeMes = hoje.getMonth();
       const hojeAno = hoje.getFullYear();
       let dataFim;
-
-      if (!diaRenovacao || isNaN(diaRenovacao)) {
-        return { tag, erro: "Dia de renovação não definido." };
-      }
 
       if (hojeDia < diaRenovacao) {
         dataFim = new Date(hojeAno, hojeMes, diaRenovacao);
@@ -74,9 +80,10 @@ export default async function handler(req, res) {
       };
     });
 
+    console.log("Resultado final:", resultado);
     return res.status(200).json(resultado);
   } catch (err) {
-    console.error("Erro tickets_tags:", err);
+    console.error("Erro completo no cálculo de tickets:", err);
     return res.status(500).send("Erro ao calcular tickets.");
   }
 }
