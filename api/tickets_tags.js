@@ -1,87 +1,86 @@
+// /api/tickets_tags.js
+import fetch from "node-fetch";
+
 export default async function handler(req, res) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ erro: "Método não permitido" });
+  }
+
+  const { id_usuario } = req.query;
+  if (!id_usuario) {
+    return res.status(400).json({ erro: "ID do usuário não informado" });
+  }
+
+  const urlConfig = `https://<SEU_ORDS>/ords/admin/monevo_distribuicao_config?limit=1000`;
+  const urlValor = `https://<SEU_ORDS>/ords/admin/monevo_distribuicao_valor?limit=1000`;
+  const urlTransacoesHoje = `https://<SEU_ORDS>/ords/admin/monevo_transacao/?q={"id_usuario":${id_usuario},"tipo":"Despesa"}`;
+
   try {
-    const id_usuario = Number(req.query.id_usuario);
-    if (!id_usuario) return res.status(400).json({ erro: "ID de usuário ausente." });
+    // 1. Buscar as configurações de distribuição
+    const [rConfig, rValor] = await Promise.all([
+      fetch(urlConfig),
+      fetch(urlValor)
+    ]);
 
-    const BASE_CONFIG = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
-    const BASE_VALOR = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
-    const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
+    const configData = await rConfig.json();
+    const valorData = await rValor.json();
 
+    // 2. Filtrar configs e saldos do usuário
+    const configTags = configData.items.filter(t => t.id_usuario === parseInt(id_usuario));
+    const valoresTags = valorData.items.filter(t => t.id_usuario === parseInt(id_usuario));
+
+    // 3. Buscar despesas de hoje (filtro por TRUNC(DATA_TRANSACAO) = TRUNC(SYSDATE))
     const hoje = new Date();
+    const hojeISO = hoje.toISOString().split("T")[0]; // yyyy-mm-dd
+
+    const urlDespesasHoje = `https://<SEU_ORDS>/ords/admin/monevo_transacao/`;
+    const queryDespesasHoje = {
+      q: {
+        id_usuario: parseInt(id_usuario),
+        tipo: "Despesa"
+      }
+    };
+
+    const rDespesasHoje = await fetch(
+      `${urlDespesasHoje}?q=${encodeURIComponent(JSON.stringify(queryDespesasHoje))}&limit=1000`
+    );
+    const transacoesHoje = await rDespesasHoje.json();
+
     const hojeStr = hoje.toISOString().split("T")[0];
 
-    // Buscar configurações de TAGs
-    const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
-    const configData = await configResp.json();
-    const configuracoes = configData.items || [];
-
-    // Buscar saldos atuais por TAG
-    const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
-    const valorData = await valorResp.json();
-    const saldos = valorData.items || [];
-
-    // Buscar transações do usuário
-    const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
-    const transData = await transResp.json();
-    const transacoes = transData.items || [];
-
-    // Filtrar transações do dia (Despesa)
-    const transacoesHoje = transacoes.filter(t => {
-      if (!t.data_transacao || t.tipo !== "Despesa") return false;
-      const dataStr = t.data_transacao.split("T")[0];
+    const transacoesDeHoje = transacoesHoje.items.filter(t => {
+      const dataTransacao = new Date(t.data_transacao);
+      const dataStr = dataTransacao.toISOString().split("T")[0];
       return dataStr === hojeStr;
     });
 
-    // Debug opcional
-    console.log("📅 Transações de hoje:", transacoesHoje.map(t => ({
-      categoria: t.categoria,
-      valor: t.valor,
-      data: t.data_transacao
-    })));
+    // 4. Calcular tickets
+    const resultado = configTags.map(tag => {
+      const valor = valoresTags.find(v => v.tag_distribuicao === tag.nome_categoria);
+      const saldo = valor ? parseFloat(valor.valor_disponivel) : 0;
 
-    const resposta = configuracoes.map(cfg => {
-      const tag = cfg.nome_categoria;
-      const diaRenovacao = cfg.dia_renovacao;
+      const gastoHoje = transacoesDeHoje
+        .filter(t => t.categoria === tag.nome_categoria)
+        .reduce((s, t) => s + parseFloat(t.valor), 0);
 
-      const saldoTotal = saldos
-        .filter(s => s.tag_distribuicao === tag)
-        .reduce((acc, cur) => acc + Number(cur.valor_distribuido), 0);
-
-      const gastoHoje = transacoesHoje
-        .filter(t => t.categoria === tag)
-        .reduce((acc, cur) => acc + Number(cur.valor), 0);
-
-      const saldoRestante = saldoTotal - gastoHoje;
-
-      // Calcular dias restantes até a próxima renovação
-      const proximaRenovacao = new Date(hoje);
-      proximaRenovacao.setDate(diaRenovacao);
-      if (proximaRenovacao < hoje) {
-        proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
-      }
-
-      const diffMs = proximaRenovacao - hoje;
-      const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-
-      const ticketBase = saldoTotal / diasRestantes;
-      const ticketHoje = Math.max(Number(ticketBase) - Number(gastoHoje), 0);
+      const dias_restantes = Math.max(1, Math.ceil((new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1) - hoje) / (1000 * 60 * 60 * 24)));
+      const ticket_base = saldo / dias_restantes;
+      const ticket_hoje = ticket_base - gastoHoje;
 
       return {
-        tag,
-        saldo: saldoTotal.toFixed(2),
+        tag: tag.nome_categoria,
+        saldo: saldo.toFixed(2),
         gasto_hoje: gastoHoje.toFixed(2),
-        saldo_restante: saldoRestante.toFixed(2),
-        dia_renovacao: diaRenovacao,
-        dias_restantes: diasRestantes,
-        ticket_base: ticketBase.toFixed(2),
-        ticket_diario: ticketHoje.toFixed(2)
+        saldo_restante: (saldo - gastoHoje).toFixed(2),
+        dias_restantes,
+        ticket_base: ticket_base.toFixed(2),
+        ticket_hoje: ticket_hoje.toFixed(2)
       };
-
     });
 
-    res.status(200).json(resposta);
+    res.status(200).json(resultado);
   } catch (erro) {
-    console.error("❌ Erro no cálculo de tickets:", erro);
-    res.status(500).json({ erro: "Erro ao calcular tickets." });
+    console.error("Erro ao carregar tickets:", erro);
+    res.status(500).json({ erro: "Erro ao carregar tickets", detalhes: erro.message });
   }
 }
