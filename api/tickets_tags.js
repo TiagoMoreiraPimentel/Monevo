@@ -8,31 +8,35 @@ export default async function handler(req, res) {
     const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
 
     const hoje = new Date();
-    const hojeStr = hoje.toISOString().split("T")[0];
+    const inicioDia = new Date(hoje.setHours(0, 0, 0, 0));
+    const fimDia = new Date(hoje.setHours(23, 59, 59, 999));
+    const hojeStr = new Date().toISOString().split("T")[0];
 
-    // Buscar configurações (inclui nome da TAG e dia de renovação)
+    // 1. Buscar configurações
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
     const configData = await configResp.json();
     const configuracoes = configData.items || [];
-    console.log("✅ Configurações:", configuracoes);
 
-    // Buscar saldos por TAG
+    // 2. Buscar saldos
     const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
     const valorData = await valorResp.json();
     const saldos = valorData.items || [];
-    console.log("✅ Saldos:", saldos);
 
-    // Buscar transações do dia para calcular gasto por TAG
+    // 3. Buscar transações
     const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
     const transData = await transResp.json();
-    const transacoes = (transData.items || []).filter(t => t.tipo === "Despesa" && t.data_transacao?.startsWith(hojeStr));
-    console.log("✅ Transações de hoje:", transacoes);
+    const transacoes = (transData.items || []).filter(t => {
+      if (t.tipo !== "Despesa" || !t.data_transacao) return false;
+      const data = new Date(t.data_transacao);
+      return data >= inicioDia && data <= fimDia;
+    });
 
+    // 4. Cálculo por TAG
     const resposta = configuracoes.map(cfg => {
       const tag = cfg.nome_categoria;
       const diaRenovacao = cfg.dia_renovacao;
 
-      const hojeDia = hoje.getDate();
+      const hojeDia = new Date().getDate();
       let diasRestantes = diaRenovacao - hojeDia;
       if (diasRestantes < 0) diasRestantes += 30;
 
