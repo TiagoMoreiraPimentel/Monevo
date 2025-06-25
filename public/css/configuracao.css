@@ -2,12 +2,18 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f3f3f3;
   margin: 0;
+  padding: 0;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
   padding: 1rem;
 }
 
 .container {
-  max-width: 800px;
-  margin: 2rem auto;
+  width: 100%;
+  max-width: 700px;
   background: white;
   padding: 1.5rem;
   border-radius: 10px;
