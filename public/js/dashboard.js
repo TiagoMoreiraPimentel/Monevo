@@ -54,7 +54,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             if (!bar) return;
 
             const { x, y } = bar.tooltipPosition();
-            const cor = ticket < 0 ? '#FF4638' : ticket === 0 ? '#2272FF' : '#1AE330';
+            const cor = ticket < 0 ? '#800000' : ticket === 0 ? '#032F99' : '#086900';
 
             ctx.save();
             ctx.fillStyle = cor;
