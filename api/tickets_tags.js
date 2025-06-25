@@ -1,5 +1,3 @@
-// /api/tickets_tags.js
-
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
@@ -19,26 +17,25 @@ export default async function handler(req, res) {
     const urlValor = `${baseURL}/ords/admin/monevo_distribuicao_valor?q={"id_usuario":${id_usuario}}`;
 
     const hoje = new Date();
-    const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-    const fimDia = new Date(inicioDia);
-    fimDia.setDate(fimDia.getDate() + 1);
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
 
-    const dataISO = (d) => d.toISOString().split("T")[0];
+    const inicio = `${ano}-${mes}-${dia}T00:00:00`;
+    const fim = `${ano}-${mes}-${dia}T23:59:59`;
 
     const filtroTransacoes = {
       id_usuario: Number(id_usuario),
       tipo: "Despesa",
-      $and: [
-        { data_transacao: { $gte: dataISO(inicioDia) } },
-        { data_transacao: { $lt: dataISO(fimDia) } }
-      ]
+      data_transacao: { "$between": [inicio, fim] }
     };
+
     const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?q=${encodeURIComponent(JSON.stringify(filtroTransacoes))}`;
 
     const [configRes, valorRes, transacoesRes] = await Promise.all([
       fetch(urlConfig),
       fetch(urlValor),
-      fetch(urlTransacoesHoje),
+      fetch(urlTransacoesHoje)
     ]);
 
     const status = {
