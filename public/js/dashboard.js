@@ -309,6 +309,9 @@ async function carregarTicketsTags() {
       <tbody>
         ${dados.map(tag => {
           const ticketHojeFloat = parseFloat(tag.ticket_hoje);
+          const ticketHojeFormatado = ticketHojeFloat < 0
+            ? `-R$ ${Math.abs(ticketHojeFloat).toFixed(2)}`
+            : `R$ ${ticketHojeFloat.toFixed(2)}`;
           const corTicketHoje = ticketHojeFloat < 0 ? "red" : "inherit";
 
           return `
@@ -320,7 +323,7 @@ async function carregarTicketsTags() {
               <td>${tag.dias_restantes}</td>
               <td>R$ ${tag.ticket_base}</td>
               <td style="color: ${corTicketHoje}">
-                <strong>R$ ${ticketHojeFloat.toFixed(2)}</strong>
+                <strong>${ticketHojeFormatado}</strong>
               </td>
               <td>R$ ${tag.ticket_ajustado}</td>
             </tr>
