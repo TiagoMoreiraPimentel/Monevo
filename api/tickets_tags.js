@@ -29,8 +29,8 @@ export default async function handler(req, res) {
       id_usuario: Number(id_usuario),
       tipo: "Despesa",
       $and: [
-        { data_transacao: { $gte: `DATE'${dataISO(inicioDia)}'` } },
-        { data_transacao: { $lt: `DATE'${dataISO(fimDia)}'` } }
+        { data_transacao: { $gte: dataISO(inicioDia) } },
+        { data_transacao: { $lt: dataISO(fimDia) } }
       ]
     };
     const urlTransacoesHoje = `${baseURL}/ords/admin/monevo_transacao?q=${encodeURIComponent(JSON.stringify(queryTransacoes))}`;
