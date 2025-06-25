@@ -6,10 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  document.getElementById("btn-voltar").addEventListener("click", () => {
-    window.location.href = "/telas/dashboard.html";
-  });
-
   carregarContas();
 
   document.getElementById("form-conta").addEventListener("submit", async (e) => {

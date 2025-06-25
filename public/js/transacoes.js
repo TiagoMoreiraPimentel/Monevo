@@ -13,10 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectTag = document.getElementById("tag-distribuicao");
   const selectConta = document.getElementById("conta");
 
-  document.getElementById("btn-voltar").addEventListener("click", () => {
-    window.location.href = "/telas/dashboard.html";
-  });
-
   document.getElementById("btn-toggle-form").addEventListener("click", () => {
     document.getElementById("form-transacao").classList.toggle("hidden");
   });

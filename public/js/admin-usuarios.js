@@ -72,8 +72,3 @@ async function carregarUsuarios() {
 
 // Executa tudo ao carregar
 carregarUsuarios();
-
-// 🎯 Fora da função principal
-document.getElementById("btn-voltar-dashboard").addEventListener("click", () => {
-  window.location.href = "/telas/dashboard.html";
-});
