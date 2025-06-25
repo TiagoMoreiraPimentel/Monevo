@@ -31,7 +31,11 @@
   cursor: pointer;
   z-index: 1600;
   font-size: 1.4rem;
-  display: none; /* oculto por padrão, só aparece no mobile */
+  display: block; /* mostrar por padrão */
+}
+
+.sidebar.expanded ~ .main-content .toggle-btn {
+  display: none; /* ocultar quando menu expandido */
 }
 
 .menu-opcoes {
