@@ -9,6 +9,17 @@ h1 {
   color: #000000;
 }
 
+/* CONTAINER CENTRAL */
+.conteudo {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+/* TABELA - VISÍVEL NO DESKTOP */
 .tabela-responsiva {
   overflow-x: auto;
   max-width: 100%;
@@ -44,24 +55,10 @@ button.salvar {
   background-color: #008b65;
   color: white;
   cursor: pointer;
+  border: none;
 }
 
 button.salvar:hover {
-  background-color: #006e50;
-}
-
-#btn-voltar-dashboard {
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #008b65;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-#btn-voltar-dashboard:hover {
   background-color: #006e50;
 }
 
@@ -69,63 +66,52 @@ button.salvar:hover {
   background-color: #008B65;
   color: white;
   text-align: center;
-  padding: 0.3rem 1rem;
-  margin-top: 1rem;
-  font-size: 0.75rem;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 0.85rem;
   border-top: 1px solid #ccc;
 }
 
-.card-usuario {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 1rem;
-  background-color: #fff;
-  box-shadow: 0 2px 6px #ddd;
-  margin-bottom: 1rem;
-}
-
-.card-usuario p {
-  margin: 0.4rem 0;
-}
-
-.card-usuario select {
-  margin-top: 0.3rem;
-  width: 100%;
-}
-
-.card-usuario button.salvar {
-  margin-top: 0.5rem;
-  width: 100%;
-}
-
-/* Versão mobile em cards */
-@media screen and (max-width: 600px) {
+/* === MOBILE === */
+@media (max-width: 600px) {
+  /* Esconde tabela no mobile */
   .tabela-responsiva {
     display: none;
   }
 
-  #lista-usuarios-mobile {
+  /* Lista de cards no mobile */
+  .lista-mobile {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
 
-  h1 {
-    font-size: 1.2rem;
+  .card-usuario {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
-  #btn-voltar-dashboard {
+  .card-usuario p {
+    margin: 0.4rem 0;
+    font-size: 0.9rem;
+  }
+
+  .card-usuario label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+  }
+
+  .card-usuario select,
+  .card-usuario button {
+    margin-top: 0.3rem;
     width: 100%;
-    font-size: 1rem;
-    margin-bottom: 1rem;
+    font-size: 0.9rem;
   }
 
-  .footer {
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  body {
-    overflow-x: hidden;
+  button.salvar {
+    margin-top: 0.6rem;
   }
 }
