@@ -307,20 +307,25 @@ async function carregarTicketsTags() {
         </tr>
       </thead>
       <tbody>
-        ${dados.map(tag => `
-          <tr>
-            <td>${tag.tag}</td>
-            <td>R$ ${tag.saldo}</td>
-            <td>R$ ${tag.gasto_hoje}</td>
-            <td>R$ ${tag.saldo_restante}</td>
-            <td>${tag.dias_restantes}</td>
-            <td>R$ ${tag.ticket_base}</td>
-            <td style="color: ${parseFloat(tag.ticket_hoje) < 0 ? 'red' : 'inherit'}">
-              <strong>R$ ${tag.ticket_hoje}</strong>
-            </td>
-            <td>R$ ${tag.ticket_ajustado}</td>
-          </tr>
-        `).join("")}
+        ${dados.map(tag => {
+          const ticketHojeFloat = parseFloat(tag.ticket_hoje);
+          const corTicketHoje = ticketHojeFloat < 0 ? "red" : "inherit";
+
+          return `
+            <tr>
+              <td>${tag.tag}</td>
+              <td>R$ ${tag.saldo}</td>
+              <td>R$ ${tag.gasto_hoje}</td>
+              <td>R$ ${tag.saldo_restante}</td>
+              <td>${tag.dias_restantes}</td>
+              <td>R$ ${tag.ticket_base}</td>
+              <td style="color: ${corTicketHoje}">
+                <strong>R$ ${ticketHojeFloat.toFixed(2)}</strong>
+              </td>
+              <td>R$ ${tag.ticket_ajustado}</td>
+            </tr>
+          `;
+        }).join("")}
       </tbody>
     `;
 
