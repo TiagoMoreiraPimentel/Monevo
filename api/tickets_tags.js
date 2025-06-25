@@ -45,8 +45,6 @@ export default async function handler(req, res) {
         .filter(t => t.categoria === tag)
         .reduce((acc, cur) => acc + Number(cur.valor), 0);
 
-      const saldoRestante = saldoTotal - gastoHoje;
-
       const proximaRenovacao = new Date(hoje);
       proximaRenovacao.setDate(diaRenovacao);
       if (proximaRenovacao < hoje) proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
@@ -56,6 +54,7 @@ export default async function handler(req, res) {
 
       const ticketBase = saldoTotal / diasRestantes;
       const ticketHoje = Math.max(ticketBase - gastoHoje, 0);
+      const saldoRestante = saldoTotal - gastoHoje;
 
       console.log(`📌 Tag: ${tag}, Saldo: ${saldoTotal}, GastoHoje: ${gastoHoje}, DiasRestantes: ${diasRestantes}, TicketBase: ${ticketBase.toFixed(2)}, TicketHoje: ${ticketHoje.toFixed(2)}`);
 
