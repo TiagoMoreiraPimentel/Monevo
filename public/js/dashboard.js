@@ -307,7 +307,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function carregarTicketsTags() {
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-    if (!usuario || !usuario.id) return;
+    if (!usuario) return;
+
+    const id_usuario = usuario.id;
 
     try {
       const res = await fetch(`/api/tickets_tags?id_usuario=${id_usuario}`);
@@ -315,10 +317,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const erroTexto = await res.text();
         throw new Error(`Erro do servidor: ${erroTexto}`);
       }
+
       const dados = await res.json();
 
-      const container = document.getElementById("tabela-ticket-tags");
-      container.innerHTML = ""; // limpa conteúdo anterior
+      const container = document.createElement("div");
       container.className = "tabela-tickets";
 
       const tabela = document.createElement("table");
@@ -348,6 +350,8 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       container.appendChild(tabela);
+      document.querySelector("#tabela-ticket-tags").innerHTML = "";
+      document.querySelector("#tabela-ticket-tags").appendChild(container);
 
     } catch (err) {
       console.error("Erro ao carregar tickets por tag:", err);
