@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         });
       }
 
-      // Insere novas configurações
+      // Insere novas configurações com dia_renovacao
       for (const conf of configuracoes) {
         await fetch(BASE, {
           method: "POST",
@@ -44,7 +44,8 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             id_usuario,
             nome_categoria: conf.nome_categoria,
-            porcentagem: conf.porcentagem
+            porcentagem: conf.porcentagem,
+            dia_renovacao: conf.dia_renovacao ?? null
           })
         });
       }

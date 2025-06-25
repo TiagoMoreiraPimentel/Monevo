@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form-distribuicao");
   const nomeInput = document.getElementById("nomeCategoria");
   const porcentagemInput = document.getElementById("porcentagem");
+  const diaRenovacaoInput = document.getElementById("diaRenovacao");
   const tabela = document.querySelector("#tabelaDistribuicao tbody");
   const somaDisplay = document.getElementById("somaPorcentagem");
   const salvarBtn = document.getElementById("salvarConfig");
@@ -25,15 +26,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nome = nomeInput.value.trim();
     const porcentagem = parseFloat(porcentagemInput.value);
+    const diaRenovacao = parseInt(diaRenovacaoInput.value);
 
-    if (!nome || isNaN(porcentagem) || porcentagem <= 0) {
+    if (!nome || isNaN(porcentagem) || porcentagem <= 0 || (diaRenovacao && (diaRenovacao < 1 || diaRenovacao > 31))) {
       alert("Preencha os campos corretamente.");
       return;
     }
 
-    configuracoes.push({ nome_categoria: nome, porcentagem });
+    configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: diaRenovacao || null });
+
     nomeInput.value = "";
     porcentagemInput.value = "";
+    diaRenovacaoInput.value = "";
     atualizarTabela();
   });
 
@@ -52,6 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <input type="number" min="0" max="100" step="0.01" value="${valor}" 
                  onchange="atualizarPorcentagem(${index}, this.value)" />
         </td>
+        <td>
+          <input type="number" min="1" max="31" value="${item.dia_renovacao || ''}" 
+                 onchange="atualizarRenovacao(${index}, this.value)" />
+        </td>
         <td><button onclick="removerCategoria(${index})">Remover</button></td>
       `;
       tabela.appendChild(tr);
@@ -60,8 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
     somaDisplay.textContent = `Total: ${soma.toFixed(2)}%`;
     salvarBtn.disabled = soma.toFixed(2) != 100.00;
   }
-
-  // Substitua a função window.removerCategoria pelo código abaixo:
 
   window.removerCategoria = async (index) => {
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -76,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Se puder remover:
       configuracoes.splice(index, 1);
       atualizarTabela();
 
@@ -93,6 +98,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     configuracoes[index].porcentagem = valor;
+    atualizarTabela();
+  };
+
+  window.atualizarRenovacao = (index, novoValor) => {
+    const valor = parseInt(novoValor);
+    if (isNaN(valor) || valor < 1 || valor > 31) {
+      alert("Dia de renovação inválido.");
+      return;
+    }
+    configuracoes[index].dia_renovacao = valor;
     atualizarTabela();
   };
 
@@ -129,7 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       configuracoes = (json || []).map(item => ({
         nome_categoria: item.nome_categoria,
-        porcentagem: parseFloat(item.porcentagem)
+        porcentagem: parseFloat(item.porcentagem),
+        dia_renovacao: item.dia_renovacao
       }));
 
       atualizarTabela();

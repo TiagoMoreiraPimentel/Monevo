@@ -304,6 +304,59 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("ano").value = String(new Date().getFullYear());
 
   carregarResumo();
+
+  function carregarTicketPorTag(idUsuario) {
+  fetch(`/api/tickets_tags?id_usuario=${idUsuario}`)
+    .then((r) => r.json())
+    .then((dados) => {
+      const container = document.getElementById("tabela-ticket-tags");
+      if (!Array.isArray(dados) || dados.length === 0) {
+        container.innerHTML = "<p>Nenhum dado de ticket disponível.</p>";
+        return;
+      }
+
+      let html = `
+        <table class="tabela-tickets">
+          <thead>
+            <tr>
+              <th>TAG</th>
+              <th>Saldo Atual</th>
+              <th>Gasto Hoje</th>
+              <th>Saldo Restante</th>
+              <th>Dias Restantes</th>
+              <th>Ticket Diário</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      dados.forEach((t) => {
+        if (t.erro) {
+          html += `<tr><td colspan="6">TAG ${t.tag}: ${t.erro}</td></tr>`;
+          return;
+        }
+
+        html += `
+          <tr>
+            <td>${t.tag}</td>
+            <td>R$ ${parseFloat(t.saldo).toFixed(2)}</td>
+            <td>R$ ${parseFloat(t.gasto_hoje).toFixed(2)}</td>
+            <td>R$ ${parseFloat(t.saldo_restante).toFixed(2)}</td>
+            <td>${t.dias_restantes}</td>
+            <td><strong>R$ ${parseFloat(t.ticket_diario).toFixed(2)}</strong></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    })
+    .catch((err) => {
+      console.error("Erro ao carregar tickets:", err);
+      document.getElementById("tabela-ticket-tags").innerHTML = "<p>Erro ao carregar tickets.</p>";
+    });
+}
+
 });
 
 window.toggleSidebar = function () {

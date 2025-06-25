@@ -168,6 +168,41 @@ canvas {
   margin-left: 0;
 }
 
+.tabela-tickets {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  background-color: var(--cor-clara);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabela-tickets thead {
+  background-color: var(--cor-primaria);
+  color: white;
+  font-weight: bold;
+}
+
+.tabela-tickets th,
+.tabela-tickets td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+  color: var(--cor-texto);
+}
+
+.tabela-tickets tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+.tabela-tickets td strong {
+  color: var(--cor-primaria);
+}
+
+
 @media (max-width: 768px) {
   .sidebar {
     display: none;
