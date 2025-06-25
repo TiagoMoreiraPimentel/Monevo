@@ -11,17 +11,9 @@
   <script src="../js/dashboard.js" defer></script>
 </head>
 <body>
-  <aside class="sidebar" id="sidebar">
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-    <nav class="menu-opcoes">
-      <button id="admin-only" class="hidden">Gerenciar Usuários</button>
-      <button onclick="window.location.href='/telas/contas.html'">Gerenciar Contas</button>
-      <button onclick="window.location.href='/telas/transacoes.html'">Transações</button>
-      <button onclick="window.location.href='/telas/configuracao.html'">Configuração</button>
-      <button onclick="logout()">Sair</button>
-    </nav>
-  </aside>
-
+  <div id="menu-container"></div>
+  <script src="../js/menu.js"></script>
+  
   <main class="main-content">
     <header class="header-bar">
       <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
