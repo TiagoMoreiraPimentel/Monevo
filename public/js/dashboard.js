@@ -62,7 +62,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             ctx.fillStyle = cor;
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`${ticket.toFixed(2)}`, x, y + 15);
+            ctx.fillText(`${ticket.toFixed(2)}`, x, y + 5);
             ctx.restore();
           });
         }
@@ -400,3 +400,12 @@ function logout() {
   localStorage.removeItem("usuarioLogado");
   window.location.href = "../telas/login.html";
 }
+
+function toggleGrafico(botao) {
+  const conteudo = botao.nextElementSibling;
+  const aberto = conteudo.style.display === "block";
+
+  conteudo.style.display = aberto ? "none" : "block";
+  botao.textContent = (aberto ? "▶️" : "🔽") + " " + botao.textContent.slice(2);
+}
+

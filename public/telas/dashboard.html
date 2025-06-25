@@ -67,23 +67,43 @@
         <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
       </div>
 
-      <h3>Saldo Disponível por Tag</h3>
-      <canvas id="grafico-saldos-tags"></canvas>
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Saldo Disponível por Tag</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-saldos-tags"></canvas>
+        </div>
+      </div>
 
       <h3>Ticket Diário por TAG</h3>
       <div id="tabela-ticket-tags"></div>
 
-      <h3>Total de Despesas por Categoria</h3>
-      <canvas id="grafico-despesas"></canvas>
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Total de Despesas por Categoria</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-despesas"></canvas>
+        </div>
+      </div>
 
-      <h3>Total de Receitas por Categoria</h3>
-      <canvas id="grafico-receitas"></canvas>
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Total de Receitas por Categoria</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-receitas"></canvas>
+        </div>
+      </div>
 
-      <h3>Receitas vs Despesas</h3>
-      <canvas id="grafico-linhas"></canvas>
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Receitas vs Despesas</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-linhas"></canvas>
+        </div>
+      </div>
 
-      <h3>Saldo Disponivel por Tipo de Conta</h3>
-      <canvas id="grafico-conta"></canvas>
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Saldo Disponível por Tipo de Conta</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-conta"></canvas>
+        </div>
+      </div>
     </section>
 
     <footer>
