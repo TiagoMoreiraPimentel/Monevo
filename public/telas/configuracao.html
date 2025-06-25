@@ -8,54 +8,38 @@
   <link rel="stylesheet" href="../css/configuracao.css" />
 </head>
 <body>
-  <aside class="sidebar" id="sidebar">
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-    <div id="menu-container"></div>
-    <script src="../js/menu.js"></script>
-  </aside>
+  <div class="container">
+    <button id="btn-voltar" class="btn-voltar">← Voltar para Dashboard</button>
+    <h1>Configurações complementares</h1>
 
-  <main class="main-content">
-    <header class="header-bar">
-      <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
-      <span id="saudacao">Olá, usuário</span>
-      <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
-    </header>
+    <form id="form-distribuicao">
+      <div class="inputs">
+        <input type="text" id="nomeCategoria" placeholder="Nome da Categoria" required />
+        <input type="number" id="porcentagem" placeholder="Porcentagem (%)" required min="0" max="100" />
+        <input type="number" id="diaRenovacao" placeholder="Dia de Renovação" min="1" max="31" />
+        <button type="submit">Adicionar</button>
+      </div>
+    </form>
 
-    <section class="conteudo">
-      <h1>Configurações complementares</h1>
+    <div id="somaPorcentagem" class="soma">Total: 0%</div>
 
-      <form id="form-distribuicao">
-        <div class="inputs">
-          <input type="text" id="nomeCategoria" placeholder="Nome da Categoria" required />
-          <input type="number" id="porcentagem" placeholder="Porcentagem (%)" required min="0" max="100" />
-          <input type="number" id="diaRenovacao" placeholder="Dia de Renovação" min="1" max="31" />
-          <button type="submit">Adicionar</button>
-        </div>
-      </form>
+    <table id="tabelaDistribuicao">
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Porcentagem</th>
+          <th>Dia de Renovação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-      <div id="somaPorcentagem" class="soma">Total: 0%</div>
+    <!-- Cards para mobile -->
+    <div id="cardsDistribuicao" class="cards-container"></div>
 
-      <table id="tabelaDistribuicao">
-        <thead>
-          <tr>
-            <th>Categoria</th>
-            <th>Porcentagem</th>
-            <th>Dia de Renovação</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <div id="cardsDistribuicao" class="cards-container"></div>
-
-      <button id="salvarConfig" disabled>Salvar Configuração</button>
-    </section>
-
-    <footer>
-      &copy; 2025 Monevo. Todos os direitos reservados.
-    </footer>
-  </main>
+    <button id="salvarConfig" disabled>Salvar Configuração</button>
+  </div>
 
   <script src="../js/configuracao.js" defer></script>
 </body>
