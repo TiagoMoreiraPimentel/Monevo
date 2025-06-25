@@ -1,3 +1,4 @@
+/* ======== SIDEBAR (menu lateral) ======== */
 .sidebar {
   position: fixed;
   top: 0;
@@ -53,22 +54,8 @@
   background-color: var(--cor-primaria-hover);
 }
 
-.main-content {
-  margin-left: 60px;
-  transition: margin-left 0.3s ease;
-  padding: 1rem;
-}
-
-/* Alinha conteúdo ao expandir o menu */
-.sidebar.expanded ~ .main-content {
-  margin-left: 240px;
-}
-
-/* Botão toggle do menu */
+/* ======== BOTÃO ☰ (Toggle do Menu) ======== */
 .toggle-btn {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
   background: var(--cor-primaria);
   color: white;
   border: none;
@@ -79,22 +66,31 @@
   z-index: 2000;
 }
 
-/* BOTÃO DESKTOP: aparece só com menu recolhido */
+/* --- DESKTOP --- */
 @media (min-width: 769px) {
   .toggle-btn {
-    display: block;
+    margin-top: 1rem;
+    align-self: center; /* centraliza dentro da sidebar */
   }
 
-  .sidebar.expanded ~ .toggle-btn {
+  .mobile-only {
     display: none;
   }
 }
 
-/* BOTÃO MOBILE: sempre visível no topo direito */
+/* --- MOBILE --- */
 @media (max-width: 768px) {
   .toggle-btn {
+    position: fixed;
+    top: 1rem;
     right: 1rem;
     left: auto;
+    margin: 0;
+    display: none; /* padrão: oculta */
+  }
+
+  .mobile-only {
+    display: block;
   }
 
   .sidebar {
@@ -123,7 +119,7 @@
   }
 }
 
-/* Espaçamento lateral no desktop */
+/* ======== ESPAÇAMENTO NO CONTEÚDO ======== */
 @media (min-width: 769px) {
   .main-content,
   .container,
