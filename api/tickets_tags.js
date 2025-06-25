@@ -30,7 +30,12 @@ export default async function handler(req, res) {
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0]; // "YYYY-MM-DD"
 
-    const queryTransacoes = `?q={"id_usuario":${id_usuario},"tipo":"Despesa","data_transacao":"${hojeStr}"}`;
+    const query = {
+      id_usuario: parseInt(id_usuario),
+      tipo: "Despesa",
+      data_transacao: hojeStr
+    };
+    const queryTransacoes = `?q=${encodeURIComponent(JSON.stringify(query))}`;
     const rTrans = await fetch(BASE_TRANSACOES + queryTransacoes);
 
     if (!rTrans.ok) {
