@@ -34,11 +34,11 @@ function carregarResumo() {
 }
 
 function carregarGraficoSaldosTags(idUsuario) {
-  fetch(`/api/saldos_tags?id_usuario=${idUsuario}`)
+  fetch(`/api/tickets_tags?id_usuario=${idUsuario}`)
     .then((r) => r.json())
     .then((dados) => {
       const labels = dados.map(d => d.tag);
-      const valores = dados.map(d => parseFloat(d.valor) || 0);
+      const valores = dados.map(d => parseFloat(d.saldo) || 0);
       const ticketsHoje = dados.map(d => parseFloat(d.ticket_hoje) || 0);
       const maxValor = Math.max(...valores, 0);
 
@@ -62,7 +62,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             ctx.fillStyle = cor;
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`Ticket Hoje: R$ ${ticket.toFixed(2)}`, x, y + 15);
+            ctx.fillText(`R$ ${ticket.toFixed(2)}`, x, y + 15);
             ctx.restore();
           });
         }
