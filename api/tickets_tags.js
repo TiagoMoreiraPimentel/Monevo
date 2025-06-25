@@ -50,19 +50,10 @@ export default async function handler(req, res) {
       const saldoRestante = saldoOriginal - gastoHoje;
 
       const ticketBase = diasRestantes > 0 ? saldoOriginal / diasRestantes : saldoOriginal;
-      let ticketHoje = 0;
-      let ticketAjustado = ticketBase;
-
-      if (gastoHoje === 0) {
-        ticketHoje = ticketBase;
-        ticketAjustado = diasRestantes > 1 ? saldoRestante / (diasRestantes - 1) : saldoRestante;
-      } else if (gastoHoje >= ticketBase) {
-        ticketHoje = 0;
-        ticketAjustado = diasRestantes > 1 ? saldoRestante / (diasRestantes - 1) : 0;
-      } else {
-        ticketHoje = ticketBase - gastoHoje;
-        ticketAjustado = ticketBase;
-      }
+      const ticketHoje = ticketBase - gastoHoje;
+      const ticketAjustado = diasRestantes > 1
+        ? saldoRestante / (diasRestantes - 1)
+        : saldoRestante;
 
       return {
         tag,
