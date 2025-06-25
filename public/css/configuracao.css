@@ -106,71 +106,94 @@ form button:hover {
   background-color: #bbb;
 }
 
-/* Responsivo */
+/* ---------- Estilo dos Cards de TAG para Mobile ---------- */
+.cards-container {
+  display: none;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.tag-card {
+  width: 45%;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.tag-card strong {
+  display: block;
+  font-size: 1rem;
+  color: #008b65;
+  margin-bottom: 0.5rem;
+}
+
+.tag-card div {
+  margin-bottom: 8px;
+}
+
+.tag-card label {
+  font-size: 0.85rem;
+  color: #555;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.tag-card input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.tag-card button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.tag-card button:hover {
+  background-color: #c9302c;
+}
+
+/* ---------- Responsivo ---------- */
 @media (max-width: 600px) {
   .inputs {
     flex-direction: column;
-  }
-
-  #tabelaDistribuicao th,
-  #tabelaDistribuicao td {
-    font-size: 0.9rem;
   }
 
   .container {
     padding: 1rem;
   }
 
-  #salvarConfig {
-    font-size: 1rem;
+  #tabelaDistribuicao {
+    display: none;
+  }
+
+  .cards-container {
+    display: flex;
   }
 
   .tag-card {
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 12px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  }
-
-  .tag-card strong {
-    display: block;
-    font-size: 1rem;
-    color: #008b65;
-    margin-bottom: 0.5rem;
-  }
-
-  .tag-card div {
-    margin-bottom: 8px;
-  }
-
-  .tag-card label {
-    font-size: 0.85rem;
-    color: #555;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .tag-card input {
     width: 100%;
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 601px) {
+  .cards-container {
+    display: none;
   }
 
-  .tag-card button {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .tag-card button:hover {
-    background-color: #c9302c;
+  #tabelaDistribuicao {
+    display: table;
   }
 }
