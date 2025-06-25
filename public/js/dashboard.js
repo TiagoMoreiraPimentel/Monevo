@@ -301,7 +301,9 @@ async function carregarTicketsTags() {
           <th>Gasto Hoje</th>
           <th>Saldo Restante</th>
           <th>Dias Restantes</th>
-          <th>Ticket Diário</th>
+          <th>Ticket Base</th>
+          <th>Ticket Hoje</th>
+          <th>Ticket Ajustado</th>
         </tr>
       </thead>
       <tbody>
@@ -312,7 +314,11 @@ async function carregarTicketsTags() {
             <td>R$ ${tag.gasto_hoje}</td>
             <td>R$ ${tag.saldo_restante}</td>
             <td>${tag.dias_restantes}</td>
-            <td><strong>R$ ${tag.ticket_diario}</strong></td>
+            <td>R$ ${tag.ticket_base}</td>
+            <td style="color: ${tag.ticket_hoje === "0.00" ? "#f44336" : "#4caf50"}">
+              <strong>R$ ${tag.ticket_hoje}</strong>
+            </td>
+            <td>R$ ${tag.ticket_ajustado}</td>
           </tr>
         `).join("")}
       </tbody>

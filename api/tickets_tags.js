@@ -11,17 +11,17 @@ export default async function handler(req, res) {
     const inicioDia = new Date(hoje.setHours(0, 0, 0, 0));
     const fimDia = new Date(hoje.setHours(23, 59, 59, 999));
 
-    // 1. Buscar configurações
+    // Buscar configs
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
     const configData = await configResp.json();
     const configuracoes = configData.items || [];
 
-    // 2. Buscar saldos
+    // Buscar saldos
     const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
     const valorData = await valorResp.json();
     const saldos = valorData.items || [];
 
-    // 3. Buscar transações
+    // Buscar transações do dia
     const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
     const transData = await transResp.json();
     const transacoes = (transData.items || []).filter(t => {
@@ -30,7 +30,6 @@ export default async function handler(req, res) {
       return data >= inicioDia && data <= fimDia;
     });
 
-    // 4. Cálculo por TAG
     const resposta = configuracoes.map(cfg => {
       const tag = cfg.nome_categoria;
       const diaRenovacao = cfg.dia_renovacao;
@@ -49,16 +48,32 @@ export default async function handler(req, res) {
 
       const saldoOriginal = saldoAtual + gastoHoje;
       const saldoRestante = saldoOriginal - gastoHoje;
-      const ticketDiario = diasRestantes > 0 ? saldoRestante / diasRestantes : saldoRestante;
+
+      const ticketBase = diasRestantes > 0 ? saldoOriginal / diasRestantes : saldoOriginal;
+      let ticketHoje = 0;
+      let ticketAjustado = ticketBase;
+
+      if (gastoHoje === 0) {
+        ticketHoje = ticketBase;
+        ticketAjustado = diasRestantes > 1 ? saldoRestante / (diasRestantes - 1) : saldoRestante;
+      } else if (gastoHoje >= ticketBase) {
+        ticketHoje = 0;
+        ticketAjustado = diasRestantes > 1 ? saldoRestante / (diasRestantes - 1) : 0;
+      } else {
+        ticketHoje = ticketBase - gastoHoje;
+        ticketAjustado = ticketBase;
+      }
 
       return {
         tag,
-        saldo: saldoOriginal.toFixed(2),          // ← valor cheio antes do gasto de hoje
-        gasto_hoje: gastoHoje.toFixed(2),          // ← gasto do dia
-        saldo_restante: saldoRestante.toFixed(2),  // ← saldo original - gasto do dia
+        saldo: saldoOriginal.toFixed(2),
+        gasto_hoje: gastoHoje.toFixed(2),
+        saldo_restante: saldoRestante.toFixed(2),
         dia_renovacao: diaRenovacao,
         dias_restantes: diasRestantes,
-        ticket_diario: ticketDiario.toFixed(2)
+        ticket_base: ticketBase.toFixed(2),
+        ticket_hoje: ticketHoje.toFixed(2),
+        ticket_ajustado: ticketAjustado.toFixed(2)
       };
     });
 
