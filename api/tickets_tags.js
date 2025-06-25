@@ -10,12 +10,12 @@ export default async function handler(req, res) {
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0];
 
-    // Buscar configurações de TAGs
+    // Buscar configurações
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
     const configData = await configResp.json();
     const configuracoes = configData.items || [];
 
-    // Buscar saldos atuais por TAG
+    // Buscar saldos
     const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
     const valorData = await valorResp.json();
     const saldos = valorData.items || [];
@@ -33,8 +33,6 @@ export default async function handler(req, res) {
       );
     });
 
-    console.log(`📌 Tag ${tag} - Gasto hoje: R$ ${gastoHoje}`);
-
     const resposta = configuracoes.map(cfg => {
       const tag = cfg.nome_categoria;
       const diaRenovacao = cfg.dia_renovacao;
@@ -49,19 +47,17 @@ export default async function handler(req, res) {
 
       const saldoRestante = saldoTotal - gastoHoje;
 
-      // Calcular dias restantes até o próximo ciclo
       const proximaRenovacao = new Date(hoje);
       proximaRenovacao.setDate(diaRenovacao);
-      if (proximaRenovacao < hoje) {
-        proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
-      }
+      if (proximaRenovacao < hoje) proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
 
       const diffMs = proximaRenovacao - hoje;
       const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
-      // Aplica a lógica correta do ticket de hoje
       const ticketBase = saldoTotal / diasRestantes;
       const ticketHoje = Math.max(ticketBase - gastoHoje, 0);
+
+      console.log(`📌 Tag: ${tag}, Saldo: ${saldoTotal}, GastoHoje: ${gastoHoje}, DiasRestantes: ${diasRestantes}, TicketBase: ${ticketBase.toFixed(2)}, TicketHoje: ${ticketHoje.toFixed(2)}`);
 
       return {
         tag,
