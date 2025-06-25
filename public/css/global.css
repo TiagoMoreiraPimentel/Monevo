@@ -25,34 +25,4 @@ button {
   transition: background-color 0.2s ease-in-out;
 }
 
-/* === ESTILO DO MENU REUTILIZÁVEL === */
-.sidebar {
-  background-color: #fff;
-  padding: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  border-bottom: 1px solid #ccc;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.sidebar .toggle-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-}
-
-.menu-opcoes button {
-  background-color: var(--cor-primaria);
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-}
-
-.menu-opcoes button:hover {
-  background-color: var(--cor-primaria-hover);
-}
 
