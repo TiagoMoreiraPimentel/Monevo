@@ -55,10 +55,25 @@ export default async function handler(req, res) {
       const contaJson = await contaRes.json();
       const tipoConta = contaJson.tipo;
 
+      // Define a tag de distribuição final (usada na gravação da transação)
+      const tagFinal = transacao.tipo === "Despesa"
+        ? (tipoConta === "Poupança" ? "Poupança" : transacao.tag_distribuicao)
+        : (tipoConta === "Poupança" ? "Poupança" : null);
+
+      if (transacao.tipo === "Despesa" && !tagFinal) {
+        return res.status(400).send("Tag de distribuição é obrigatória para despesas.");
+      }
+
+      // Inclui a tag no corpo da transação antes de enviar para o ORDS
+      const corpoTransacao = {
+        ...transacao,
+        tag_distribuicao: tagFinal
+      };
+
       const r = await fetch(BASE_TRANSACOES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(transacao),
+        body: JSON.stringify(corpoTransacao),
       });
 
       if (!r.ok) return res.status(r.status).send("Erro ao registrar transação");
@@ -69,7 +84,6 @@ export default async function handler(req, res) {
       // RECEITA
       if (transacao.tipo === "Receita") {
         if (tipoConta === "Poupança") {
-          // Receita em conta Poupança vai 100% para TAG "Poupança"
           await fetch(BASE_DISTRIBUICAO, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -81,7 +95,6 @@ export default async function handler(req, res) {
             })
           });
         } else {
-          // Receita normal distribuída proporcionalmente
           const configRes = await fetch(`${BASE_CONFIG}?q={"id_usuario":${transacao.id_usuario}}`);
           const configJson = await configRes.json();
           const configuracoes = configJson.items || [];
@@ -104,18 +117,12 @@ export default async function handler(req, res) {
 
       // DESPESA
       if (transacao.tipo === "Despesa") {
-        const tag = tipoConta === "Poupança" ? "Poupança" : transacao.tag_distribuicao;
-
-        if (!tag) {
-          return res.status(400).send("Tag de distribuição é obrigatória para despesas.");
-        }
-
-        if (tag !== "Poupança") {
+        if (tagFinal !== "Poupança") {
           const tagRes = await fetch(`${BASE_CONFIG}?id_usuario=${transacao.id_usuario}`);
           const tagJson = await tagRes.json();
           const tagsUsuario = tagJson.items.map(t => t.nome_categoria);
 
-          if (!tagsUsuario.includes(tag)) {
+          if (!tagsUsuario.includes(tagFinal)) {
             return res.status(400).send("Tag de distribuição inválida para o usuário.");
           }
         }
@@ -125,7 +132,7 @@ export default async function handler(req, res) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id_usuario: transacao.id_usuario,
-            tag_distribuicao: tag,
+            tag_distribuicao: tagFinal,
             valor_distribuido: -transacao.valor,
             id_transacao: idTransacao
           })

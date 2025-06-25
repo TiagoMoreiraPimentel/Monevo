@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         .reduce((acc, cur) => acc + Number(cur.valor_distribuido), 0);
 
       const gastoHoje = transacoes
-        .filter(t => t.categoria === tag)
+        .filter(t => t.tag_distribuicao === tag)
         .reduce((acc, cur) => acc + Number(cur.valor), 0);
 
       const saldoOriginal = saldoAtual + gastoHoje;
