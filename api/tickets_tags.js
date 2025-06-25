@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
       const ticketBase = saldoTotal / diasRestantes;
-      const ticketHoje = Math.max(ticketBase - gastoHoje, 0);
+      const ticketHoje = Math.max(Number(ticketBase) - Number(gastoHoje), 0);
 
       return {
         tag,
@@ -76,6 +76,7 @@ export default async function handler(req, res) {
         ticket_base: ticketBase.toFixed(2),
         ticket_diario: ticketHoje.toFixed(2)
       };
+
     });
 
     res.status(200).json(resposta);
