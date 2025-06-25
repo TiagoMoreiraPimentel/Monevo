@@ -332,7 +332,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <th>Gasto Hoje</th>
             <th>Saldo Restante</th>
             <th>Dias Restantes</th>
-            <th>Ticket Diário</th>
+            <th>Ticket Base</th>
+            <th>Ticket de Hoje</th>
           </tr>
         </thead>
         <tbody>
@@ -343,7 +344,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <td>R$ ${tag.gasto_hoje}</td>
               <td>R$ ${tag.saldo_restante}</td>
               <td>${tag.dias_restantes}</td>
-              <td><strong>R$ ${tag.ticket_diario}</strong></td>
+              <td>R$ ${tag.ticket_base}</td>
+              <td><strong>R$ ${tag.ticket_hoje}</strong></td>
             </tr>
           `).join("")}
         </tbody>

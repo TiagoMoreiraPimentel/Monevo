@@ -10,17 +10,20 @@ export default async function handler(req, res) {
     const hoje = new Date();
     const hojeStr = hoje.toISOString().split("T")[0];
 
-    // Configurações
+    // Buscar configurações
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
-    const configuracoes = (await configResp.json()).items || [];
+    const configData = await configResp.json();
+    const configuracoes = configData.items || [];
 
-    // Saldos
+    // Buscar saldos
     const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
-    const saldos = (await valorResp.json()).items || [];
+    const valorData = await valorResp.json();
+    const saldos = valorData.items || [];
 
-    // Transações do dia
+    // Buscar transações do dia
     const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
-    const transacoesHoje = ((await transResp.json()).items || []).filter(t => {
+    const transData = await transResp.json();
+    const transacoesHoje = (transData.items || []).filter(t => {
       if (!t.data_transacao || t.tipo !== "Despesa") return false;
       const data = new Date(t.data_transacao);
       return (
@@ -34,34 +37,26 @@ export default async function handler(req, res) {
       const tag = cfg.nome_categoria;
       const diaRenovacao = cfg.dia_renovacao;
 
-      // Saldo total da TAG
       const saldoTotal = saldos
         .filter(s => s.tag_distribuicao === tag)
         .reduce((acc, cur) => acc + Number(cur.valor_distribuido), 0);
 
-      // Gasto de hoje na TAG
       const gastoHoje = transacoesHoje
         .filter(t => t.categoria === tag)
         .reduce((acc, cur) => acc + Number(cur.valor), 0);
 
-      // Dias até renovação
+      const saldoRestante = saldoTotal - gastoHoje;
+
+      // Calcular dias restantes
       const proximaRenovacao = new Date(hoje);
       proximaRenovacao.setDate(diaRenovacao);
       if (proximaRenovacao < hoje) proximaRenovacao.setMonth(proximaRenovacao.getMonth() + 1);
-      const diasRestantes = Math.max(1, Math.ceil((proximaRenovacao - hoje) / (1000 * 60 * 60 * 24)));
 
-      // Ticket base
+      const diffMs = proximaRenovacao - hoje;
+      const diasRestantes = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
       const ticketBase = saldoTotal / diasRestantes;
-
-      // Ticket de hoje com desconto do gasto
       const ticketHoje = Math.max(ticketBase - gastoHoje, 0);
-
-      // Mostrar ticket de hoje só no dia atual
-      const ticketExibido = ticketHoje;
-
-      const saldoRestante = saldoTotal - gastoHoje;
-
-      console.log(`📊 TAG: ${tag} | Saldo: ${saldoTotal} | GastoHoje: ${gastoHoje} | DiasRestantes: ${diasRestantes} | TicketBase: ${ticketBase.toFixed(2)} | TicketHoje: ${ticketHoje.toFixed(2)}`);
 
       return {
         tag,
@@ -70,7 +65,8 @@ export default async function handler(req, res) {
         saldo_restante: saldoRestante.toFixed(2),
         dia_renovacao: diaRenovacao,
         dias_restantes: diasRestantes,
-        ticket_diario: ticketExibido.toFixed(2)
+        ticket_base: ticketBase.toFixed(2),
+        ticket_hoje: ticketHoje.toFixed(2)
       };
     });
 
