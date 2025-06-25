@@ -306,49 +306,49 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarResumo();
 
   async function carregarTicketsTags() {
-  const id_usuario = localStorage.getItem("id_usuario");
-  if (!id_usuario) return;
+    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+    if (!usuario || !usuario.id) return;
 
-  try {
-    const res = await fetch(`/api/tickets_tags?id_usuario=${id_usuario}`);
-    const dados = await res.json();
+    try {
+      const res = await fetch(`/api/tickets_tags?id_usuario=${usuario.id}`);
+      const dados = await res.json();
 
-    const container = document.createElement("div");
-    container.className = "tabela-tickets";
+      const container = document.getElementById("tabela-ticket-tags");
+      container.innerHTML = ""; // limpa conteúdo anterior
+      container.className = "tabela-tickets";
 
-    const tabela = document.createElement("table");
-    tabela.innerHTML = `
-      <thead>
-        <tr>
-          <th>Categoria</th>
-          <th>Saldo</th>
-          <th>Gasto Hoje</th>
-          <th>Saldo Restante</th>
-          <th>Dias Restantes</th>
-          <th>Ticket Diário</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${dados.map(tag => `
+      const tabela = document.createElement("table");
+      tabela.innerHTML = `
+        <thead>
           <tr>
-            <td>${tag.tag}</td>
-            <td>R$ ${tag.saldo}</td>
-            <td>R$ ${tag.gasto_hoje}</td>
-            <td>R$ ${tag.saldo_restante}</td>
-            <td>${tag.dias_restantes}</td>
-            <td><strong>R$ ${tag.ticket_diario}</strong></td>
+            <th>Categoria</th>
+            <th>Saldo</th>
+            <th>Gasto Hoje</th>
+            <th>Saldo Restante</th>
+            <th>Dias Restantes</th>
+            <th>Ticket Diário</th>
           </tr>
-        `).join("")}
-      </tbody>
-    `;
+        </thead>
+        <tbody>
+          ${dados.map(tag => `
+            <tr>
+              <td>${tag.tag}</td>
+              <td>R$ ${tag.saldo}</td>
+              <td>R$ ${tag.gasto_hoje}</td>
+              <td>R$ ${tag.saldo_restante}</td>
+              <td>${tag.dias_restantes}</td>
+              <td><strong>R$ ${tag.ticket_diario}</strong></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
 
-    container.appendChild(tabela);
-    document.querySelector(".conteudo").appendChild(container);
+      container.appendChild(tabela);
 
-  } catch (err) {
-    console.error("Erro ao carregar tickets por tag:", err);
+    } catch (err) {
+      console.error("Erro ao carregar tickets por tag:", err);
+    }
   }
-}
 
 window.onload = function () {
   carregarResumo();
