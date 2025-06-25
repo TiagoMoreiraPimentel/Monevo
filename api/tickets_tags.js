@@ -10,7 +10,6 @@ export default async function handler(req, res) {
     const hoje = new Date();
     const inicioDia = new Date(hoje.setHours(0, 0, 0, 0));
     const fimDia = new Date(hoje.setHours(23, 59, 59, 999));
-    const hojeStr = new Date().toISOString().split("T")[0];
 
     // 1. Buscar configurações
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
@@ -40,7 +39,7 @@ export default async function handler(req, res) {
       let diasRestantes = diaRenovacao - hojeDia;
       if (diasRestantes < 0) diasRestantes += 30;
 
-      const saldoTotal = saldos
+      const saldoAtual = saldos
         .filter(s => s.tag_distribuicao === tag)
         .reduce((acc, cur) => acc + Number(cur.valor_distribuido), 0);
 
@@ -48,14 +47,15 @@ export default async function handler(req, res) {
         .filter(t => t.categoria === tag)
         .reduce((acc, cur) => acc + Number(cur.valor), 0);
 
-      const saldoRestante = saldoTotal - gastoHoje;
+      const saldoOriginal = saldoAtual + gastoHoje;
+      const saldoRestante = saldoOriginal - gastoHoje;
       const ticketDiario = diasRestantes > 0 ? saldoRestante / diasRestantes : saldoRestante;
 
       return {
         tag,
-        saldo: saldoTotal.toFixed(2),
-        gasto_hoje: gastoHoje.toFixed(2),
-        saldo_restante: saldoRestante.toFixed(2),
+        saldo: saldoOriginal.toFixed(2),          // ← valor cheio antes do gasto de hoje
+        gasto_hoje: gastoHoje.toFixed(2),          // ← gasto do dia
+        saldo_restante: saldoRestante.toFixed(2),  // ← saldo original - gasto do dia
         dia_renovacao: diaRenovacao,
         dias_restantes: diasRestantes,
         ticket_diario: ticketDiario.toFixed(2)
