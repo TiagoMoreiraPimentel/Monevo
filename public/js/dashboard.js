@@ -307,20 +307,27 @@ async function carregarTicketsTags() {
         </tr>
       </thead>
       <tbody>
-        ${dados.map(tag => `
-          <tr>
-            <td>${tag.tag}</td>
-            <td>R$ ${tag.saldo}</td>
-            <td>R$ ${tag.gasto_hoje}</td>
-            <td>R$ ${tag.saldo_restante}</td>
-            <td>${tag.dias_restantes}</td>
-            <td>R$ ${tag.ticket_base}</td>
-            <td style="color: ${tag.ticket_hoje === "0.00" ? "#f44336" : "#4caf50"}">
-              <strong>R$ ${tag.ticket_hoje}</strong>
-            </td>
-            <td>R$ ${tag.ticket_ajustado}</td>
-          </tr>
-        `).join("")}
+        ${dados.map(tag => {
+          const ticketHojeNum = parseFloat(tag.ticket_hoje);
+          let cor = "#4caf50"; // verde padrão
+          if (ticketHojeNum === 0) cor = "#2196f3"; // azul
+          else if (ticketHojeNum < 0) cor = "#f44336"; // vermelho
+
+          return `
+            <tr>
+              <td>${tag.tag}</td>
+              <td>R$ ${tag.saldo}</td>
+              <td>R$ ${tag.gasto_hoje}</td>
+              <td>R$ ${tag.saldo_restante}</td>
+              <td>${tag.dias_restantes}</td>
+              <td>R$ ${tag.ticket_base}</td>
+              <td style="color: ${cor}; font-weight: bold;">
+                R$ ${ticketHojeNum.toFixed(2)}
+              </td>
+              <td>R$ ${tag.ticket_ajustado}</td>
+            </tr>
+          `;
+        }).join("")}
       </tbody>
     `;
 
