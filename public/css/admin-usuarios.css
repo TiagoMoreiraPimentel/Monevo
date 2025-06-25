@@ -16,7 +16,7 @@ h1 {
 
 table {
   width: 100%;
-  min-width: 600px; /* garante que não quebre feio no mobile */
+  min-width: 600px;
   border-collapse: collapse;
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -75,7 +75,41 @@ button.salvar:hover {
   border-top: 1px solid #ccc;
 }
 
+.card-usuario {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 6px #ddd;
+  margin-bottom: 1rem;
+}
+
+.card-usuario p {
+  margin: 0.4rem 0;
+}
+
+.card-usuario select {
+  margin-top: 0.3rem;
+  width: 100%;
+}
+
+.card-usuario button.salvar {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+/* Versão mobile em cards */
 @media screen and (max-width: 600px) {
+  .tabela-responsiva {
+    display: none;
+  }
+
+  #lista-usuarios-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   h1 {
     font-size: 1.2rem;
   }
@@ -86,26 +120,12 @@ button.salvar:hover {
     margin-bottom: 1rem;
   }
 
-  table {
-    font-size: 0.85rem;
-  }
-
-  th, td {
-    padding: 0.5rem;
-  }
-
-  select, button {
-    font-size: 0.8rem;
-  }
   .footer {
-    min-width: 600px;        /* acompanha largura da tabela */
-    width: max-content;      /* estica conforme o conteúdo */
+    width: 100%;
     overflow-x: auto;
   }
+
   body {
-    overflow-x: auto;        /* permite scroll horizontal */
+    overflow-x: hidden;
   }
 }
-
-
-
