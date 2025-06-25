@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const menuContainer = document.getElementById("menu-container");
 
-  fetch("/telas/menu.html")
+  fetch("../telas/menu.html")
     .then(response => {
       if (!response.ok) {
         throw new Error("Erro ao carregar o menu");
@@ -44,7 +44,7 @@ function configurarMenu() {
   if (adminBtn && nivel === "ADMINISTRADOR") {
     adminBtn.classList.remove("hidden");
     adminBtn.addEventListener("click", () => {
-      window.location.href = "/telas/admin-usuarios.html";
+      window.location.href = "../telas/admin-usuarios.html";
     });
   }
 }
