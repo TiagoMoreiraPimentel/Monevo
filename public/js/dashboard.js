@@ -84,7 +84,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             datalabels: {
               anchor: "end",
               align: "top",
-              offset: 1,
+              offset: 10,
               font: { size: 10, weight: "bold" },
               formatter: valor => `R$ ${valor.toFixed(2)}`
             },
