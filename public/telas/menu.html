@@ -1,10 +1,11 @@
-<div id="sidebar" class="sidebar">
+<nav class="sidebar" id="sidebar">
   <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
   <div class="menu-opcoes">
-    <button onclick="window.location.href='dashboard.html'">Início</button>
-    <button onclick="window.location.href='configuracao.html'">Configurações</button>
-    <button onclick="window.location.href='admin-usuarios.html'">Gerenciar Usuários</button>
-    <button onclick="window.location.href='contas.html'">Gerenciar Contas</button>
-    <button onclick="window.location.href='transacoes.html'">Transações</button>
+    <button onclick="window.location.href = '/telas/dashboard.html'">Dashboard</button>
+    <button onclick="window.location.href = '/telas/transacoes.html'">Transações</button>
+    <button onclick="window.location.href = '/telas/contas.html'">Contas</button>
+    <button onclick="window.location.href = '/telas/configuracao.html'">Configuração</button>
+    <button onclick="window.location.href = '/telas/admin-usuarios.html'">Usuários</button>
+    <button onclick="localStorage.clear(); window.location.href = '/telas/login.html'">Sair</button>
   </div>
-</div>
+</nav>
