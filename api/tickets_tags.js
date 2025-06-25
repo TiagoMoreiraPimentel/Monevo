@@ -76,6 +76,7 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("Erro completo no cálculo de tickets:", err);
-    return res.status(500).send("Erro ao calcular tickets.");
+    return res.status(500).json({ erro: "Erro ao calcular tickets." });
   }
+
 }

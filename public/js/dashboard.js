@@ -310,7 +310,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!usuario || !usuario.id) return;
 
     try {
-      const res = await fetch(`/api/tickets_tags?id_usuario=${usuario.id}`);
+      const res = await fetch(`/api/tickets_tags?id_usuario=${id_usuario}`);
+      if (!res.ok) {
+        const erroTexto = await res.text();
+        throw new Error(`Erro do servidor: ${erroTexto}`);
+      }
       const dados = await res.json();
 
       const container = document.getElementById("tabela-ticket-tags");
