@@ -48,9 +48,7 @@ function carregarGraficoSaldosTags(idUsuario) {
         id: 'pluginTicketHoje',
         afterDatasetsDraw(chart) {
           const ctx = chart.ctx;
-          const dataset = chart.data.datasets[0];
           const meta = chart.getDatasetMeta(0);
-
           ticketsHoje.forEach((ticket, index) => {
             const bar = meta.data[index];
             if (!bar) return;
@@ -86,8 +84,9 @@ function carregarGraficoSaldosTags(idUsuario) {
             datalabels: {
               anchor: "end",
               align: "top",
+              offset: -10,
               font: { size: 10, weight: "bold" },
-              formatter: valor => `R$ ${valor.toFixed(2)}`,
+              formatter: valor => `R$ ${valor.toFixed(2)}`
             },
           },
           scales: {
@@ -408,4 +407,3 @@ function toggleGrafico(botao) {
   conteudo.style.display = aberto ? "none" : "block";
   botao.textContent = (aberto ? "▶️" : "🔽") + " " + botao.textContent.slice(2);
 }
-
