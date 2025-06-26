@@ -6,186 +6,125 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const BASE_URL = "/api/configuracao";
-  const form = document.getElementById("form-distribuicao");
-  const nomeInput = document.getElementById("nomeCategoria");
-  const porcentagemInput = document.getElementById("porcentagem");
-  const diaRenovacaoInput = document.getElementById("diaRenovacao");
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  const cardsContainer = document.getElementById("cardsDistribuicao");
-  const somaDisplay = document.getElementById("somaPorcentagem");
-  const salvarBtn = document.getElementById("salvarConfig");
+  carregarDespesas();
 
-  let configuracoes = [];
+  const inputValor = document.getElementById("valor");
+  inputValor.addEventListener("input", () => {
+    let valor = inputValor.value.replace(/\D/g, "");
+    valor = (parseInt(valor, 10) / 100).toFixed(2);
+    inputValor.value = parseFloat(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  });
 
-  form.addEventListener("submit", (e) => {
+  document.getElementById("form-despesa-fixa").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nome = nomeInput.value.trim();
-    const porcentagem = parseFloat(porcentagemInput.value);
-    const diaRenovacao = parseInt(diaRenovacaoInput.value);
+    const categoria = document.getElementById("categoria").value.trim();
+    const ciclo = parseInt(document.getElementById("ciclo").value);
+    const descricao = document.getElementById("descricao").value.trim();
+    const valorFormatado = document.getElementById("valor").value;
+    const valor = parseFloat(valorFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
 
-    if (!nome || isNaN(porcentagem) || porcentagem <= 0 || (diaRenovacao && (diaRenovacao < 1 || diaRenovacao > 31))) {
-      alert("Preencha os campos corretamente.");
+    const data_lancamento_raw = document.getElementById("data_lancamento").value;
+    const vencimento_raw = document.getElementById("vencimento").value;
+
+    if (!categoria || isNaN(valor) || isNaN(ciclo) || !data_lancamento_raw || !vencimento_raw) {
+      mostrarMensagem("Preencha todos os campos obrigatórios corretamente.");
       return;
     }
 
-    configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: diaRenovacao || null });
+    const data_lancamento = new Date(data_lancamento_raw).toISOString();
+    const vencimento = new Date(vencimento_raw).toISOString();
 
-    nomeInput.value = "";
-    porcentagemInput.value = "";
-    diaRenovacaoInput.value = "";
-    atualizarTabela();
-  });
-
-  function atualizarTabela() {
-    const isMobile = window.innerWidth <= 768;
-
-    tabela.innerHTML = "";
-    cardsContainer.innerHTML = "";
-
-    let soma = 0;
-
-    if (isMobile) {
-      cardsContainer.style.display = "grid";
-      document.getElementById("tabelaDistribuicao").style.display = "none";
-
-      configuracoes.forEach((item, index) => {
-        const valor = parseFloat(item.porcentagem) || 0;
-        soma += valor;
-
-        const card = document.createElement("div");
-        card.className = "tag-card";
-        card.innerHTML = `
-          <strong>${item.nome_categoria}</strong>
-          <div>
-            <label>Porcentagem:</label>
-            <input type="number" min="0" max="100" step="0.01" value="${valor}" 
-              onchange="atualizarPorcentagem(${index}, this.value)" />
-          </div>
-          <div>
-            <label>Dia Renovação:</label>
-            <input type="number" min="1" max="31" value="${item.dia_renovacao || ''}" 
-              onchange="atualizarRenovacao(${index}, this.value)" />
-          </div>
-          <button onclick="removerCategoria(${index})">Remover</button>
-        `;
-        cardsContainer.appendChild(card);
-      });
-
-    } else {
-      cardsContainer.style.display = "none";
-      document.getElementById("tabelaDistribuicao").style.display = "table";
-
-      configuracoes.forEach((item, index) => {
-        const valor = parseFloat(item.porcentagem) || 0;
-        soma += valor;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${item.nome_categoria}</td>
-          <td>
-            <input type="number" min="0" max="100" step="0.01" value="${valor}" 
-              onchange="atualizarPorcentagem(${index}, this.value)" />
-          </td>
-          <td>
-            <input type="number" min="1" max="31" value="${item.dia_renovacao || ''}" 
-              onchange="atualizarRenovacao(${index}, this.value)" />
-          </td>
-          <td><button onclick="removerCategoria(${index})">Remover</button></td>
-        `;
-        tabela.appendChild(tr);
-      });
-    }
-
-    somaDisplay.textContent = `Total: ${soma.toFixed(2)}%`;
-    salvarBtn.disabled = soma.toFixed(2) != 100.00;
-  }
-
-  window.removerCategoria = async (index) => {
-    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-    const nomeTag = configuracoes[index].nome_categoria;
+    const novaDespesa = {
+      id_usuario: usuario.id,
+      categoria,
+      valor,
+      descricao,
+      ciclo,
+      data_lancamento,
+      vencimento
+    };
 
     try {
-      const res = await fetch(`/api/verificar_tag_valor?id_usuario=${usuario.id}&tag=${encodeURIComponent(nomeTag)}`);
-      const { podeRemover } = await res.json();
-
-      if (!podeRemover) {
-        alert("Não é possível remover esta TAG. Existem valores distribuídos vinculados a ela.");
-        return;
-      }
-
-      configuracoes.splice(index, 1);
-      atualizarTabela();
-
-    } catch (err) {
-      console.error("Erro ao verificar remoção da TAG:", err);
-      alert("Erro ao validar remoção da TAG.");
-    }
-  };
-
-  window.atualizarPorcentagem = (index, novoValor) => {
-    const valor = parseFloat(novoValor);
-    if (isNaN(valor) || valor < 0 || valor > 100) {
-      alert("Porcentagem inválida.");
-      return;
-    }
-    configuracoes[index].porcentagem = valor;
-    atualizarTabela();
-  };
-
-  window.atualizarRenovacao = (index, novoValor) => {
-    const valor = parseInt(novoValor);
-    if (isNaN(valor) || valor < 1 || valor > 31) {
-      alert("Dia de renovação inválido.");
-      return;
-    }
-    configuracoes[index].dia_renovacao = valor;
-    atualizarTabela();
-  };
-
-  salvarBtn.addEventListener("click", async () => {
-    const total = configuracoes.reduce((soma, item) => soma + parseFloat(item.porcentagem || 0), 0);
-    if (total.toFixed(2) != 100.00) {
-      alert(`A soma das porcentagens precisa ser exatamente 100%. Soma atual: ${total.toFixed(2)}%.`);
-      return;
-    }
-
-    try {
-      const body = {
-        id_usuario: usuario.id,
-        configuracoes
-      };
-
-      await fetch(BASE_URL, {
+      const res = await fetch("/api/despesas_fixas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify(novaDespesa)
       });
 
-      alert("Configuração salva com sucesso!");
+      if (res.ok) {
+        mostrarMensagem("Despesa fixa cadastrada com sucesso.");
+        e.target.reset();
+        carregarDespesas();
+      } else {
+        const erro = await res.json();
+        mostrarMensagem(erro.erro || "Erro ao cadastrar.");
+      }
     } catch (err) {
-      console.error("Erro ao salvar configuração:", err);
-      alert("Erro ao salvar. Verifique a conexão.");
+      console.error(err);
+      mostrarMensagem("Erro de conexão com o servidor.");
     }
   });
-
-  async function carregarConfiguracoesExistentes() {
-    try {
-      const r = await fetch(`${BASE_URL}?id_usuario=${usuario.id}`);
-      const json = await r.json();
-
-      configuracoes = (json || []).map(item => ({
-        nome_categoria: item.nome_categoria,
-        porcentagem: parseFloat(item.porcentagem),
-        dia_renovacao: item.dia_renovacao
-      }));
-
-      atualizarTabela();
-    } catch (err) {
-      console.error("Erro ao carregar configurações:", err);
-    }
-  }
-
-  carregarConfiguracoesExistentes();
 });
+
+function mostrarMensagem(msg) {
+  document.getElementById("mensagem").innerText = msg;
+}
+
+async function carregarDespesas() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const tabela = document.getElementById("tabela-despesas");
+
+  try {
+    const res = await fetch("/api/despesas_fixas");
+    const despesas = await res.json();
+    const minhas = despesas.filter(d => d.id_usuario === usuario.id);
+
+    tabela.innerHTML = "";
+    minhas.forEach(d => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${d.categoria}</td>
+        <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
+        <td>${d.ciclo} dias</td>
+        <td>${formatarData(d.data_lancamento)}</td>
+        <td>${formatarData(d.vencimento)}</td>
+        <td>${d.descricao || "-"}</td>
+        <td><button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button></td>
+      `;
+      tabela.appendChild(tr);
+    });
+  } catch (err) {
+    console.error(err);
+    mostrarMensagem("Erro ao carregar despesas.");
+  }
+}
+
+function formatarData(dataISO) {
+  if (!dataISO) return "-";
+  const data = new Date(dataISO);
+  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
+
+async function excluirDespesa(id) {
+  if (!confirm("Deseja excluir esta despesa fixa?")) return;
+
+  try {
+    const res = await fetch(`/api/despesas_fixas?id=${id}`, {
+      method: "DELETE"
+    });
+
+    if (res.ok) {
+      mostrarMensagem("Despesa excluída.");
+      carregarDespesas();
+    } else {
+      mostrarMensagem("Erro ao excluir.");
+    }
+  } catch (err) {
+    console.error(err);
+    mostrarMensagem("Erro de conexão.");
+  }
+}
