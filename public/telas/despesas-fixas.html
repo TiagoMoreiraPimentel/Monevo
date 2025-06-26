@@ -2,19 +2,34 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Despesas Fixas</title>
+  <title>Despesas Fixas - Monevo</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <script defer src="../js/despesas-fixas.js"></script>
 </head>
 <body>
-  <h1>Cadastro de Despesa Fixa</h1>
-  <form id="form-despesa">
-    <input type="number" placeholder="ID Usuário" id="id_usuario" required><br>
-    <input type="number" placeholder="Valor" id="valor" required><br>
-    <input type="text" placeholder="Categoria" id="categoria"><br>
-    <input type="text" placeholder="Descrição" id="descricao"><br>
-    <input type="number" placeholder="Ciclo" id="ciclo"><br>
-    <button type="submit">Salvar</button>
+  <h1>Despesas Fixas</h1>
+
+  <form id="form-despesa-fixa">
+    <input type="text" id="categoria" placeholder="Categoria" required>
+    <input type="text" id="valor" placeholder="Valor (R$)" required>
+    <input type="number" id="ciclo" placeholder="Ciclo em dias" required>
+    <input type="text" id="descricao" placeholder="Descrição">
+    <button type="submit">Cadastrar Despesa Fixa</button>
   </form>
 
-  <script src="despesas-fixas.js"></script>
+  <p id="mensagem"></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Categoria</th>
+        <th>Valor</th>
+        <th>Ciclo</th>
+        <th>Descrição</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-despesas"></tbody>
+  </table>
 </body>
 </html>
