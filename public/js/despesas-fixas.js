@@ -1,79 +1,126 @@
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
-    alert("Faça login para acessar.");
+    alert("Acesso negado. Faça login.");
     window.location.href = "../telas/login.html";
     return;
   }
 
   carregarDespesas();
 
-  document.getElementById("form-despesa").addEventListener("submit", async (e) => {
+  const inputValor = document.getElementById("valor");
+  inputValor.addEventListener("input", () => {
+    let valor = inputValor.value.replace(/\D/g, "");
+    valor = (parseInt(valor, 10) / 100).toFixed(2);
+    inputValor.value = parseFloat(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  });
+
+  document.getElementById("form-despesa-fixa").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const despesa = {
+    const categoria = document.getElementById("categoria").value.trim();
+    const ciclo = parseInt(document.getElementById("ciclo").value);
+    const descricao = document.getElementById("descricao").value.trim();
+    const valorFormatado = document.getElementById("valor").value;
+    const valor = parseFloat(valorFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
+    const data_lancamento = document.getElementById("data_lancamento").value;
+    const vencimento = document.getElementById("vencimento").value;
+
+    if (!categoria || isNaN(valor) || isNaN(ciclo) || !data_lancamento || !vencimento) {
+      mostrarMensagem("Preencha todos os campos obrigatórios corretamente.");
+      return;
+    }
+
+    const novaDespesa = {
       id_usuario: usuario.id,
-      categoria: document.getElementById("categoria").value,
-      descricao: document.getElementById("descricao").value,
-      valor: parseFloat(document.getElementById("valor").value),
-      data_lancamento: document.getElementById("data_lancamento").value || null,
-      vencimento: document.getElementById("vencimento").value || null,
-      ciclo: parseInt(document.getElementById("ciclo").value) || null
+      categoria,
+      valor,
+      descricao,
+      ciclo,
+      data_lancamento,
+      vencimento
     };
 
     try {
-      const r = await fetch("/api/despesas_fixas", {
+      const res = await fetch("/api/despesas_fixas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(despesa)
+        body: JSON.stringify(novaDespesa)
       });
 
-      if (r.ok) {
-        mostrarMensagem("Despesa cadastrada com sucesso!", false);
+      if (res.ok) {
+        mostrarMensagem("Despesa fixa cadastrada com sucesso.");
         e.target.reset();
         carregarDespesas();
       } else {
-        const erro = await r.json();
+        const erro = await res.json();
         mostrarMensagem(erro.erro || "Erro ao cadastrar.");
-        console.error(erro);
       }
     } catch (err) {
       console.error(err);
-      mostrarMensagem("Erro na conexão.");
+      mostrarMensagem("Erro de conexão com o servidor.");
     }
   });
 });
 
-function mostrarMensagem(msg, erro = true) {
-  const el = document.getElementById("mensagem");
-  el.style.color = erro ? "red" : "green";
-  el.textContent = msg;
+function mostrarMensagem(msg) {
+  document.getElementById("mensagem").innerText = msg;
 }
 
 async function carregarDespesas() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  const lista = document.getElementById("lista-despesas");
+  const tabela = document.getElementById("tabela-despesas");
 
   try {
-    const r = await fetch("/api/despesas_fixas");
-    const dados = await r.json();
-    const minhas = dados.filter(d => d.id_usuario === usuario.id);
+    const res = await fetch("/api/despesas_fixas");
+    const despesas = await res.json();
+    const minhas = despesas.filter(d => d.id_usuario === usuario.id);
 
-    lista.innerHTML = "";
+    tabela.innerHTML = "";
     minhas.forEach(d => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${d.categoria}</td>
-        <td>${d.descricao || ""}</td>
-        <td>R$ ${parseFloat(d.valor).toFixed(2).replace(".", ",")}</td>
-        <td>${d.data_lancamento?.split("T")[0] || "-"}</td>
-        <td>${d.vencimento?.split("T")[0] || "-"}</td>
-        <td>${d.ciclo || "-"}</td>
+        <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
+        <td>${d.ciclo} dias</td>
+        <td>${formatarData(d.data_lancamento)}</td>
+        <td>${formatarData(d.vencimento)}</td>
+        <td>${d.descricao || "-"}</td>
+        <td><button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button></td>
       `;
-      lista.appendChild(tr);
+      tabela.appendChild(tr);
     });
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar despesas.");
+  }
+}
+
+function formatarData(dataISO) {
+  if (!dataISO) return "-";
+  const data = new Date(dataISO);
+  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
+
+async function excluirDespesa(id) {
+  if (!confirm("Deseja excluir esta despesa fixa?")) return;
+
+  try {
+    const res = await fetch(`/api/despesas_fixas?id=${id}`, {
+      method: "DELETE"
+    });
+
+    if (res.ok) {
+      mostrarMensagem("Despesa excluída.");
+      carregarDespesas();
+    } else {
+      mostrarMensagem("Erro ao excluir.");
+    }
+  } catch (err) {
+    console.error(err);
+    mostrarMensagem("Erro de conexão.");
   }
 }
