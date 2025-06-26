@@ -166,11 +166,20 @@ async function atualizarParcela(id, numero, marcado) {
     ? Math.max(novaPagas, numero)
     : Math.min(novaPagas, numero - 1);
 
+  // 🧠 Calcular nova data de vencimento
+  let novaVencimento = null;
+  if (novaPagas < despesa.parcelas) {
+    const base = new Date(despesa.vencimento);
+    base.setMonth(base.getMonth() - (despesa.parcelas - 1));
+    base.setMonth(base.getMonth() + novaPagas);
+    novaVencimento = base.toISOString();
+  }
+
   try {
     await fetch("/api/despesas_fixas", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...despesa, pagas: novaPagas })
+      body: JSON.stringify({ ...despesa, pagas: novaPagas, vencimento: novaVencimento })
     });
     carregarDespesas();
   } catch (err) {

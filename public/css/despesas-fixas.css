@@ -94,8 +94,24 @@ table th,
 table td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ccc; /* borda completa */
 }
+
+table thead {
+  background-color: var(--cor-primaria);
+  color: white;
+  border-bottom: 2px solid #aaa;
+}
+
+table tr {
+  border-bottom: 1px solid #ccc;
+}
+
+.linha-parcelas td {
+  background: #f3f3f3;
+  border-top: none;
+}
+
 
 table tr:hover {
   background-color: #f9f9f9;
