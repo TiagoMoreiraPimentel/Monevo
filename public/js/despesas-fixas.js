@@ -54,9 +54,13 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const valorLimpo = parseFloat(
+      form.valor.value.replace("R$", "").replace(/\s/g, "").replace(",", ".")
+    );
+
     const body = {
       id_usuario: idUsuario,
-      valor: parseFloat(form.valor.value),
+      valor: valorLimpo,
       categoria: form.categoria.value,
       descricao: form.descricao.value,
       data_lancamento: form.data_lancamento.value + "T00:00:00Z",
