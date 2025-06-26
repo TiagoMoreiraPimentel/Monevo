@@ -3,33 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>Despesas Fixas - Monevo</title>
-  <link rel="stylesheet" href="../css/global.css">
-  <script defer src="../js/despesas-fixas.js"></script>
+  <link rel="stylesheet" href="../css/despesas-fixas.css">
 </head>
 <body>
-  <h1>Despesas Fixas</h1>
-
-  <form id="form-despesa-fixa">
+  <h2>Despesas Fixas</h2>
+  <form id="form-despesa">
     <input type="text" id="categoria" placeholder="Categoria" required>
-    <input type="text" id="valor" placeholder="Valor (R$)" required>
-    <input type="number" id="ciclo" placeholder="Ciclo em dias" required>
     <input type="text" id="descricao" placeholder="Descrição">
-    <button type="submit">Cadastrar Despesa Fixa</button>
+    <input type="number" id="valor" placeholder="Valor (R$)" required>
+    <input type="date" id="data_lancamento" placeholder="Data de Lançamento">
+    <input type="date" id="vencimento" placeholder="Vencimento">
+    <input type="number" id="ciclo" placeholder="Ciclo em dias">
+    <button type="submit">Cadastrar</button>
   </form>
 
-  <p id="mensagem"></p>
-
+  <div id="mensagem"></div>
   <table>
     <thead>
       <tr>
         <th>Categoria</th>
-        <th>Valor</th>
-        <th>Ciclo</th>
         <th>Descrição</th>
-        <th>Ações</th>
+        <th>Valor</th>
+        <th>Lançamento</th>
+        <th>Vencimento</th>
+        <th>Ciclo</th>
       </tr>
     </thead>
-    <tbody id="tabela-despesas"></tbody>
+    <tbody id="lista-despesas"></tbody>
   </table>
+
+  <script src="../js/despesas-fixas.js"></script>
 </body>
 </html>

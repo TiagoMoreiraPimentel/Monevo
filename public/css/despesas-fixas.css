@@ -1,72 +1,45 @@
-.container {
-  max-width: 600px;
-  margin: 20px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  color: var(--cor-primaria);
-  text-align: center;
-  margin-bottom: 20px;
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--cor-fundo, #f4f4f4);
+  margin: 20px;
 }
 
 form {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 20px;
 }
 
-form input {
+form input, form button {
   padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  font-size: 1em;
 }
 
 form button {
-  background-color: var(--cor-primaria);
+  background-color: var(--cor-primaria, #00B37E);
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 16px;
+  cursor: pointer;
 }
 
 form button:hover {
-  background-color: var(--cor-primaria-hover);
+  background-color: var(--cor-primaria-hover, #008B65);
 }
 
-#lista-despesas {
-  margin-top: 30px;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.card-despesa {
-  background-color: var(--cor-fundo);
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  line-height: 1.5;
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
 }
 
-.card-despesa strong {
-  color: var(--cor-primaria);
-}
-
-.card-despesa button {
-  background-color: #c74934;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  float: right;
-  font-size: 14px;
-  margin-top: 5px;
-}
-
-.card-despesa button:hover {
-  background-color: #a83828;
+#mensagem {
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: red;
 }
