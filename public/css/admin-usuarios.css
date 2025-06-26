@@ -71,10 +71,12 @@ button.salvar:hover {
   background-color: #008B65;
   color: white;
   text-align: center;
-  padding: 0.3rem 1rem;
+  padding: 1rem;
   margin-top: 1rem;
   font-size: 0.75rem;
   border-top: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* VISIBILIDADE POR DISPOSITIVO */
@@ -109,13 +111,12 @@ button.salvar:hover {
   }
 
   .footer {
-    min-width: 600px;
-    width: max-content;
-    overflow-x: auto;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   body {
-    overflow-x: auto;
+    overflow-x: hidden;
   }
 
   .tabela-responsiva {

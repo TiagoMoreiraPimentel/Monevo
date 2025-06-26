@@ -5,36 +5,39 @@ body {
   background-color: #f3f3f3;
 }
 
-header {
-  background-color: white;
-  color: #000000;
-  padding: 1rem;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
+.main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-#btn-voltar {
-  display: block;
-  margin: 1rem auto 2rem auto;
-  padding: 0.5rem 1rem;
-  background-color: #008B65;
-  color: white;
+.header-bar {
+  background-color: white;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+
+.mobile-toggle {
+  background: none;
   border: none;
-  border-radius: 5px;
-  font-weight: bold;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
-main {
-  margin-top: 2rem;
-  padding: 2rem 1rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+.conteudo {
+  flex: 1;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
   background: white;
   border-radius: 10px;
   box-shadow: 0 0 10px #ccc;
+}
+
+h1, h2 {
+  color: #000;
+  margin-top: 1.5rem;
 }
 
 form {
@@ -80,6 +83,7 @@ form button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
+  background: white;
 }
 
 thead {
@@ -87,8 +91,7 @@ thead {
   color: white;
 }
 
-th,
-td {
+th, td {
   padding: 0.75rem;
   border: 1px solid #ccc;
   text-align: left;
@@ -104,15 +107,17 @@ td {
   border-top: 1px solid #ccc;
 }
 
-/* 🎯 Estilo especial para mobile */
+/* 🎯 Estilo Mobile - Cards */
 @media (max-width: 600px) {
-  header {
-    font-size: 1.2rem;
+  .conteudo {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
-  form,
-  table {
-    font-size: 0.95rem;
+  h1 {
+    font-size: 1.4rem;
+    text-align: center;
   }
 
   table,
@@ -186,6 +191,10 @@ td {
   #tabela-contas button:hover {
     background-color: #006c4f;
   }
+
+  .footer {
+    width: 100%;
+    border-radius: 0;
+    margin-top: 2rem;
+  }
 }
-
-
