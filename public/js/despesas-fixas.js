@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       descricao,
       parcelas,
       pagas: 0,
+      valor_total: parcelas > 1 ? valor * parcelas : null,
       data_lancamento,
       vencimento
     };
@@ -82,10 +83,12 @@ async function carregarDespesas() {
 
     tabela.innerHTML = "";
     minhas.forEach(d => {
+      const restante = (d.valor_total || (d.valor * d.parcelas)) - (d.valor * (d.pagas || 0));
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${d.categoria}</td>
         <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
+        <td>R$ ${restante.toFixed(2).replace(".", ",")}</td>
         <td>${d.pagas || 0}/${d.parcelas || 1}</td>
         <td>${formatarData(d.data_lancamento)}</td>
         <td>${formatarData(d.vencimento)}</td>
@@ -152,7 +155,7 @@ function toggleParcelas(botao, id, total, pagas) {
     `;
   }
 
-  novaLinha.innerHTML = `<td colspan="7"><div class="lista-parcelas">${checkboxes}</div></td>`;
+  novaLinha.innerHTML = `<td colspan="8"><div class="lista-parcelas">${checkboxes}</div></td>`;
   tr.insertAdjacentElement("afterend", novaLinha);
 }
 
@@ -169,11 +172,17 @@ async function atualizarParcela(id, numero, marcado) {
     ? Math.max(novaPagas, numero)
     : Math.min(novaPagas, numero - 1);
 
+  const bodyAtualizado = {
+    ...despesa,
+    pagas: novaPagas,
+    valor_total: despesa.parcelas > 1 ? despesa.valor * despesa.parcelas : null
+  };
+
   try {
     await fetch("/api/despesas_fixas", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...despesa, pagas: novaPagas })
+      body: JSON.stringify(bodyAtualizado)
     });
     carregarDespesas();
   } catch (err) {

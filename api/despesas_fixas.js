@@ -18,7 +18,8 @@ export default async function handler(req, res) {
       parcelas: novaDespesa.parcelas,
       pagas: novaDespesa.pagas || 0,
       data_lancamento: novaDespesa.data_lancamento,
-      vencimento: novaDespesa.vencimento
+      vencimento: novaDespesa.vencimento,
+      valor_total: novaDespesa.parcelas > 1 ? novaDespesa.valor * novaDespesa.parcelas : null
     };
 
     console.log("➡️ Enviando ao ORDS:", JSON.stringify(bodyLimpo, null, 2));
@@ -53,7 +54,8 @@ export default async function handler(req, res) {
       parcelas: despesa.parcelas,
       pagas: despesa.pagas,
       data_lancamento: despesa.data_lancamento,
-      vencimento: despesa.vencimento
+      vencimento: despesa.vencimento,
+      valor_total: despesa.parcelas > 1 ? despesa.valor * despesa.parcelas : null
     };
 
     console.log("➡️ Atualizando ORDS:", JSON.stringify(bodyLimpo, null, 2));
