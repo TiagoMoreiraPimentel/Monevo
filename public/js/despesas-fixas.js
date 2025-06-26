@@ -1,75 +1,69 @@
-export default async function handler(req, res) {
-  const BASE_URL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesa_fixa/";
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("form-despesa-fixa");
+  const container = document.getElementById("despesas-fixas-container");
+  const idUsuario = localStorage.getItem("id_usuario");
 
-  if (req.method === "POST") {
-    const {
-      id_usuario,
-      data,
-      valor,
-      categoria,
-      descricao,
-      vencimento,
-      ciclo
-    } = req.body;
+  async function carregarDespesas() {
+    const res = await fetch("/api/despesas_fixas");
+    const dados = await res.json();
 
-    console.log("📩 Requisição POST recebida:");
-    console.log("Body recebido:", JSON.stringify(req.body, null, 2));
+    const minhasDespesas = dados.items.filter(d => d.id_usuario == idUsuario);
 
-    if (!id_usuario || !data || !valor || !categoria || !vencimento) {
-      return res.status(400).send("Campos obrigatórios ausentes.");
+    container.innerHTML = "";
+
+    if (minhasDespesas.length === 0) {
+      container.innerHTML = "<p>Nenhuma despesa fixa cadastrada.</p>";
+      return;
     }
 
-    const payload = {
-      ID_USUARIO: id_usuario,
-      DATA_REGISTRO: data,
-      VALOR: valor,
-      CATEGORIA: categoria,
-      DESCRICAO: descricao?.trim() || null,
-      DATA_VENCIMENTO: vencimento,
-      CICLO_TOTAL: ciclo || 1,
-      CICLO_PAGO: 0,
-      CONCLUIDO: "N"
+    minhasDespesas.forEach(despesa => {
+      const card = document.createElement("div");
+      card.className = "card-despesa";
+      card.innerHTML = `
+        <p><strong>Valor:</strong> R$ ${parseFloat(despesa.valor).toFixed(2)}</p>
+        <p><strong>Categoria:</strong> ${despesa.categoria}</p>
+        <p><strong>Descrição:</strong> ${despesa.descricao || "-"}</p>
+        <p><strong>Lançamento:</strong> ${despesa.data_lancamento}</p>
+        <p><strong>Vencimento:</strong> ${despesa.vencimento}</p>
+        <p><strong>Ciclo:</strong> ${despesa.ciclo} mês(es)</p>
+        <button onclick="excluirDespesa(${despesa.id_despesa_fixa})">Excluir</button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  async function excluirDespesa(id) {
+    if (!confirm("Deseja excluir esta despesa fixa?")) return;
+
+    await fetch(`/api/despesas_fixas?id=${id}`, {
+      method: "DELETE"
+    });
+
+    carregarDespesas();
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const body = {
+      id_usuario: parseInt(idUsuario),
+      valor: parseFloat(form.valor.value),
+      categoria: form.categoria.value,
+      descricao: form.descricao.value,
+      data_lancamento: form.data_lancamento.value,
+      vencimento: form.vencimento.value,
+      ciclo: parseInt(form.ciclo.value)
     };
 
-    console.log("📤 Enviando para ORDS:", JSON.stringify(payload, null, 2));
+    await fetch("/api/despesas_fixas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
 
-    try {
-      const resposta = await fetch(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    form.reset();
+    carregarDespesas();
+  });
 
-      if (!resposta.ok) {
-        const erroTexto = await resposta.text();
-        console.error("❌ Erro do ORDS:\nStatus:", resposta.status, "\nDetalhes:", erroTexto);
-        return res.status(500).send("Erro ao salvar despesa.");
-      }
-
-      return res.status(201).send("Despesa registrada com sucesso.");
-    } catch (erro) {
-      console.error("❌ Erro na requisição ORDS:", erro);
-      return res.status(500).send("Erro ao salvar despesa.");
-    }
-  }
-
-  if (req.method === "GET") {
-    const { id_usuario } = req.query;
-
-    if (!id_usuario) {
-      return res.status(400).send("ID do usuário não informado.");
-    }
-
-    try {
-      const resposta = await fetch(BASE_URL);
-      const json = await resposta.json();
-      const despesas = json.items.filter(d => d.ID_USUARIO == id_usuario);
-      return res.status(200).json(despesas);
-    } catch (erro) {
-      console.error("Erro ao buscar despesas:", erro);
-      return res.status(500).send("Erro ao buscar despesas.");
-    }
-  }
-
-  return res.status(405).send("Método não permitido.");
-}
+  carregarDespesas();
+});

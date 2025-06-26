@@ -1,72 +1,58 @@
+import fetch from "node-fetch";
+
 export default async function handler(req, res) {
-  const BASE_URL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesa_fixa/";
+  const baseURL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesa_fixa";
 
-  if (req.method === "POST") {
-    console.log("📩 Requisição POST recebida:");
-    console.log("Body recebido:", req.body);
-
-    const {
-      id_usuario,
-      data,
-      valor,
-      categoria,
-      descricao,
-      vencimento,
-      ciclo
-    } = req.body;
-
-    if (!id_usuario || !data || !valor || !categoria || !vencimento) {
-      return res.status(400).send("Campos obrigatórios ausentes.");
+  try {
+    if (req.method === "GET") {
+      const response = await fetch(baseURL);
+      const data = await response.json();
+      res.status(200).json(data);
     }
 
-    const novaDespesa = {
-      id_usuario,
-      data_registro: data,
-      valor,
-      categoria,
-      descricao: descricao?.trim() || "", // ORDS rejeita `null` direto
-      data_vencimento: vencimento,
-      ciclo_total: ciclo || 1,
-      ciclo_pago: 0,
-      concluido: "N"
-    };
+    else if (req.method === "POST") {
+      const body = req.body;
 
-    console.log("➡️ Enviando para ORDS:", JSON.stringify(novaDespesa, null, 2));
+      // Remover ID, caso venha no body por erro
+      delete body.id_despesa_fixa;
 
-    try {
-      const resposta = await fetch(BASE_URL, {
+      const response = await fetch(baseURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novaDespesa)
+        body: JSON.stringify(body)
       });
 
-      if (!resposta.ok) {
-        const erroTexto = await resposta.text();
-        console.error("❌ Erro do ORDS:\n", erroTexto);
-        return res.status(400).send("Erro ao salvar despesa.");
+      const data = await response.json();
+
+      if (!response.ok) {
+        return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: data });
       }
 
-      return res.status(201).json({ mensagem: "Despesa registrada com sucesso." });
-    } catch (erro) {
-      console.error("❌ Erro de conexão:", erro);
-      return res.status(500).send("Erro interno ao salvar despesa.");
+      res.status(201).json(data);
     }
-  }
 
-  if (req.method === "GET") {
-    const { id_usuario } = req.query;
-    if (!id_usuario) return res.status(400).send("ID do usuário não informado.");
+    else if (req.method === "DELETE") {
+      const id = req.query.id;
+      if (!id) return res.status(400).json({ erro: "ID não informado para exclusão" });
 
-    try {
-      const resposta = await fetch(BASE_URL);
-      const json = await resposta.json();
-      const despesas = json.items.filter(d => d.id_usuario == id_usuario);
-      return res.status(200).json(despesas);
-    } catch (erro) {
-      console.error("❌ Erro ao buscar despesas:", erro);
-      return res.status(500).send("Erro ao buscar despesas.");
+      const response = await fetch(`${baseURL}/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        return res.status(response.status).json({ erro: "Erro ao excluir despesa", detalhes: error });
+      }
+
+      res.status(204).end();
     }
-  }
 
-  res.status(405).send("Método não permitido.");
+    else {
+      res.setHeader("Allow", ["GET", "POST", "DELETE"]);
+      res.status(405).end(`Método ${req.method} não permitido`);
+    }
+  } catch (erro) {
+    console.error("Erro no handler de despesas fixas:", erro);
+    res.status(500).json({ erro: "Erro interno no servidor" });
+  }
 }
