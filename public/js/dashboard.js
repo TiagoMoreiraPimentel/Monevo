@@ -1,5 +1,13 @@
 let graficoSaldos, graficoDespesas, graficoReceitas, graficoLinhas, graficoConta;
 
+function formatarValorBR(valor, comSimbolo = true) {
+  const valorFormatado = parseFloat(valor).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  return comSimbolo ? `R$ ${valorFormatado}` : valorFormatado;
+}
+
 if (typeof Chart !== "undefined") {
   Chart.defaults.plugins.title.display = false;
 }
@@ -21,9 +29,9 @@ function carregarResumo() {
       const totalDespesas = despesas.reduce((s, t) => s + t.valor, 0);
       const saldo = totalReceitas - totalDespesas;
 
-      document.getElementById("total-receitas").textContent = totalReceitas.toFixed(2);
-      document.getElementById("total-despesas").textContent = totalDespesas.toFixed(2);
-      document.getElementById("saldo").textContent = saldo.toFixed(2);
+      document.getElementById("total-receitas").textContent = formatarValorBR(totalReceitas);
+      document.getElementById("total-despesas").textContent = formatarValorBR(totalDespesas);
+      document.getElementById("saldo").textContent = formatarValorBR(saldo);
 
       renderizarGraficoCategoriasDespesas(despesas);
       renderizarGraficoCategoriasReceitas(receitas);
@@ -61,7 +69,7 @@ function carregarGraficoSaldosTags(idUsuario) {
             ctx.fillStyle = cor;
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`${ticket.toFixed(2)}`, x, y - 5);
+            ctx.fillText(formatarValorBR(ticket, false), x, y - 5);
             ctx.restore();
           });
         }
@@ -87,7 +95,7 @@ function carregarGraficoSaldosTags(idUsuario) {
               align: "top",
               offset: 10,
               font: { size: 10, weight: "bold" },
-              formatter: valor => `R$ ${valor.toFixed(2)}`
+              formatter: valor => formatarValorBR(valor, false)
             },
           },
           scales: {
@@ -141,7 +149,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
           anchor: "end",
           align: "top",
           font: { size: 10, weight: "bold" },
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `${formatarValorBR(valor, false)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -194,7 +202,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
           anchor: "end",
           align: "top",
           font: { size: 10, weight: "bold" },
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `${formatarValorBR(valor, false)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -237,7 +245,7 @@ function renderizarGraficoLinhas(receitas, despesas) {
           font: { size: 12, weight: "bold" },
           formatter: (valor, ctx) => {
             const percent = ctx.chart.data.datasets[0].data[ctx.dataIndex] / total * 100;
-            return `R$ ${valor.toFixed(2)} (${percent.toFixed(1)}%)`;
+            return `${formatarValorBR(valor)} (${percent.toFixed(1)}%)`;
           },
         },
       },
@@ -282,7 +290,7 @@ function renderizarGraficoConta(transacoes) {
           anchor: "end",
           align: "top",
           font: { size: 10, weight: "bold" },
-          formatter: (valor, ctx) => `R$ ${valor.toFixed(2)} (${porcentagens[ctx.dataIndex]}%)`,
+          formatter: (valor, ctx) => `${formatarValorBR(valor, false)} (${porcentagens[ctx.dataIndex]}%)`,
         },
       },
       scales: {
@@ -342,13 +350,13 @@ async function carregarTicketsTags() {
           return `
             <tr>
               <td>${tag.tag}</td>
-              <td>R$ ${tag.saldo}</td>
-              <td>R$ ${tag.gasto_hoje}</td>
-              <td>R$ ${tag.saldo_restante}</td>
+              <td>${formatarValorBR(tag.saldo)}</td>
+              <td>${formatarValorBR(tag.gasto_hoje)}</td>
+              <td>${formatarValorBR(tag.saldo_restante)}</td>
               <td>${tag.dias_restantes}</td>
-              <td>R$ ${tag.ticket_base}</td>
-              <td style="color: ${cor}; font-weight: bold;">R$ ${ticketHojeNum.toFixed(2)}</td>
-              <td>R$ ${tag.ticket_ajustado}</td>
+              <td>${formatarValorBR(tag.ticket_base)}</td>
+              <td style="color: ${cor}; font-weight: bold;">${formatarValorBR(ticketHojeNum)}</td>
+              <td>${formatarValorBR(tag.ticket_ajustado)}</td>
             </tr>
           `;
         }).join("")}
@@ -383,12 +391,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ✅ Define mês atual (01–12)
   const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
   const campoMes = document.getElementById("mes");
   if (campoMes) campoMes.value = mesAtual;
 
-  // ✅ Define ano atual, adiciona ao select se necessário
   const anoAtual = String(new Date().getFullYear());
   const campoAno = document.getElementById("ano");
   if (campoAno) {
@@ -402,7 +408,6 @@ document.addEventListener("DOMContentLoaded", () => {
     campoAno.value = anoAtual;
   }
 
-  // ✅ Carrega os dados com mês/ano corretos
   carregarResumo();
   carregarTicketsTags();
 });
