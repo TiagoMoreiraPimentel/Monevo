@@ -26,8 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const descricao = document.getElementById("descricao").value.trim();
     const valorFormatado = document.getElementById("valor").value;
     const valor = parseFloat(valorFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
-    const data_lancamento = document.getElementById("data_lancamento").value;
-    const vencimento = document.getElementById("vencimento").value;
+    const data_lancamento = new Date(document.getElementById("data_lancamento").value + "T00:00:00").toISOString();
+    const vencimento = new Date(document.getElementById("vencimento").value + "T00:00:00").toISOString();
+
 
     if (!categoria || isNaN(valor) || isNaN(ciclo) || !data_lancamento || !vencimento) {
       mostrarMensagem("Preencha todos os campos obrigatórios corretamente.");
