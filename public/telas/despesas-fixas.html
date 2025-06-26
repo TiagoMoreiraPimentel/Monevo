@@ -3,32 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Despesas Fixas - Monevo</title>
+  <title>Despesas Fixas</title>
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/despesas-fixas.css" />
-  <script defer src="../js/despesas-fixas.js"></script>
 </head>
 <body>
-  <main class="container">
-    <h1>Despesas Fixas</h1>
+  <div class="container">
+    <h2>Despesas Fixas</h2>
 
-    <section id="formulario-despesa-fixa">
-      <h2>Nova Despesa Fixa</h2>
-      <form id="form-despesa-fixa">
-        <input type="number" id="valor" name="valor" placeholder="Valor (R$)" required />
-        <input type="text" id="categoria" name="categoria" placeholder="Categoria (ex: Aluguel)" required />
-        <input type="text" id="descricao" name="descricao" placeholder="Descrição (opcional)" />
-        <input type="date" id="data_lancamento" name="data_lancamento" required />
-        <input type="date" id="vencimento" name="vencimento" required />
-        <input type="number" id="ciclo" name="ciclo" placeholder="Ciclo (em meses)" value="1" required />
-        <button type="submit">Cadastrar</button>
-      </form>
-    </section>
+    <form id="form-despesa-fixa">
+      <input type="text" id="categoria" placeholder="Categoria" required />
+      <input type="text" id="descricao" placeholder="Descrição" required />
+      <input type="number" id="valor" placeholder="Valor" required step="0.01" />
+      <input type="number" id="ciclo" placeholder="Ciclo (em dias)" required />
+      <button type="submit">Cadastrar</button>
+    </form>
 
-    <section id="lista-despesas-fixas">
-      <h2>Minhas Despesas Fixas</h2>
-      <div id="despesas-fixas-container"></div>
-    </section>
-  </main>
+    <div id="lista-despesas"></div>
+  </div>
+
+  <script src="../js/despesas-fixas.js"></script>
 </body>
 </html>

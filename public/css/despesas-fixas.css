@@ -1,51 +1,72 @@
 .container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+  max-width: 600px;
+  margin: 20px auto;
   background: white;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
+h2 {
   color: var(--cor-primaria);
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 form {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 30px;
 }
 
-form input, form button {
+form input {
   padding: 10px;
-  font-size: 1rem;
-  border-radius: 6px;
+  font-size: 16px;
   border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 form button {
-  background: var(--cor-primaria);
+  background-color: var(--cor-primaria);
   color: white;
   border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+form button:hover {
+  background-color: var(--cor-primaria-hover);
+}
+
+#lista-despesas {
+  margin-top: 30px;
 }
 
 .card-despesa {
-  border: 1px solid #ddd;
+  background-color: var(--cor-fundo);
+  padding: 12px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-  background: #f9f9f9;
+  margin-bottom: 10px;
+  line-height: 1.5;
 }
 
-.card-despesa p {
-  margin: 5px 0;
+.card-despesa strong {
+  color: var(--cor-primaria);
 }
 
 .card-despesa button {
-  background: var(--cor-erro);
+  background-color: #c74934;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
-  margin-top: 10px;
+  float: right;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.card-despesa button:hover {
+  background-color: #a83828;
 }

@@ -1,103 +1,69 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let idUsuario = localStorage.getItem("id_usuario");
-
-  if (!idUsuario || isNaN(parseInt(idUsuario))) {
-    alert("Usuário não logado. Faça login novamente.");
-    window.location.href = "login.html";
-    return;
-  }
-
-  idUsuario = parseInt(idUsuario);
-
   const form = document.getElementById("form-despesa-fixa");
-  const container = document.getElementById("despesas-fixas-container");
+  const lista = document.getElementById("lista-despesas");
 
   async function carregarDespesas() {
-    const res = await fetch("/api/despesas_fixas");
-    const dados = await res.json();
+    try {
+      const res = await fetch("/api/despesas_fixas");
+      const json = await res.json();
 
-    const minhasDespesas = dados.items.filter(d => d.id_usuario == idUsuario);
+      lista.innerHTML = "";
+      if (json.items && json.items.length > 0) {
+        json.items.forEach(despesa => {
+          const div = document.createElement("div");
+          div.classList.add("card-despesa");
+          div.innerHTML = `
+            <strong>${despesa.categoria}</strong> - R$ ${despesa.valor.toFixed(2)}<br/>
+            ${despesa.descricao} | Ciclo: ${despesa.ciclo} dias
+            <button data-id="${despesa.id_despesa_fixa}" class="btn-excluir">Excluir</button>
+          `;
+          lista.appendChild(div);
+        });
 
-    container.innerHTML = "";
-
-    if (minhasDespesas.length === 0) {
-      container.innerHTML = "<p>Nenhuma despesa fixa cadastrada.</p>";
-      return;
+        document.querySelectorAll(".btn-excluir").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            await fetch(`/api/despesas_fixas?id=${id}`, { method: "DELETE" });
+            carregarDespesas();
+          });
+        });
+      } else {
+        lista.innerHTML = "<p>Nenhuma despesa fixa cadastrada.</p>";
+      }
+    } catch (e) {
+      console.error("Erro ao carregar despesas:", e);
     }
-
-    minhasDespesas.forEach(despesa => {
-      const card = document.createElement("div");
-      card.className = "card-despesa";
-      card.innerHTML = `
-        <p><strong>Valor:</strong> R$ ${parseFloat(despesa.valor).toFixed(2)}</p>
-        <p><strong>Categoria:</strong> ${despesa.categoria}</p>
-        <p><strong>Descrição:</strong> ${despesa.descricao || "-"}</p>
-        <p><strong>Lançamento:</strong> ${new Date(despesa.data_lancamento).toLocaleDateString("pt-BR")}</p>
-        <p><strong>Vencimento:</strong> ${new Date(despesa.vencimento).toLocaleDateString("pt-BR")}</p>
-        <p><strong>Ciclo:</strong> ${despesa.ciclo} mês(es)</p>
-        <button onclick="excluirDespesa(${despesa.id_despesa_fixa})">Excluir</button>
-      `;
-      container.appendChild(card);
-    });
   }
-
-  window.excluirDespesa = async function (id) {
-    if (!confirm("Deseja excluir esta despesa fixa?")) return;
-
-    await fetch(`/api/despesas_fixas?id=${id}`, {
-      method: "DELETE"
-    });
-
-    carregarDespesas();
-  };
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const valorLimpo = parseFloat(
-      form.valor.value.replace("R$", "").replace(/\s/g, "").replace(",", ".")
-    );
-
-    if (isNaN(valorLimpo) || valorLimpo <= 0) {
-      alert("Informe um valor válido para a despesa.");
-      return;
-    }
-
-    if (!form.data_lancamento.value || !form.vencimento.value) {
-      alert("Preencha as datas de lançamento e vencimento.");
-      return;
-    }
-
-    const cicloInt = parseInt(form.ciclo.value);
-    if (isNaN(cicloInt)) {
-      alert("Informe um ciclo válido.");
-      return;
-    }
-
-    const body = {
-      id_usuario: idUsuario,
-      valor: valorLimpo,
-      categoria: form.categoria.value,
-      descricao: form.descricao.value,
-      data_lancamento: form.data_lancamento.value + "T00:00:00Z",
-      vencimento: form.vencimento.value + "T00:00:00Z",
-      ciclo: cicloInt
+    const novaDespesa = {
+      id_usuario: 1,
+      valor: parseFloat(document.getElementById("valor").value),
+      categoria: document.getElementById("categoria").value,
+      descricao: document.getElementById("descricao").value,
+      ciclo: parseInt(document.getElementById("ciclo").value)
     };
 
-    const res = await fetch("/api/despesas_fixas", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      },
-      body: JSON.stringify(body)
-    });
+    try {
+      const res = await fetch("/api/despesas_fixas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novaDespesa)
+      });
 
-    if (res.ok) {
-      form.reset();
-      carregarDespesas();
-    } else {
-      const erro = await res.json();
-      alert("Erro ao cadastrar despesa fixa:\n" + (erro.detalhes?.message || JSON.stringify(erro)));
+      const resultado = await res.json();
+      if (res.ok) {
+        form.reset();
+        carregarDespesas();
+      } else {
+        alert("Erro: " + (resultado.erro || "Falha ao cadastrar"));
+        console.error(resultado);
+      }
+    } catch (e) {
+      alert("Erro inesperado");
+      console.error(e);
     }
   });
 
