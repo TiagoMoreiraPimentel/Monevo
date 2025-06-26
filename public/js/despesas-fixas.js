@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("/api/despesas_fixas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(novaDespesa)
     })
     .then(res => {
       if (!res.ok) throw new Error("Erro ao salvar despesa.");
