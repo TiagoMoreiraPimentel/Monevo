@@ -58,14 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-    const body = {
-      id_usuario: usuario.id,
-      data: data,
-      valor: valor,
-      categoria: categoria,
-      descricao: descricao,
-      vencimento: vencimento,
-      ciclo: ciclo
+    const novaDespesa = {
+      ID_USUARIO: id_usuario,
+      DATA_REGISTRO: data,
+      VALOR: valor,
+      CATEGORIA: categoria,
+      DESCRICAO: descricao?.trim() || null,
+      DATA_VENCIMENTO: vencimento,
+      CICLO_TOTAL: ciclo || 1,
+      CICLO_PAGO: 0,
+      CONCLUIDO: "N"
     };
 
     fetch("/api/despesas_fixas", {
