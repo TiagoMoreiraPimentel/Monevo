@@ -1,8 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form-despesa-fixa");
   const container = document.getElementById("despesas-fixas-container");
-  const idUsuario = localStorage.getItem("id_usuario");
-
+  const idUsuario = parseInt(localStorage.getItem("id_usuario"));
+  if (!idUsuario) {
+    alert("Usuário não logado. Faça login novamente.");
+    window.location.href = "login.html"; // ou a rota correta
+  }
   async function carregarDespesas() {
     const res = await fetch("/api/despesas_fixas");
     const dados = await res.json();
@@ -50,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
       valor: parseFloat(form.valor.value),
       categoria: form.categoria.value,
       descricao: form.descricao.value,
-      data_lancamento: form.data_lancamento.value,
-      vencimento: form.vencimento.value,
+      data_lancamento: form.data_lancamento.value + "T00:00:00Z",
+      vencimento: form.vencimento.value + "T00:00:00Z",
       ciclo: parseInt(form.ciclo.value)
     };
 
