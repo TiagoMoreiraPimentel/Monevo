@@ -19,39 +19,28 @@ export default async function handler(req, res) {
     }
 
     else if (req.method === "POST") {
+      const body = req.body;
+      delete body.id_despesa_fixa;
+
+      console.log("➡️ Enviando ao ORDS:", JSON.stringify(body, null, 2));
+
+      const response = await fetch(baseURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(body)
+      });
+
+      const text = await response.text();
+      console.log("📦 Resposta bruta do ORDS (POST):", text);
+
       try {
-        const rawBody = req.body;
-        const body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
-
-        const corpoLimpo = { ...body };
-        delete corpoLimpo.id_despesa_fixa;
-
-        console.log("Enviando ao ORDS:", JSON.stringify(corpoLimpo, null, 2));
-
-        console.log("➡️ Iniciando POST para ORDS...");
-        const response = await fetch(baseURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(corpoLimpo)
-        });
-        console.log("✅ Resposta recebida do ORDS.");
-
-        const text = await response.text();
-        console.log("📦 Resposta bruta do ORDS (POST):", text);
-
-        try {
-          const json = JSON.parse(text);
-          if (!response.ok) {
-            return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
-          }
-          return res.status(201).json(json);
-        } catch (e) {
-          return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
+        const json = JSON.parse(text);
+        if (!response.ok) {
+          return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
         }
-
-      } catch (erro) {
-        console.error("❌ Erro no bloco interno POST:", erro);
-        return res.status(500).json({ erro: "Erro interno no servidor (POST)", detalhes: erro.message });
+        return res.status(201).json(json);
+      } catch (e) {
+        return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
       }
     }
 
@@ -59,9 +48,7 @@ export default async function handler(req, res) {
       const id = req.query.id;
       if (!id) return res.status(400).json({ erro: "ID não informado para exclusão" });
 
-      const response = await fetch(`${baseURL}/${id}`, {
-        method: "DELETE"
-      });
+      const response = await fetch(`${baseURL}/${id}`, { method: "DELETE" });
 
       if (!response.ok) {
         const erro = await response.text();
@@ -77,7 +64,7 @@ export default async function handler(req, res) {
     }
 
   } catch (erro) {
-    console.error("🔥 Erro geral no handler:", erro);
+    console.error("❌ Erro no handler de despesas fixas:", erro);
     return res.status(500).json({ erro: "Erro interno no servidor", detalhes: erro.message });
   }
 }
