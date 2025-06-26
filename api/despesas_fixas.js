@@ -8,18 +8,17 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const despesa = req.body;
+    const novaDespesa = req.body;
 
     const bodyLimpo = {
-      id_despesa_fixa: despesa.id_despesa_fixa || undefined,
-      id_usuario: despesa.id_usuario,
-      valor: despesa.valor,
-      categoria: despesa.categoria,
-      descricao: despesa.descricao,
-      parcelas: despesa.parcelas,
-      pagas: despesa.pagas,
-      data_lancamento: despesa.data_lancamento,
-      vencimento: despesa.vencimento
+      id_usuario: novaDespesa.id_usuario,
+      valor: novaDespesa.valor,
+      categoria: novaDespesa.categoria,
+      descricao: novaDespesa.descricao,
+      parcelas: novaDespesa.parcelas,
+      pagas: novaDespesa.pagas || 0,
+      data_lancamento: novaDespesa.data_lancamento,
+      vencimento: novaDespesa.vencimento
     };
 
     console.log("➡️ Enviando ao ORDS:", JSON.stringify(bodyLimpo, null, 2));
@@ -36,7 +35,42 @@ export default async function handler(req, res) {
     } else {
       const erro = await r.text();
       console.error("❌ Erro ao registrar:", erro);
-      return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: erro });
+      return res.status(500).json({ erro: "Erro ao cadastrar despesa fixa", detalhes: erro });
+    }
+  }
+
+  if (req.method === "PUT") {
+    const despesa = req.body;
+    if (!despesa.id_despesa_fixa) {
+      return res.status(400).json({ erro: "ID da despesa é obrigatório para atualização." });
+    }
+
+    const bodyLimpo = {
+      id_usuario: despesa.id_usuario,
+      valor: despesa.valor,
+      categoria: despesa.categoria,
+      descricao: despesa.descricao,
+      parcelas: despesa.parcelas,
+      pagas: despesa.pagas,
+      data_lancamento: despesa.data_lancamento,
+      vencimento: despesa.vencimento
+    };
+
+    console.log("➡️ Atualizando ORDS:", JSON.stringify(bodyLimpo, null, 2));
+
+    const r = await fetch(BASE + despesa.id_despesa_fixa, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bodyLimpo)
+    });
+
+    if (r.ok) {
+      const json = await r.json();
+      return res.status(200).json(json);
+    } else {
+      const erro = await r.text();
+      console.error("❌ Erro ao atualizar:", erro);
+      return res.status(500).json({ erro: "Erro ao atualizar despesa", detalhes: erro });
     }
   }
 

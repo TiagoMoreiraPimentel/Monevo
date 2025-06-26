@@ -171,7 +171,7 @@ async function atualizarParcela(id, numero, marcado) {
 
   try {
     await fetch("/api/despesas_fixas", {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...despesa, pagas: novaPagas })
     });
