@@ -88,8 +88,15 @@ async function carregarDespesas() {
 
       const valorParcela = d.valor;
       const totalCalculado = total > 1 ? restantes * valorParcela : (pagas >= 1 ? 0 : valorParcela);
-      const valorTotalFormatado = `${totalCalculado.toFixed(2).replace(".", ",")}`;
-      const valorParcelaFormatado = `${valorParcela.toFixed(2).replace(".", ",")}`;
+      const valorTotalFormatado = totalCalculado.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      const valorParcelaFormatado = valorParcela.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
       const status = totalCalculado === 0 ? "Quitada" : "Pendente";
 
       let proximoVenc = "-";
@@ -157,6 +164,10 @@ function toggleParcelas(botao, id, total, pagas, vencimentoInicial, valorParcela
 
   let checkboxes = "";
   const dataBase = new Date(vencimentoInicial);
+  const valorParcelaFormatado = valorParcela.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 
   for (let i = 1; i <= total; i++) {
     const venc = new Date(dataBase);
@@ -169,7 +180,7 @@ function toggleParcelas(botao, id, total, pagas, vencimentoInicial, valorParcela
         <input type="checkbox" id="p${id}_${i}" ${checked}
           onchange="atualizarParcela(${id}, ${i}, this.checked)" />
         <label for="p${id}_${i}">
-          Parcela ${i} — ${vencFormatado} — ${valorParcela.toFixed(2).replace(".", ",")}
+          Parcela ${i} — ${vencFormatado} — ${valorParcelaFormatado}
         </label>
       </div>
     `;
