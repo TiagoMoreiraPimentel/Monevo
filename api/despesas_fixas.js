@@ -6,49 +6,28 @@ export default async function handler(req, res) {
   try {
     if (req.method === "GET") {
       const response = await fetch(baseURL);
-      const contentType = response.headers.get("content-type");
-
-      const data = contentType && contentType.includes("application/json")
-        ? await response.json()
-        : await response.text();
-
-      res.status(response.status).json(data);
+      const data = await response.json();
+      res.status(200).json(data);
     }
 
     else if (req.method === "POST") {
       const body = req.body;
 
-      // Garantir tipos corretos
-      const bodyLimpo = {
-        id_usuario: parseInt(body.id_usuario),
-        valor: parseFloat(body.valor),
-        categoria: String(body.categoria || ""),
-        descricao: String(body.descricao || ""),
-        data_lancamento: String(body.data_lancamento),
-        vencimento: String(body.vencimento),
-        ciclo: parseInt(body.ciclo || 1)
-      };
-
-      console.log("Enviando para ORDS:", JSON.stringify(bodyLimpo, null, 2));
+      // Remover ID, caso venha no body por erro
+      delete body.id_despesa_fixa;
 
       const response = await fetch(baseURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyLimpo)
+        body: JSON.stringify(body)
       });
 
-      const contentType = response.headers.get("content-type");
+      const data = await response.json();
 
       if (!response.ok) {
-        const erro = contentType && contentType.includes("application/json")
-          ? await response.json()
-          : await response.text();
-
-        console.error("Erro ORDS:", erro);
-        return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: erro });
+        return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: data });
       }
 
-      const data = await response.json();
       res.status(201).json(data);
     }
 
@@ -61,8 +40,8 @@ export default async function handler(req, res) {
       });
 
       if (!response.ok) {
-        const erro = await response.text();
-        return res.status(response.status).json({ erro: "Erro ao excluir despesa", detalhes: erro });
+        const error = await response.text();
+        return res.status(response.status).json({ erro: "Erro ao excluir despesa", detalhes: error });
       }
 
       res.status(204).end();
