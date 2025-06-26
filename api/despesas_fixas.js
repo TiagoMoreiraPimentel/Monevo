@@ -6,19 +6,22 @@ export default async function handler(req, res) {
   try {
     if (req.method === "GET") {
       const response = await fetch(baseURL);
-      const data = await response.json();
-      return res.status(200).json(data);
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        return res.status(200).json(data);
+      } else {
+        const texto = await response.text();
+        return res.status(500).json({ erro: "Resposta inválida do ORDS (GET)", detalhes: texto });
+      }
     }
 
-    if (req.method === "POST") {
+    else if (req.method === "POST") {
       const body = req.body;
+      delete body.id_despesa_fixa;
 
-      delete body.id_despesa_fixa; // previne erro com ID duplicado
-
-      // Conversões seguras
-      body.id_usuario = parseInt(body.id_usuario);
-      body.valor = parseFloat(body.valor);
-      body.ciclo = parseInt(body.ciclo);
+      console.log("Enviando ao ORDS:", JSON.stringify(body, null, 2));
 
       const response = await fetch(baseURL, {
         method: "POST",
@@ -26,39 +29,45 @@ export default async function handler(req, res) {
         body: JSON.stringify(body)
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type");
 
-      if (!response.ok) {
-        return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: data });
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+
+        if (!response.ok) {
+          return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: data });
+        }
+
+        return res.status(201).json(data);
+      } else {
+        const texto = await response.text();
+        return res.status(500).json({ erro: "Resposta inválida do ORDS (POST)", detalhes: texto });
       }
-
-      return res.status(201).json(data);
     }
 
-    if (req.method === "DELETE") {
-      const { id } = req.query;
-
-      if (!id) {
-        return res.status(400).json({ erro: "ID não informado para exclusão" });
-      }
+    else if (req.method === "DELETE") {
+      const id = req.query.id;
+      if (!id) return res.status(400).json({ erro: "ID não informado para exclusão" });
 
       const response = await fetch(`${baseURL}/${id}`, {
         method: "DELETE"
       });
 
       if (!response.ok) {
-        const error = await response.text();
-        return res.status(response.status).json({ erro: "Erro ao excluir despesa", detalhes: error });
+        const erro = await response.text();
+        return res.status(response.status).json({ erro: "Erro ao excluir despesa", detalhes: erro });
       }
 
       return res.status(204).end();
     }
 
-    // Método não permitido
-    res.setHeader("Allow", ["GET", "POST", "DELETE"]);
-    return res.status(405).end(`Método ${req.method} não permitido`);
+    else {
+      res.setHeader("Allow", ["GET", "POST", "DELETE"]);
+      return res.status(405).end(`Método ${req.method} não permitido`);
+    }
+
   } catch (erro) {
     console.error("Erro no handler de despesas fixas:", erro);
-    return res.status(500).json({ erro: "Erro interno no servidor" });
+    return res.status(500).json({ erro: "Erro interno no servidor", detalhes: erro.message });
   }
 }
