@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Despesas Fixas - Monevo</title>
-  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/menu.css" />
+  <link rel="stylesheet" href="../css/despesas-fixas.css" />
+  <script defer src="../js/menu.js"></script>
   <script defer src="../js/despesas-fixas.js"></script>
 </head>
 <body>
-  <h1>Despesas Fixas</h1>
+  <div class="layout">
+    <div id="menu-container"></div>
 
-  <form id="form-despesa-fixa">
-    <input type="text" id="categoria" placeholder="Categoria" required>
-    <input type="text" id="valor" placeholder="Valor (R$)" required>
-    <input type="number" id="ciclo" placeholder="Ciclo em dias" required>
-    <input type="date" id="data_lancamento" placeholder="Data de Lançamento" required>
-    <input type="date" id="vencimento" placeholder="Vencimento" required>
-    <input type="text" id="descricao" placeholder="Descrição">
-    <button type="submit">Cadastrar Despesa Fixa</button>
-  </form>
+    <main class="container">
+      <h1 class="titulo-secao">Despesas Fixas</h1>
 
-  <p id="mensagem"></p>
+      <form id="form-despesa-fixa" class="formulario">
+        <input type="text" id="categoria" placeholder="Categoria" required />
+        <input type="text" id="valor" placeholder="Valor (R$)" required />
 
-  <table>
-    <thead>
-      <tr>
-        <th>Categoria</th>
-        <th>Valor</th>
-        <th>Ciclo</th>
-        <th>Lançamento</th>
-        <th>Vencimento</th>
-        <th>Descrição</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-despesas"></tbody>
-  </table>
+        <div class="campo-com-label">
+          <label for="data_lancamento">Data de Lançamento</label>
+          <input type="date" id="data_lancamento" required />
+        </div>
+
+        <div class="campo-com-label">
+          <label for="vencimento">Data de Vencimento</label>
+          <input type="date" id="vencimento" required />
+        </div>
+
+        <input type="number" id="ciclo" placeholder="Ciclo em dias" required />
+        <input type="text" id="descricao" placeholder="Descrição" />
+
+        <button type="submit" class="botao-primario">Cadastrar Despesa Fixa</button>
+      </form>
+
+      <p id="mensagem" class="mensagem-status"></p>
+
+      <div class="tabela-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Valor</th>
+              <th>Ciclo</th>
+              <th>Lançamento</th>
+              <th>Vencimento</th>
+              <th>Descrição</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-despesas"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
 </body>
 </html>

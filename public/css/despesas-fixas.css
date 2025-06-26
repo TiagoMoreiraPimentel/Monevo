@@ -1,76 +1,120 @@
 .container {
-  max-width: 600px;
+  max-width: 900px;
   margin: 20px auto;
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
 }
 
-h2 {
+.titulo-secao {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
   color: var(--cor-primaria);
   text-align: center;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.formulario input,
+.formulario .campo-com-label {
+  width: 100%;
 }
 
-form input {
-  padding: 10px;
+.formulario input {
+  padding: 14px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  height: 48px; /* altura aumentada */
+  box-sizing: border-box;
 }
 
-form input[type="date"] {
+.campo-com-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo-com-label label {
+  margin-bottom: 4px;
+  font-weight: 600;
   color: var(--cor-texto);
+  font-size: 14px;
 }
 
-form button {
+.botao-primario {
+  grid-column: span 2;
   background-color: var(--cor-primaria);
   color: white;
   border: none;
-  padding: 12px;
+  padding: 14px;
+  height: 50px;
   border-radius: 8px;
   font-size: 16px;
+  transition: background-color 0.2s ease-in-out;
 }
 
-form button:hover {
+.botao-primario:hover {
   background-color: var(--cor-primaria-hover);
 }
 
-#lista-despesas {
-  margin-top: 30px;
+.mensagem-status {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
-.card-despesa {
-  background-color: var(--cor-fundo);
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  line-height: 1.5;
+.tabela-container {
+  overflow-x: auto;
 }
 
-.card-despesa strong {
-  color: var(--cor-primaria);
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.card-despesa button {
+table thead {
+  background-color: var(--cor-primaria);
+  color: white;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+  background-color: #f9f9f9;
+}
+
+table button {
   background-color: #c74934;
   color: white;
   border: none;
   padding: 6px 10px;
   border-radius: 6px;
-  float: right;
   font-size: 14px;
-  margin-top: 5px;
+  cursor: pointer;
 }
 
-.card-despesa button:hover {
+table button:hover {
   background-color: #a83828;
+}
+
+@media (max-width: 768px) {
+  .formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .botao-primario {
+    grid-column: span 1;
+  }
 }
