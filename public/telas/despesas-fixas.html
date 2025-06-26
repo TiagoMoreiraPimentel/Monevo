@@ -18,26 +18,21 @@
       <h1 class="titulo-secao">Despesas Fixas</h1>
 
       <form id="form-despesa-fixa" class="formulario">
-        <div class="linha-campos">
-          <input type="text" id="categoria" placeholder="Categoria" required />
-          <input type="text" id="valor" placeholder="Valor (R$)" required />
+        <input type="text" id="categoria" placeholder="Categoria" required />
+        <input type="text" id="valor" placeholder="Valor (R$)" required />
+
+        <div class="campo-com-label">
+          <label for="data_lancamento">Data de Lançamento</label>
+          <input type="date" id="data_lancamento" required />
         </div>
 
-        <div class="linha-campos">
-          <div class="campo-com-label">
-            <label for="data_lancamento">Data de Lançamento</label>
-            <input type="date" id="data_lancamento" required />
-          </div>
-          <div class="campo-com-label">
-            <label for="vencimento">Data de Vencimento</label>
-            <input type="date" id="vencimento" required />
-          </div>
+        <div class="campo-com-label">
+          <label for="vencimento">Data de Vencimento</label>
+          <input type="date" id="vencimento" required />
         </div>
 
-        <div class="linha-campos">
-          <input type="number" id="parcelas" placeholder="Quantidade de parcelas (em meses)" min="1" required />
-          <input type="text" id="descricao" placeholder="Descrição" />
-        </div>
+        <input type="number" id="parcelas" placeholder="Quantidade de parcelas (em meses)" min="1" required />
+        <input type="text" id="descricao" placeholder="Descrição" />
 
         <button type="submit" class="botao-primario">Cadastrar Despesa Fixa</button>
       </form>
@@ -49,8 +44,8 @@
           <thead>
             <tr>
               <th>Categoria</th>
-              <th>Parcela</th>
-              <th>Total</th>
+              <th>Valor (por parcela)</th>
+              <th>Valor Total</th>
               <th>Progresso</th>
               <th>Lançamento</th>
               <th>Vencimento</th>
