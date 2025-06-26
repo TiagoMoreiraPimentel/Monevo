@@ -1,11 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let idUsuario = localStorage.getItem("id_usuario");
+
+  if (!idUsuario || isNaN(parseInt(idUsuario))) {
+    alert("Usuário não logado. Faça login novamente.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  idUsuario = parseInt(idUsuario);
+
   const form = document.getElementById("form-despesa-fixa");
   const container = document.getElementById("despesas-fixas-container");
-  const idUsuario = parseInt(localStorage.getItem("id_usuario"));
-  if (!idUsuario) {
-    alert("Usuário não logado. Faça login novamente.");
-    window.location.href = "login.html"; // ou a rota correta
-  }
+
   async function carregarDespesas() {
     const res = await fetch("/api/despesas_fixas");
     const dados = await res.json();
@@ -26,8 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Valor:</strong> R$ ${parseFloat(despesa.valor).toFixed(2)}</p>
         <p><strong>Categoria:</strong> ${despesa.categoria}</p>
         <p><strong>Descrição:</strong> ${despesa.descricao || "-"}</p>
-        <p><strong>Lançamento:</strong> ${despesa.data_lancamento}</p>
-        <p><strong>Vencimento:</strong> ${despesa.vencimento}</p>
+        <p><strong>Lançamento:</strong> ${new Date(despesa.data_lancamento).toLocaleDateString("pt-BR")}</p>
+        <p><strong>Vencimento:</strong> ${new Date(despesa.vencimento).toLocaleDateString("pt-BR")}</p>
         <p><strong>Ciclo:</strong> ${despesa.ciclo} mês(es)</p>
         <button onclick="excluirDespesa(${despesa.id_despesa_fixa})">Excluir</button>
       `;
@@ -35,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  async function excluirDespesa(id) {
+  window.excluirDespesa = async function (id) {
     if (!confirm("Deseja excluir esta despesa fixa?")) return;
 
     await fetch(`/api/despesas_fixas?id=${id}`, {
@@ -43,13 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     carregarDespesas();
-  }
+  };
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const body = {
-      id_usuario: parseInt(idUsuario),
+      id_usuario: idUsuario,
       valor: parseFloat(form.valor.value),
       categoria: form.categoria.value,
       descricao: form.descricao.value,
@@ -58,14 +64,19 @@ document.addEventListener("DOMContentLoaded", () => {
       ciclo: parseInt(form.ciclo.value)
     };
 
-    await fetch("/api/despesas_fixas", {
+    const res = await fetch("/api/despesas_fixas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
-    form.reset();
-    carregarDespesas();
+    if (res.ok) {
+      form.reset();
+      carregarDespesas();
+    } else {
+      const erro = await res.json();
+      alert("Erro ao cadastrar despesa fixa:\n" + (erro.detalhes?.message || JSON.stringify(erro)));
+    }
   });
 
   carregarDespesas();
