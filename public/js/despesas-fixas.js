@@ -85,11 +85,16 @@ async function carregarDespesas() {
       const pagas = d.pagas || 0;
       const total = d.parcelas || 1;
       const restantes = Math.max(total - pagas, 0);
-      const totalCalculado = restantes * d.valor;
+
+      const valorParcela = d.valor;
+      const totalCalculado = total > 1 ? restantes * valorParcela : (pagas >= 1 ? 0 : valorParcela);
+      const valorTotalFormatado = `${totalCalculado.toFixed(2).replace(".", ",")}`;
+      const valorParcelaFormatado = `${valorParcela.toFixed(2).replace(".", ",")}`;
+
       const status = totalCalculado === 0 ? "Quitada" : "Pendente";
 
       let proximoVenc = "-";
-      if (restantes > 0) {
+      if (restantes > 0 && d.vencimento) {
         const vencBase = new Date(d.vencimento);
         vencBase.setMonth(vencBase.getMonth() + pagas);
         proximoVenc = vencBase.toLocaleDateString("pt-BR", { timeZone: "UTC" });
@@ -98,15 +103,17 @@ async function carregarDespesas() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${d.categoria}</td>
-        <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
-        <td>R$ ${total > 1 ? totalCalculado.toFixed(2).replace(".", ",") : d.valor.toFixed(2).replace(".", ",")}</td>
+        <td>${valorParcelaFormatado}</td>
+        <td>${valorTotalFormatado}</td>
         <td>${pagas}/${total}</td>
         <td>${proximoVenc}</td>
         <td>${status}</td>
-        <td>${d.descricao || "-"}</td>
+        <td style="white-space: pre-wrap;">${d.descricao || "-"}</td>
         <td>
-          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${total}, ${pagas}, '${d.vencimento}', ${d.valor})">📂</button>
-          <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${total}, ${pagas}, '${d.vencimento}', ${valorParcela})">📂</button>
+            <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
+          </div>
         </td>
       `;
       tabela.appendChild(tr);

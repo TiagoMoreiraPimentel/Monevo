@@ -1,5 +1,5 @@
 .container {
-  max-width: 900px;
+  max-width: 1300px; /* aumentado de 900px */
   margin: 20px auto;
   background: white;
   padding: 24px;
@@ -7,10 +7,11 @@
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
 }
 
+
 .titulo-secao {
   font-size: 1.5rem;
   margin-bottom: 20px;
-  color: var(--cor-primaria);
+  color: #000; /* preto */
   text-align: center;
 }
 
@@ -129,6 +130,14 @@ table button {
 table button:hover {
   background-color: #a83828;
 }
+
+.acoes-botoes {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 
 @media (max-width: 768px) {
   .linha-campos {
