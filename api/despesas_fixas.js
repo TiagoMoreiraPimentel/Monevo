@@ -29,19 +29,20 @@ export default async function handler(req, res) {
         body: JSON.stringify(body)
       });
 
-      const contentType = response.headers.get("content-type");
+      const text = await response.text();
 
-      if (contentType && contentType.includes("application/json")) {
-        const data = await response.json();
+      // Tenta fazer parse como JSON. Se falhar, retorna erro mais informativo.
+      try {
+        const json = JSON.parse(text);
 
         if (!response.ok) {
-          return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: data });
+          return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
         }
 
-        return res.status(201).json(data);
-      } else {
-        const texto = await response.text();
-        return res.status(500).json({ erro: "Resposta inválida do ORDS (POST)", detalhes: texto });
+        return res.status(201).json(json);
+      } catch (e) {
+        console.error("Resposta do ORDS não era JSON:", text);
+        return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
       }
     }
 

@@ -58,6 +58,22 @@ document.addEventListener("DOMContentLoaded", () => {
       form.valor.value.replace("R$", "").replace(/\s/g, "").replace(",", ".")
     );
 
+    if (isNaN(valorLimpo) || valorLimpo <= 0) {
+      alert("Informe um valor válido para a despesa.");
+      return;
+    }
+
+    if (!form.data_lancamento.value || !form.vencimento.value) {
+      alert("Preencha as datas de lançamento e vencimento.");
+      return;
+    }
+
+    const cicloInt = parseInt(form.ciclo.value);
+    if (isNaN(cicloInt)) {
+      alert("Informe um ciclo válido.");
+      return;
+    }
+
     const body = {
       id_usuario: idUsuario,
       valor: valorLimpo,
@@ -65,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       descricao: form.descricao.value,
       data_lancamento: form.data_lancamento.value + "T00:00:00Z",
       vencimento: form.vencimento.value + "T00:00:00Z",
-      ciclo: parseInt(form.ciclo.value)
+      ciclo: cicloInt
     };
 
     const res = await fetch("/api/despesas_fixas", {
