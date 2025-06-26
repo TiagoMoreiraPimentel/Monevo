@@ -54,7 +54,22 @@ loginForm.addEventListener("submit", async (e) => {
 
     if (usuario.nivel_acesso === "ADMINISTRADOR" || usuario.nivel_acesso === "COLABORADOR") {
       localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
-      window.location.href = "/telas/dashboard.html";
+
+      try {
+        const verif = await fetch(`/api/precisa_configurar?id_usuario=${usuario.id}`);
+        const dados = await verif.json();
+
+        if (dados.precisa_configurar) {
+          window.location.href = "/telas/configuracao.html";
+        } else {
+          window.location.href = "/telas/dashboard.html";
+        }
+      } catch (err) {
+        console.error("Erro ao verificar configuração obrigatória:", err);
+        msg.innerText = "Erro ao verificar configuração.";
+      }
+
+      return;
     }
 
     msg.innerText = `Acesso não autorizado: ${usuario.nivel_acesso}`;
