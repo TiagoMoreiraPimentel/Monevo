@@ -364,7 +364,7 @@ async function carregarTicketsTags() {
   }
 }
 
-window.onload = () => {
+document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
     alert("Acesso negado. Faça login.");
@@ -376,32 +376,36 @@ window.onload = () => {
   if (saudacao) saudacao.textContent = `Olá, ${usuario.nome}`;
 
   const botaoAdmin = document.getElementById("admin-only");
-  if (usuario.nivel_acesso === "ADMINISTRADOR") {
+  if (usuario.nivel_acesso === "ADMINISTRADOR" && botaoAdmin) {
     botaoAdmin.classList.remove("hidden");
     botaoAdmin.addEventListener("click", () => {
       window.location.href = "../telas/admin-usuarios.html";
     });
-  } else {
-    botaoAdmin.style.display = "none";
   }
 
+  // ✅ Define mês atual (01–12)
   const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
-  document.getElementById("mes").value = mesAtual;
+  const campoMes = document.getElementById("mes");
+  if (campoMes) campoMes.value = mesAtual;
 
+  // ✅ Define ano atual, adiciona ao select se necessário
   const anoAtual = String(new Date().getFullYear());
-  const selectAno = document.getElementById("ano");
-  const existe = [...selectAno.options].some(o => o.value === anoAtual);
-  if (!existe) {
-    const nova = document.createElement("option");
-    nova.value = anoAtual;
-    nova.text = anoAtual;
-    selectAno.appendChild(nova);
+  const campoAno = document.getElementById("ano");
+  if (campoAno) {
+    const existe = [...campoAno.options].some(opt => opt.value === anoAtual);
+    if (!existe) {
+      const nova = document.createElement("option");
+      nova.value = anoAtual;
+      nova.text = anoAtual;
+      campoAno.appendChild(nova);
+    }
+    campoAno.value = anoAtual;
   }
-  selectAno.value = anoAtual;
 
+  // ✅ Carrega os dados com mês/ano corretos
   carregarResumo();
   carregarTicketsTags();
-};
+});
 
 window.toggleSidebar = function () {
   document.getElementById("sidebar").classList.toggle("expanded");
@@ -415,6 +419,7 @@ function logout() {
 function toggleGrafico(botao) {
   const conteudo = botao.nextElementSibling;
   const aberto = conteudo.style.display === "block";
+
   conteudo.style.display = aberto ? "none" : "block";
   botao.textContent = (aberto ? "▶️" : "🔽") + " " + botao.textContent.slice(2);
 }
