@@ -11,10 +11,18 @@ export default async function handler(req, res) {
     }
 
     else if (req.method === "POST") {
-      const body = req.body;
+      const raw = req.body;
 
-      // Remover ID, caso venha no body por erro
-      delete body.id_despesa_fixa;
+      // Garantir formato correto
+      const body = {
+        id_usuario: parseInt(raw.id_usuario),
+        valor: parseFloat(raw.valor),
+        categoria: raw.categoria,
+        descricao: raw.descricao || "",
+        data_lancamento: raw.data_lancamento.includes("T") ? raw.data_lancamento : raw.data_lancamento + "T00:00:00Z",
+        vencimento: raw.vencimento.includes("T") ? raw.vencimento : raw.vencimento + "T00:00:00Z",
+        ciclo: parseInt(raw.ciclo || 1)
+      };
 
       const response = await fetch(baseURL, {
         method: "POST",
@@ -22,7 +30,10 @@ export default async function handler(req, res) {
         body: JSON.stringify(body)
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await response.json()
+        : await response.text();
 
       if (!response.ok) {
         return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: data });
@@ -35,9 +46,7 @@ export default async function handler(req, res) {
       const id = req.query.id;
       if (!id) return res.status(400).json({ erro: "ID não informado para exclusão" });
 
-      const response = await fetch(`${baseURL}/${id}`, {
-        method: "DELETE"
-      });
+      const response = await fetch(`${baseURL}/${id}`, { method: "DELETE" });
 
       if (!response.ok) {
         const error = await response.text();

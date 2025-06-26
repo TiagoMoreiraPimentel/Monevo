@@ -54,6 +54,7 @@ loginForm.addEventListener("submit", async (e) => {
 
     if (usuario.nivel_acesso === "ADMINISTRADOR" || usuario.nivel_acesso === "COLABORADOR") {
       localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+      localStorage.setItem("id_usuario", usuario.id); // <- ESSA LINHA FALTAVA
 
       try {
         const verif = await fetch(`/api/precisa_configurar?id_usuario=${usuario.id}`);
