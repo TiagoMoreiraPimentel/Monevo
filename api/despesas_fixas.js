@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
-  const baseURL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesa_fixa";
+  const baseURL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesas_fixa";
 
   try {
     if (req.method === "GET") {
@@ -30,27 +30,14 @@ export default async function handler(req, res) {
       });
 
       const text = await response.text();
-      console.log("Resposta bruta do ORDS:", text); // <-- já tem, mas realoque aqui
 
-      if (!response.ok) {
-        return res.status(response.status).json({
-          erro: "Erro ao cadastrar despesa",
-          statusCode: response.status,
-          detalhes: text
-        });
-      }
-
-      // Tenta fazer parse como JSON. Se falhar, retorna erro mais informativo.
       try {
         const json = JSON.parse(text);
-
         if (!response.ok) {
           return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
         }
-
         return res.status(201).json(json);
       } catch (e) {
-        console.error("Resposta do ORDS não era JSON:", text);
         return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
       }
     }
