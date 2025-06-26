@@ -90,7 +90,6 @@ async function carregarDespesas() {
       const totalCalculado = total > 1 ? restantes * valorParcela : (pagas >= 1 ? 0 : valorParcela);
       const valorTotalFormatado = `${totalCalculado.toFixed(2).replace(".", ",")}`;
       const valorParcelaFormatado = `${valorParcela.toFixed(2).replace(".", ",")}`;
-
       const status = totalCalculado === 0 ? "Quitada" : "Pendente";
 
       let proximoVenc = "-";
@@ -102,15 +101,15 @@ async function carregarDespesas() {
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${d.categoria}</td>
-        <td>${valorParcelaFormatado}</td>
-        <td>${valorTotalFormatado}</td>
-        <td>${pagas}/${total}</td>
-        <td>${proximoVenc}</td>
-        <td>${status}</td>
-        <td style="white-space: pre-wrap;">${d.descricao || "-"}</td>
-        <td>
-          <div style="display: flex; gap: 6px;">
+        <td data-label="Categoria">${d.categoria}</td>
+        <td data-label="Valor Parcela">${valorParcelaFormatado}</td>
+        <td data-label="Valor Total">${valorTotalFormatado}</td>
+        <td data-label="Progresso">${pagas}/${total}</td>
+        <td data-label="Próximo Vencimento">${proximoVenc}</td>
+        <td data-label="Status">${status}</td>
+        <td data-label="Descrição" style="white-space: pre-wrap;">${d.descricao || "-"}</td>
+        <td data-label="Ações">
+          <div class="acoes-botoes">
             <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${total}, ${pagas}, '${d.vencimento}', ${valorParcela})">📂</button>
             <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
           </div>
@@ -122,12 +121,6 @@ async function carregarDespesas() {
     console.error(err);
     mostrarMensagem("Erro ao carregar despesas.");
   }
-}
-
-function formatarData(dataISO) {
-  if (!dataISO) return "-";
-  const data = new Date(dataISO);
-  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 
 async function excluirDespesa(id) {
@@ -176,7 +169,7 @@ function toggleParcelas(botao, id, total, pagas, vencimentoInicial, valorParcela
         <input type="checkbox" id="p${id}_${i}" ${checked}
           onchange="atualizarParcela(${id}, ${i}, this.checked)" />
         <label for="p${id}_${i}">
-          Parcela ${i} — ${vencFormatado} — R$ ${valorParcela.toFixed(2).replace(".", ",")}
+          Parcela ${i} — ${vencFormatado} — ${valorParcela.toFixed(2).replace(".", ",")}
         </label>
       </div>
     `;
@@ -191,7 +184,6 @@ async function atualizarParcela(id, numero, marcado) {
   const res = await fetch("/api/despesas_fixas");
   const todas = await res.json();
   const despesa = todas.find(d => d.id_usuario === usuario.id && d.id_despesa_fixa === id);
-
   if (!despesa) return;
 
   let novaPagas = despesa.pagas || 0;
