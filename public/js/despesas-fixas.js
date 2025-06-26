@@ -22,15 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const categoria = document.getElementById("categoria").value.trim();
-    const ciclo = parseInt(document.getElementById("ciclo").value);
+    const parcelas = parseInt(document.getElementById("parcelas").value);
     const descricao = document.getElementById("descricao").value.trim();
     const valorFormatado = document.getElementById("valor").value;
     const valor = parseFloat(valorFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
     const data_lancamento = new Date(document.getElementById("data_lancamento").value + "T00:00:00").toISOString();
     const vencimento = new Date(document.getElementById("vencimento").value + "T00:00:00").toISOString();
 
-
-    if (!categoria || isNaN(valor) || isNaN(ciclo) || !data_lancamento || !vencimento) {
+    if (!categoria || isNaN(valor) || isNaN(parcelas) || !data_lancamento || !vencimento) {
       mostrarMensagem("Preencha todos os campos obrigatórios corretamente.");
       return;
     }
@@ -40,7 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
       categoria,
       valor,
       descricao,
-      ciclo,
+      parcelas,
+      pagas: 0,
       data_lancamento,
       vencimento
     };
@@ -86,11 +86,14 @@ async function carregarDespesas() {
       tr.innerHTML = `
         <td>${d.categoria}</td>
         <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
-        <td>${d.ciclo} dias</td>
+        <td>${d.pagas || 0}/${d.parcelas || 1}</td>
         <td>${formatarData(d.data_lancamento)}</td>
         <td>${formatarData(d.vencimento)}</td>
         <td>${d.descricao || "-"}</td>
-        <td><button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button></td>
+        <td>
+          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${d.parcelas}, ${d.pagas || 0})">📂</button>
+          <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
+        </td>
       `;
       tabela.appendChild(tr);
     });
@@ -123,5 +126,57 @@ async function excluirDespesa(id) {
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro de conexão.");
+  }
+}
+
+function toggleParcelas(botao, id, total, pagas) {
+  const tr = botao.closest("tr");
+  const existe = tr.nextElementSibling?.classList.contains("linha-parcelas");
+
+  if (existe) {
+    tr.nextElementSibling.remove();
+    return;
+  }
+
+  const novaLinha = document.createElement("tr");
+  novaLinha.classList.add("linha-parcelas");
+
+  let checkboxes = "";
+  for (let i = 1; i <= total; i++) {
+    const checked = i <= pagas ? "checked" : "";
+    checkboxes += `
+      <div>
+        <input type="checkbox" id="p${id}_${i}" ${checked} onchange="atualizarParcela(${id}, ${i}, this.checked)" />
+        <label for="p${id}_${i}">Parcela ${i}</label>
+      </div>
+    `;
+  }
+
+  novaLinha.innerHTML = `<td colspan="7"><div class="lista-parcelas">${checkboxes}</div></td>`;
+  tr.insertAdjacentElement("afterend", novaLinha);
+}
+
+async function atualizarParcela(id, numero, marcado) {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const res = await fetch("/api/despesas_fixas");
+  const todas = await res.json();
+  const despesa = todas.find(d => d.id_usuario === usuario.id && d.id_despesa_fixa === id);
+
+  if (!despesa) return;
+
+  let novaPagas = despesa.pagas || 0;
+  novaPagas = marcado
+    ? Math.max(novaPagas, numero)
+    : Math.min(novaPagas, numero - 1);
+
+  try {
+    await fetch("/api/despesas_fixas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...despesa, pagas: novaPagas })
+    });
+    carregarDespesas();
+  } catch (err) {
+    console.error("Erro ao atualizar parcelas:", err);
   }
 }

@@ -8,16 +8,18 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const novaDespesa = req.body;
+    const despesa = req.body;
 
     const bodyLimpo = {
-      id_usuario: novaDespesa.id_usuario,
-      valor: novaDespesa.valor,
-      categoria: novaDespesa.categoria,
-      descricao: novaDespesa.descricao,
-      ciclo: novaDespesa.ciclo,
-      data_lancamento: novaDespesa.data_lancamento,
-      vencimento: novaDespesa.vencimento
+      id_despesa_fixa: despesa.id_despesa_fixa || undefined,
+      id_usuario: despesa.id_usuario,
+      valor: despesa.valor,
+      categoria: despesa.categoria,
+      descricao: despesa.descricao,
+      parcelas: despesa.parcelas,
+      pagas: despesa.pagas,
+      data_lancamento: despesa.data_lancamento,
+      vencimento: despesa.vencimento
     };
 
     console.log("➡️ Enviando ao ORDS:", JSON.stringify(bodyLimpo, null, 2));
