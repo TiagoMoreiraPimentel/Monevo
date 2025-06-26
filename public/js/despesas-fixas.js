@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
 
     const novaDespesa = {
-      ID_USUARIO: id_usuario,
+      ID_USUARIO: usuario.id,
       DATA_REGISTRO: data,
       VALOR: valor,
       CATEGORIA: categoria,
