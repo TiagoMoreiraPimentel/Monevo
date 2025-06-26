@@ -112,8 +112,7 @@ table tr {
   border-top: none;
 }
 
-
-table tr:hover {
+table tbody tr:hover {
   background-color: #f9f9f9;
 }
 

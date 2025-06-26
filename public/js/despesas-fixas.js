@@ -1,5 +1,3 @@
-// JS - despesas-fixas.js atualizado
-
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -36,10 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const valor_total = parcelas > 1 ? valor * parcelas : valor;
+
     const novaDespesa = {
       id_usuario: usuario.id,
       categoria,
       valor,
+      valor_total,
       descricao,
       parcelas,
       pagas: 0,
@@ -73,12 +74,6 @@ function mostrarMensagem(msg) {
   document.getElementById("mensagem").innerText = msg;
 }
 
-function formatarData(dataISO) {
-  if (!dataISO) return "-";
-  const data = new Date(dataISO);
-  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-}
-
 async function carregarDespesas() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   const tabela = document.getElementById("tabela-despesas");
@@ -90,26 +85,28 @@ async function carregarDespesas() {
 
     tabela.innerHTML = "";
     minhas.forEach(d => {
-      const valorTotal = d.parcelas > 1 ? d.valor * d.parcelas - d.valor * (d.pagas || 0) : 0;
-      const status = valorTotal > 0 ? "Pendente" : "Quitada";
-
-      // calcular próxima data de vencimento
-      let proximoVenc = new Date(d.vencimento);
-      for (let i = 1; i < (d.pagas || 0); i++) {
-        proximoVenc.setMonth(proximoVenc.getMonth() + 1);
+      let venc = new Date(d.vencimento);
+      let proximoVencimento = "-";
+      if (d.pagas < d.parcelas) {
+        venc.setMonth(venc.getMonth() + d.pagas);
+        proximoVencimento = venc.toLocaleDateString("pt-BR", { timeZone: "UTC" });
       }
+
+      const totalCalculado = d.parcelas > 1 ? d.valor_total : d.valor;
+      const status = totalCalculado > 0 ? "Pendente" : "Quitada";
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${d.categoria}</td>
         <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
-        <td>${d.parcelas > 1 ? "R$ " + (d.valor * d.parcelas).toFixed(2).replace(".", ",") : "-"}</td>
-        <td>${d.pagas || 0}/${d.parcelas}</td>
-        <td>${d.parcelas > 1 ? formatarData(proximoVenc.toISOString()) : formatarData(d.vencimento)}</td>
+        <td>${d.pagas || 0}/${d.parcelas || 1}</td>
+        <td>${formatarData(d.data_lancamento)}</td>
+        <td>${proximoVencimento}</td>
+        <td>R$ ${totalCalculado.toFixed(2).replace(".", ",")}</td>
         <td>${status}</td>
         <td>${d.descricao || "-"}</td>
         <td>
-          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${d.parcelas}, ${d.pagas || 0}, '${d.vencimento}')">📂</button>
+          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${d.parcelas}, ${d.pagas || 0})">📂</button>
           <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
         </td>
       `;
@@ -121,70 +118,10 @@ async function carregarDespesas() {
   }
 }
 
-function toggleParcelas(botao, id, total, pagas, vencimento) {
-  const tr = botao.closest("tr");
-  const existe = tr.nextElementSibling?.classList.contains("linha-parcelas");
-
-  if (existe) {
-    tr.nextElementSibling.remove();
-    return;
-  }
-
-  const novaLinha = document.createElement("tr");
-  novaLinha.classList.add("linha-parcelas");
-
-  let checkboxes = "";
-  let venc = new Date(vencimento);
-  for (let i = 1; i <= total; i++) {
-    const checked = i <= pagas ? "checked" : "";
-    const vencParcela = new Date(venc);
-    vencParcela.setMonth(venc.getMonth() + (i - 1));
-    const dataFormatada = vencParcela.toLocaleDateString("pt-BR");
-
-    checkboxes += `
-      <div>
-        <input type="checkbox" id="p${id}_${i}" ${checked} onchange="atualizarParcela(${id}, ${i}, this.checked)" />
-        <label for="p${id}_${i}">Parcela ${i} - Vence em ${dataFormatada}</label>
-      </div>
-    `;
-  }
-
-  novaLinha.innerHTML = `<td colspan="8"><div class="lista-parcelas">${checkboxes}</div></td>`;
-  tr.insertAdjacentElement("afterend", novaLinha);
-}
-
-async function atualizarParcela(id, numero, marcado) {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  const res = await fetch("/api/despesas_fixas");
-  const todas = await res.json();
-  const despesa = todas.find(d => d.id_usuario === usuario.id && d.id_despesa_fixa === id);
-
-  if (!despesa) return;
-
-  let novaPagas = despesa.pagas || 0;
-  novaPagas = marcado
-    ? Math.max(novaPagas, numero)
-    : Math.min(novaPagas, numero - 1);
-
-  // 🧠 Calcular nova data de vencimento
-  let novaVencimento = null;
-  if (novaPagas < despesa.parcelas) {
-    const base = new Date(despesa.vencimento);
-    base.setMonth(base.getMonth() - (despesa.parcelas - 1));
-    base.setMonth(base.getMonth() + novaPagas);
-    novaVencimento = base.toISOString();
-  }
-
-  try {
-    await fetch("/api/despesas_fixas", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...despesa, pagas: novaPagas, vencimento: novaVencimento })
-    });
-    carregarDespesas();
-  } catch (err) {
-    console.error("Erro ao atualizar parcelas:", err);
-  }
+function formatarData(dataISO) {
+  if (!dataISO) return "-";
+  const data = new Date(dataISO);
+  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 
 async function excluirDespesa(id) {
@@ -204,5 +141,63 @@ async function excluirDespesa(id) {
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro de conexão.");
+  }
+}
+
+function toggleParcelas(botao, id, total, pagas) {
+  const tr = botao.closest("tr");
+  const existe = tr.nextElementSibling?.classList.contains("linha-parcelas");
+
+  if (existe) {
+    tr.nextElementSibling.remove();
+    return;
+  }
+
+  const novaLinha = document.createElement("tr");
+  novaLinha.classList.add("linha-parcelas");
+
+  let checkboxes = "";
+  for (let i = 1; i <= total; i++) {
+    const checked = i <= pagas ? "checked" : "";
+    checkboxes += `
+      <div>
+        <input type="checkbox" id="p${id}_${i}" ${checked} onchange="atualizarParcela(${id}, ${i}, this.checked)" />
+        <label for="p${id}_${i}">Parcela ${i}</label>
+      </div>
+    `;
+  }
+
+  novaLinha.innerHTML = `<td colspan="9"><div class="lista-parcelas">${checkboxes}</div></td>`;
+  tr.insertAdjacentElement("afterend", novaLinha);
+}
+
+async function atualizarParcela(id, numero, marcado) {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const res = await fetch("/api/despesas_fixas");
+  const todas = await res.json();
+  const despesa = todas.find(d => d.id_usuario === usuario.id && d.id_despesa_fixa === id);
+
+  if (!despesa) return;
+
+  let novaPagas = despesa.pagas || 0;
+  novaPagas = marcado
+    ? Math.max(novaPagas, numero)
+    : Math.min(novaPagas, numero - 1);
+
+  let novoValorTotal = despesa.parcelas > 1 ? (despesa.valor * (despesa.parcelas - novaPagas)) : 0;
+
+  try {
+    await fetch("/api/despesas_fixas", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...despesa,
+        pagas: novaPagas,
+        valor_total: novoValorTotal
+      })
+    });
+    carregarDespesas();
+  } catch (err) {
+    console.error("Erro ao atualizar parcelas:", err);
   }
 }
