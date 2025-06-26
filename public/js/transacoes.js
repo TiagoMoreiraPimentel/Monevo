@@ -12,6 +12,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const tagContainer = document.getElementById("container-tag");
   const selectTag = document.getElementById("tag-distribuicao");
   const selectConta = document.getElementById("conta");
+  const inputValor = document.getElementById("valor");
+
+  // Máscara automática de moeda brasileira
+  inputValor.addEventListener("input", () => {
+    let valor = inputValor.value.replace(/\D/g, "");
+    valor = (parseInt(valor, 10) / 100).toFixed(2);
+    inputValor.value = parseFloat(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  });
 
   document.getElementById("btn-toggle-form").addEventListener("click", () => {
     document.getElementById("form-transacao").classList.toggle("hidden");
@@ -32,7 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const idConta = parseInt(selectConta.value);
     const tipo = selectTipo.value;
-    const valor = parseFloat(document.getElementById("valor").value);
+    const valorInput = document.getElementById("valor").value;
+    const valor = parseFloat(valorInput.replace(/[^\d,-]/g, "").replace(",", "."));
     const dataBruta = document.getElementById("data").value;
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value.trim();

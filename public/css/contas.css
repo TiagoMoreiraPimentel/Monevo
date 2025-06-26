@@ -1,3 +1,8 @@
+/* ✅ Correção aplicada */
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   font-family: sans-serif;
   margin: 0;
@@ -20,9 +25,9 @@ body {
 }
 
 .mobile-toggle {
-  position: absolute;
+  position: fixed;
   top: 0.5rem;
-  right: 0.8rem;
+  right: 1rem;
   z-index: 2000;
   background-color: #008B65;
   color: white;
@@ -32,7 +37,6 @@ body {
   padding: 0.4rem 0.7rem;
   border-radius: 5px;
 }
-
 
 .conteudo {
   flex: 1;
@@ -207,11 +211,3 @@ th, td {
     margin-top: 2rem;
   }
 }
-
-/* BOTÃO TOGGLE DO MENU (APARECE FORA DA SIDEBAR) */
-.toggle-btn {
-  right: 2rem; /* ajustado para afastar da borda */
-}
-
-
-
