@@ -99,10 +99,9 @@ async function carregarDespesas() {
       tr.innerHTML = `
         <td>${d.categoria}</td>
         <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
-        <td>${d.pagas || 0}/${d.parcelas || 1}</td>
-        <td>${formatarData(d.data_lancamento)}</td>
-        <td>${proximoVencimento}</td>
         <td>R$ ${totalCalculado.toFixed(2).replace(".", ",")}</td>
+        <td>${d.pagas || 0}/${d.parcelas || 1}</td>
+        <td>${proximoVencimento}</td>
         <td>${status}</td>
         <td>${d.descricao || "-"}</td>
         <td>
@@ -110,6 +109,7 @@ async function carregarDespesas() {
           <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
         </td>
       `;
+
       tabela.appendChild(tr);
     });
   } catch (err) {
