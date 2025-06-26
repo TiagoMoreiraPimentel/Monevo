@@ -1,3 +1,5 @@
+// JS - despesas-fixas.js atualizado
+
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
@@ -41,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
       descricao,
       parcelas,
       pagas: 0,
-      valor_total: parcelas > 1 ? valor * parcelas : null,
       data_lancamento,
       vencimento
     };
@@ -72,6 +73,12 @@ function mostrarMensagem(msg) {
   document.getElementById("mensagem").innerText = msg;
 }
 
+function formatarData(dataISO) {
+  if (!dataISO) return "-";
+  const data = new Date(dataISO);
+  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
+
 async function carregarDespesas() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   const tabela = document.getElementById("tabela-despesas");
@@ -83,18 +90,26 @@ async function carregarDespesas() {
 
     tabela.innerHTML = "";
     minhas.forEach(d => {
-      const restante = (d.valor_total || (d.valor * d.parcelas)) - (d.valor * (d.pagas || 0));
+      const valorTotal = d.parcelas > 1 ? d.valor * d.parcelas - d.valor * (d.pagas || 0) : 0;
+      const status = valorTotal > 0 ? "Pendente" : "Quitada";
+
+      // calcular próxima data de vencimento
+      let proximoVenc = new Date(d.vencimento);
+      for (let i = 1; i < (d.pagas || 0); i++) {
+        proximoVenc.setMonth(proximoVenc.getMonth() + 1);
+      }
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${d.categoria}</td>
         <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
-        <td>R$ ${restante.toFixed(2).replace(".", ",")}</td>
-        <td>${d.pagas || 0}/${d.parcelas || 1}</td>
-        <td>${formatarData(d.data_lancamento)}</td>
-        <td>${formatarData(d.vencimento)}</td>
+        <td>${d.parcelas > 1 ? "R$ " + (d.valor * d.parcelas).toFixed(2).replace(".", ",") : "-"}</td>
+        <td>${d.pagas || 0}/${d.parcelas}</td>
+        <td>${d.parcelas > 1 ? formatarData(proximoVenc.toISOString()) : formatarData(d.vencimento)}</td>
+        <td>${status}</td>
         <td>${d.descricao || "-"}</td>
         <td>
-          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${d.parcelas}, ${d.pagas || 0})">📂</button>
+          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${d.parcelas}, ${d.pagas || 0}, '${d.vencimento}')">📂</button>
           <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
         </td>
       `;
@@ -106,33 +121,7 @@ async function carregarDespesas() {
   }
 }
 
-function formatarData(dataISO) {
-  if (!dataISO) return "-";
-  const data = new Date(dataISO);
-  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-}
-
-async function excluirDespesa(id) {
-  if (!confirm("Deseja excluir esta despesa fixa?")) return;
-
-  try {
-    const res = await fetch(`/api/despesas_fixas?id=${id}`, {
-      method: "DELETE"
-    });
-
-    if (res.ok) {
-      mostrarMensagem("Despesa excluída.");
-      carregarDespesas();
-    } else {
-      mostrarMensagem("Erro ao excluir.");
-    }
-  } catch (err) {
-    console.error(err);
-    mostrarMensagem("Erro de conexão.");
-  }
-}
-
-function toggleParcelas(botao, id, total, pagas) {
+function toggleParcelas(botao, id, total, pagas, vencimento) {
   const tr = botao.closest("tr");
   const existe = tr.nextElementSibling?.classList.contains("linha-parcelas");
 
@@ -145,12 +134,17 @@ function toggleParcelas(botao, id, total, pagas) {
   novaLinha.classList.add("linha-parcelas");
 
   let checkboxes = "";
+  let venc = new Date(vencimento);
   for (let i = 1; i <= total; i++) {
     const checked = i <= pagas ? "checked" : "";
+    const vencParcela = new Date(venc);
+    vencParcela.setMonth(venc.getMonth() + (i - 1));
+    const dataFormatada = vencParcela.toLocaleDateString("pt-BR");
+
     checkboxes += `
       <div>
         <input type="checkbox" id="p${id}_${i}" ${checked} onchange="atualizarParcela(${id}, ${i}, this.checked)" />
-        <label for="p${id}_${i}">Parcela ${i}</label>
+        <label for="p${id}_${i}">Parcela ${i} - Vence em ${dataFormatada}</label>
       </div>
     `;
   }
@@ -172,20 +166,34 @@ async function atualizarParcela(id, numero, marcado) {
     ? Math.max(novaPagas, numero)
     : Math.min(novaPagas, numero - 1);
 
-  const bodyAtualizado = {
-    ...despesa,
-    pagas: novaPagas,
-    valor_total: despesa.parcelas > 1 ? despesa.valor * despesa.parcelas : null
-  };
-
   try {
     await fetch("/api/despesas_fixas", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bodyAtualizado)
+      body: JSON.stringify({ ...despesa, pagas: novaPagas })
     });
     carregarDespesas();
   } catch (err) {
     console.error("Erro ao atualizar parcelas:", err);
+  }
+}
+
+async function excluirDespesa(id) {
+  if (!confirm("Deseja excluir esta despesa fixa?")) return;
+
+  try {
+    const res = await fetch(`/api/despesas_fixas?id=${id}`, {
+      method: "DELETE"
+    });
+
+    if (res.ok) {
+      mostrarMensagem("Despesa excluída.");
+      carregarDespesas();
+    } else {
+      mostrarMensagem("Erro ao excluir.");
+    }
+  } catch (err) {
+    console.error(err);
+    mostrarMensagem("Erro de conexão.");
   }
 }
