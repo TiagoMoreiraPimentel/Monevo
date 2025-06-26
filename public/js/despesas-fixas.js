@@ -1,97 +1,75 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("form-despesa-fixa");
-  const valorInput = document.getElementById("valor");
-  const cicloInput = document.getElementById("ciclo");
-  const totalFixasSpan = document.getElementById("total-fixas");
+export default async function handler(req, res) {
+  const BASE_URL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesa_fixa/";
 
-  let despesasFixas = [];
-
-  function formatarMoeda(valor) {
-    return valor.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-      minimumFractionDigits: 2
-    });
-  }
-
-  function limparMascara(valorStr) {
-    if (!valorStr) return 0;
-    const somenteNumeros = valorStr.replace(/[^\d,]/g, "").replace(",", ".");
-    return parseFloat(somenteNumeros) || 0;
-  }
-
-  function aplicarMascaraMoeda(campo) {
-    let valor = campo.value.replace(/\D/g, "");
-    valor = (parseFloat(valor) / 100).toFixed(2);
-    campo.value = Number(valor).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-  }
-
-  valorInput.addEventListener("input", () => {
-    aplicarMascaraMoeda(valorInput);
-  });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const data = document.getElementById("data").value;
-    const valorFormatado = valorInput.value;
-    const valor = limparMascara(valorFormatado);
-
-    console.log("Valor formatado:", valorFormatado);
-    console.log("Valor numérico:", valor);
-
-    const categoria = document.getElementById("categoria").value;
-    const descricao = document.getElementById("descricao").value;
-    const vencimento = document.getElementById("vencimento").value;
-    const ciclo = parseInt(cicloInput.value);
-
-    console.log({ data, valor, categoria, vencimento, ciclo });
-
-    if (!data || valor <= 0 || !categoria || !vencimento || isNaN(ciclo) || ciclo < 1) {
-      alert("Preencha todos os campos obrigatórios corretamente.");
-      return;
-    }
-
-    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-
-    const body = {
-      id_usuario: usuario.id,
+  if (req.method === "POST") {
+    const {
+      id_usuario,
       data,
       valor,
       categoria,
       descricao,
       vencimento,
       ciclo
+    } = req.body;
+
+    console.log("📩 Requisição POST recebida:");
+    console.log("Body recebido:", JSON.stringify(req.body, null, 2));
+
+    if (!id_usuario || !data || !valor || !categoria || !vencimento) {
+      return res.status(400).send("Campos obrigatórios ausentes.");
+    }
+
+    const payload = {
+      ID_USUARIO: id_usuario,
+      DATA_REGISTRO: data,
+      VALOR: valor,
+      CATEGORIA: categoria,
+      DESCRICAO: descricao?.trim() || null,
+      DATA_VENCIMENTO: vencimento,
+      CICLO_TOTAL: ciclo || 1,
+      CICLO_PAGO: 0,
+      CONCLUIDO: "N"
     };
 
-    console.log("📦 Enviando para API:", JSON.stringify(body, null, 2));
+    console.log("📤 Enviando para ORDS:", JSON.stringify(payload, null, 2));
 
-    fetch("/api/despesas_fixas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Erro ao salvar despesa.");
-      return res.json();
-    })
-    .then(() => {
-      despesasFixas.push({ data, valor, categoria, descricao, vencimento, ciclo, pagos: 0 });
-      form.reset();
-      atualizarTotal();
-      alert("Despesa fixa registrada com sucesso!");
-    })
-    .catch(err => {
-      console.error("Erro ao registrar despesa fixa:", err);
-      alert("Erro ao registrar a despesa. Tente novamente.");
-    });
-  });
+    try {
+      const resposta = await fetch(BASE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-  function atualizarTotal() {
-    const total = despesasFixas.reduce((soma, d) => soma + d.valor, 0);
-    totalFixasSpan.textContent = formatarMoeda(total);
+      if (!resposta.ok) {
+        const erroTexto = await resposta.text();
+        console.error("❌ Erro do ORDS:\nStatus:", resposta.status, "\nDetalhes:", erroTexto);
+        return res.status(500).send("Erro ao salvar despesa.");
+      }
+
+      return res.status(201).send("Despesa registrada com sucesso.");
+    } catch (erro) {
+      console.error("❌ Erro na requisição ORDS:", erro);
+      return res.status(500).send("Erro ao salvar despesa.");
+    }
   }
-});
+
+  if (req.method === "GET") {
+    const { id_usuario } = req.query;
+
+    if (!id_usuario) {
+      return res.status(400).send("ID do usuário não informado.");
+    }
+
+    try {
+      const resposta = await fetch(BASE_URL);
+      const json = await resposta.json();
+      const despesas = json.items.filter(d => d.ID_USUARIO == id_usuario);
+      return res.status(200).json(despesas);
+    } catch (erro) {
+      console.error("Erro ao buscar despesas:", erro);
+      return res.status(500).send("Erro ao buscar despesas.");
+    }
+  }
+
+  return res.status(405).send("Método não permitido.");
+}
