@@ -15,7 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function limparMascara(valorStr) {
-    return parseFloat(valorStr.replace(/\./g, "").replace(",", "."));
+    if (!valorStr) return 0;
+    const somenteNumeros = valorStr.replace(/[^\d,]/g, "").replace(",", ".");
+    return parseFloat(somenteNumeros) || 0;
   }
 
   function aplicarMascaraMoeda(campo) {
@@ -37,6 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = document.getElementById("data").value;
     const valorFormatado = valorInput.value;
     const valor = Number.isNaN(limparMascara(valorFormatado)) ? 0 : limparMascara(valorFormatado);
+
+    console.log("Valor formatado:", valorFormatado);
+    console.log("Valor numérico:", valor);
+
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value;
     const vencimento = document.getElementById("vencimento").value;
