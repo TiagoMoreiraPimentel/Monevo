@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = document.getElementById("data").value;
     const valorFormatado = valorInput.value;
-    const valor = Number.isNaN(limparMascara(valorFormatado)) ? 0 : limparMascara(valorFormatado);
+    const valor = limparMascara(valorFormatado);
 
     console.log("Valor formatado:", valorFormatado);
     console.log("Valor numérico:", valor);
@@ -55,25 +55,24 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-    const novaDespesa = {
+    const body = {
       id_usuario: usuario.id,
-      data_registro: data,
-      valor: valor,
-      categoria: categoria,
-      descricao: descricao?.trim() || null,
-      data_vencimento: vencimento,
-      ciclo_total: ciclo || 1,
-      ciclo_pago: 0,
-      concluido: "N"
+      data,
+      valor,
+      categoria,
+      descricao,
+      vencimento,
+      ciclo
     };
+
+    console.log("📦 Enviando para API:", JSON.stringify(body, null, 2));
 
     fetch("/api/despesas_fixas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(novaDespesa)
+      body: JSON.stringify(body)
     })
     .then(res => {
       if (!res.ok) throw new Error("Erro ao salvar despesa.");
@@ -89,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Erro ao registrar despesa fixa:", err);
       alert("Erro ao registrar a despesa. Tente novamente.");
     });
-
   });
 
   function atualizarTotal() {
