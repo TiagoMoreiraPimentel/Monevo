@@ -1,68 +1,73 @@
 export default async function handler(req, res) {
   const BASE_URL = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesa_fixa/";
 
-  if (req.method === "GET") {
-    const { id_usuario } = req.query;
-
-    if (!id_usuario) {
-      return res.status(400).json({ erro: "ID do usuário é obrigatório." });
-    }
-
-    try {
-      const resposta = await fetch(BASE_URL);
-      const json = await resposta.json();
-      const dadosUsuario = json.items.filter(d => d.id_usuario == id_usuario);
-      return res.status(200).json(dadosUsuario);
-    } catch (error) {
-      console.error("Erro ao buscar despesas fixas:", error);
-      return res.status(500).json({ erro: "Erro ao buscar despesas fixas." });
-    }
-  }
-
   if (req.method === "POST") {
     const {
       id_usuario,
+      data,
       valor,
       categoria,
       descricao,
-      data_vencimento,
-      ciclo_total
+      vencimento,
+      ciclo
     } = req.body;
 
-    if (!id_usuario || !valor || !categoria || !data_vencimento) {
-      return res.status(400).json({ erro: "Campos obrigatórios não informados." });
+    if (!id_usuario || !data || !valor || !categoria || !vencimento) {
+      return res.status(400).send("Campos obrigatórios ausentes.");
     }
 
-    const payload = {
+    const novaDespesa = {
       id_usuario,
+      data_registro: data,
       valor,
       categoria,
-      descricao: descricao || "",
-      data_registro: new Date().toISOString().split("T")[0],
-      data_vencimento,
-      ciclo_total: ciclo_total || 1,
+      descricao: descricao?.trim() || null,
+      data_vencimento: vencimento,
+      ciclo_total: ciclo || 1,
       ciclo_pago: 0,
       concluido: "N"
     };
+
+    console.log("Enviando para ORDS:", JSON.stringify(novaDespesa, null, 2));
 
     try {
       const resposta = await fetch(BASE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(novaDespesa)
       });
 
       if (!resposta.ok) {
         const erroTexto = await resposta.text();
-        throw new Error(erroTexto);
+        console.error("Erro ORDS:", erroTexto);
+        return res.status(500).send("Erro ao salvar despesa.");
       }
 
-      return res.status(201).json({ mensagem: "Despesa fixa registrada com sucesso." });
-    } catch (error) {
-      console.error("Erro ao registrar despesa fixa:", error);
-      return res.status(500).json({ erro: "Erro ao registrar despesa fixa." });
+      return res.status(201).send("Despesa registrada com sucesso.");
+    } catch (erro) {
+      console.error("Erro ao registrar despesa:", erro);
+      return res.status(500).send("Erro ao salvar despesa.");
     }
   }
 
-  return res.status(405).send("Método não permitido.");
+  if (req.method === "GET") {
+    const { id_usuario } = req.query;
+
+    if (!id_usuario) {
+      return res.status(400).send("ID do usuário não informado.");
+    }
+
+    try {
+      const resposta = await fetch(BASE_URL);
+      const json = await resposta.json();
+      const despesas = json.items.filter(d => d.id_usuario == id_usuario);
+
+      return res.status(200).json(despesas);
+    } catch (erro) {
+      console.error("Erro ao buscar despesas:", erro);
+      return res.status(500).send("Erro ao buscar despesas.");
+    }
+  }
+
+  res.status(405).send("Método não permitido.");
 }
