@@ -1,61 +1,22 @@
 export default async function handler(req, res) {
   const BASE = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_config/";
 
-  if (req.method === "GET") {
-    const { id_usuario } = req.query;
-    if (!id_usuario) return res.status(400).send("id_usuario obrigatório.");
-
-    try {
-      const r = await fetch(BASE);
-      const json = await r.json();
-      const filtradas = (json.items || []).filter(c => c.id_usuario == id_usuario);
-      return res.status(200).json(filtradas);
-    } catch (err) {
-      console.error("Erro GET:", err);
-      return res.status(500).send("Erro ao buscar configurações.");
-    }
+  if (req.method !== "GET") {
+    return res.status(405).send("Método não permitido.");
   }
 
-  if (req.method === "POST") {
-    try {
-      const { id_usuario, configuracoes } = req.body;
+  const { id_usuario } = req.query;
+  if (!id_usuario) return res.status(400).send("id_usuario obrigatório.");
 
-      if (!id_usuario || !Array.isArray(configuracoes)) {
-        return res.status(400).send("Formato inválido.");
-      }
+  try {
+    const r = await fetch(BASE);
+    const json = await r.json();
+    const configuracoes = (json.items || []).filter(c => c.id_usuario == id_usuario);
 
-      // Consulta todas as configurações existentes
-      const r = await fetch(BASE);
-      const json = await r.json();
-      const existentes = (json.items || []).filter(item => item.id_usuario == id_usuario);
-
-      // Deleta configurações existentes do usuário
-      for (const item of existentes) {
-        await fetch(`${BASE}${item.id_distribuicao}`, {
-          method: "DELETE"
-        });
-      }
-
-      // Insere novas configurações com dia_renovacao
-      for (const conf of configuracoes) {
-        await fetch(BASE, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_usuario,
-            nome_categoria: conf.nome_categoria,
-            porcentagem: conf.porcentagem,
-            dia_renovacao: conf.dia_renovacao ?? null
-          })
-        });
-      }
-
-      return res.status(201).send("Configurações atualizadas.");
-    } catch (err) {
-      console.error("Erro POST:", err);
-      return res.status(500).send("Erro ao salvar configuração.");
-    }
+    const precisaConfigurar = configuracoes.length === 0;
+    return res.status(200).json({ precisa_configurar: precisaConfigurar });
+  } catch (err) {
+    console.error("Erro ao verificar configuração inicial:", err);
+    return res.status(500).send("Erro ao verificar configuração.");
   }
-
-  res.status(405).send("Método não permitido.");
 }
