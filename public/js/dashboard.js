@@ -385,9 +385,22 @@ document.addEventListener("DOMContentLoaded", () => {
     botaoAdmin.style.display = "none";
   }
 
+  // ✅ Selecionar mês atual
   document.getElementById("mes").value = String(new Date().getMonth() + 1).padStart(2, "0");
-  document.getElementById("ano").value = String(new Date().getFullYear());
 
+  // ✅ Selecionar ano atual, mesmo que ainda não esteja nas opções
+  const anoAtual = String(new Date().getFullYear());
+  const selectAno = document.getElementById("ano");
+  const optionExiste = [...selectAno.options].some(opt => opt.value === anoAtual);
+  if (!optionExiste) {
+    const novaOption = document.createElement("option");
+    novaOption.value = anoAtual;
+    novaOption.text = anoAtual;
+    selectAno.appendChild(novaOption);
+  }
+  selectAno.value = anoAtual;
+
+  // ✅ Aplicar filtro imediatamente
   carregarResumo();
   carregarTicketsTags();
 });

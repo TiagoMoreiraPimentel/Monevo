@@ -33,6 +33,7 @@ body {
   border-radius: 5px;
 }
 
+
 .conteudo {
   flex: 1;
   max-width: 900px;
@@ -206,3 +207,11 @@ th, td {
     margin-top: 2rem;
   }
 }
+
+/* BOTÃO TOGGLE DO MENU (APARECE FORA DA SIDEBAR) */
+.toggle-btn {
+  right: 2rem; /* ajustado para afastar da borda */
+}
+
+
+
