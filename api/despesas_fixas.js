@@ -24,22 +24,29 @@ export default async function handler(req, res) {
 
       console.log("Enviando ao ORDS:", JSON.stringify(body, null, 2));
 
-      const response = await fetch(baseURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      const text = await response.text();
-
       try {
-        const json = JSON.parse(text);
-        if (!response.ok) {
-          return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
+        const response = await fetch(baseURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const text = await response.text();
+        console.log("Resposta bruta do ORDS (POST):", text);
+
+        try {
+          const json = JSON.parse(text);
+          if (!response.ok) {
+            return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
+          }
+          return res.status(201).json(json);
+        } catch (e) {
+          return res.status(500).json({ erro: "Resposta inesperada do ORDS", texto_bruto: text });
         }
-        return res.status(201).json(json);
-      } catch (e) {
-        return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
+
+      } catch (err) {
+        console.error("Erro de rede ao enviar POST ao ORDS:", err);
+        return res.status(500).json({ erro: "Erro de rede ao enviar ao ORDS", detalhes: err.message });
       }
     }
 
