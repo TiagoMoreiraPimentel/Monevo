@@ -13,7 +13,8 @@ export default async function handler(req, res) {
         return res.status(200).json(data);
       } else {
         const texto = await response.text();
-        return res.status(500).json({ erro: "Resposta inválida do ORDS (GET)", detalhes: texto });
+        console.error("Resposta bruta do ORDS (POST):", text);
+        return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
       }
     }
 
