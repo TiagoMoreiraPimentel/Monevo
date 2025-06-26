@@ -56,19 +56,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    despesasFixas.push({
-      data,
+    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    const body = {
+      id_usuario: usuario.id,
+      data_registro: data,
       valor,
       categoria,
       descricao,
-      vencimento,
-      ciclo,
-      pagos: 0
+      data_vencimento: vencimento,
+      ciclo_total: ciclo
+    };
+
+    fetch("/api/despesas_fixas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Erro ao salvar despesa.");
+      return res.json();
+    })
+    .then(() => {
+      despesasFixas.push({ data, valor, categoria, descricao, vencimento, ciclo, pagos: 0 });
+      form.reset();
+      atualizarTotal();
+      alert("Despesa fixa registrada com sucesso!");
+    })
+    .catch(err => {
+      console.error("Erro ao registrar despesa fixa:", err);
+      alert("Erro ao registrar a despesa. Tente novamente.");
     });
 
-    form.reset();
-    atualizarTotal();
-    alert("Despesa fixa registrada.");
   });
 
   function atualizarTotal() {
