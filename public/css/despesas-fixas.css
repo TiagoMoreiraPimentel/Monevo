@@ -1,0 +1,54 @@
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input, select, button {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  background: var(--cor-primaria);
+  color: white;
+  border: none;
+}
+
+button:hover {
+  background: var(--cor-primaria-hover);
+}
+
+#checklist-pagamentos {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  gap: 6px;
+}
+
+#checklist-pagamentos label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.total-fixo {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.hidden {
+  display: none;
+}

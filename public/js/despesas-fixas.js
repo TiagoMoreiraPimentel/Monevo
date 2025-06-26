@@ -1,0 +1,69 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("form-despesa-fixa");
+  const valorInput = document.getElementById("valor");
+  const cicloInput = document.getElementById("ciclo");
+  const totalFixasSpan = document.getElementById("total-fixas");
+
+  let despesasFixas = [];
+
+  function formatarMoeda(valor) {
+    return valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2
+    });
+  }
+
+  function limparMascara(valorStr) {
+    return parseFloat(valorStr.replace(/\./g, "").replace(",", "."));
+  }
+
+  function aplicarMascaraMoeda(campo) {
+    let valor = campo.value.replace(/\D/g, "");
+    valor = (parseFloat(valor) / 100).toFixed(2);
+    campo.value = Number(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  }
+
+  valorInput.addEventListener("input", () => {
+    aplicarMascaraMoeda(valorInput);
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const data = document.getElementById("data").value;
+    const valorFormatado = valorInput.value;
+    const valor = limparMascara(valorFormatado);
+    const categoria = document.getElementById("categoria").value;
+    const descricao = document.getElementById("descricao").value;
+    const vencimento = document.getElementById("vencimento").value;
+    const ciclo = parseInt(cicloInput.value);
+
+    if (!data || isNaN(valor) || !categoria || !vencimento || !ciclo || ciclo < 1) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    despesasFixas.push({
+      data,
+      valor,
+      categoria,
+      descricao,
+      vencimento,
+      ciclo,
+      pagos: 0
+    });
+
+    form.reset();
+    atualizarTotal();
+    alert("Despesa fixa registrada.");
+  });
+
+  function atualizarTotal() {
+    const total = despesasFixas.reduce((soma, d) => soma + d.valor, 0);
+    totalFixasSpan.textContent = formatarMoeda(total);
+  }
+});
