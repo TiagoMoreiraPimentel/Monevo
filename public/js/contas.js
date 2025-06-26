@@ -8,19 +8,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   carregarContas();
 
+  const inputSaldo = document.getElementById("saldo");
+
+  // Formatar valor enquanto digita
+  inputSaldo.addEventListener("input", () => {
+    let valor = inputSaldo.value.replace(/\D/g, "");
+    valor = (parseInt(valor, 10) / 100).toFixed(2);
+    inputSaldo.value = parseFloat(valor).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+  });
+
   document.getElementById("form-conta").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const nome = document.getElementById("nome").value.trim();
     const tipo = document.getElementById("tipo").value;
-    const saldo = parseFloat(document.getElementById("saldo").value);
+    const saldoFormatado = document.getElementById("saldo").value;
+    const saldo = parseFloat(saldoFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
 
     if (!nome || isNaN(saldo)) {
       mostrarMensagem("Preencha todos os campos corretamente.");
       return;
     }
 
-    // Verifica duplicidade
     const todasContas = await fetch("/api/contas").then(r => r.json());
     const minhasContas = todasContas.filter(c => c.id_usuario === usuario.id);
     const contaJaExiste = minhasContas.some(c =>
@@ -51,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         const contaCriada = await res.json();
 
-        // Criar transação de Saldo Inicial
         const transacaoInicial = {
           id_usuario: usuario.id,
           id_conta: contaCriada.id_conta,
@@ -125,7 +136,6 @@ window.excluirConta = async function (id) {
   const confirmacao = confirm("Deseja excluir esta conta? Todas as transações devem ser removidas antes.");
   if (!confirmacao) return;
 
-  // Verifica se há transações vinculadas
   const transacoes = await fetch("/api/transacoes").then(r => r.json());
   const vinculadas = transacoes.some(t => t.id_conta == id);
 
@@ -152,4 +162,3 @@ window.excluirConta = async function (id) {
     mostrarMensagem("Erro de conexão ao excluir conta.");
   }
 };
-
