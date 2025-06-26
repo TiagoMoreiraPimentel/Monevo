@@ -36,16 +36,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = document.getElementById("data").value;
     const valorFormatado = valorInput.value;
-    const valor = limparMascara(valorFormatado);
+    const valor = Number.isNaN(limparMascara(valorFormatado)) ? 0 : limparMascara(valorFormatado);
     const categoria = document.getElementById("categoria").value;
     const descricao = document.getElementById("descricao").value;
     const vencimento = document.getElementById("vencimento").value;
     const ciclo = parseInt(cicloInput.value);
 
-    if (!data || isNaN(valor) || !categoria || !vencimento || !ciclo || ciclo < 1) {
-      alert("Preencha todos os campos obrigatórios.");
+    console.log({ data, valor, categoria, vencimento, ciclo });
+
+    if (!data || valor <= 0 || !categoria || !vencimento || isNaN(ciclo) || ciclo < 1) {
+      alert("Preencha todos os campos obrigatórios corretamente.");
       return;
     }
+
 
     despesasFixas.push({
       data,
