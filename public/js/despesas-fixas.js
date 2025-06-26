@@ -34,13 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const valor_total = parcelas > 1 ? valor * parcelas : valor;
-
     const novaDespesa = {
       id_usuario: usuario.id,
       categoria,
       valor,
-      valor_total,
       descricao,
       parcelas,
       pagas: 0,
@@ -85,31 +82,33 @@ async function carregarDespesas() {
 
     tabela.innerHTML = "";
     minhas.forEach(d => {
-      let venc = new Date(d.vencimento);
-      let proximoVencimento = "-";
-      if (d.pagas < d.parcelas) {
-        venc.setMonth(venc.getMonth() + d.pagas);
-        proximoVencimento = venc.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-      }
+      const pagas = d.pagas || 0;
+      const total = d.parcelas || 1;
+      const restantes = Math.max(total - pagas, 0);
+      const totalCalculado = restantes * d.valor;
+      const status = totalCalculado === 0 ? "Quitada" : "Pendente";
 
-      const totalCalculado = d.parcelas > 1 ? d.valor_total : d.valor;
-      const status = totalCalculado > 0 ? "Pendente" : "Quitada";
+      let proximoVenc = "-";
+      if (restantes > 0) {
+        const vencBase = new Date(d.vencimento);
+        vencBase.setMonth(vencBase.getMonth() + pagas);
+        proximoVenc = vencBase.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+      }
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${d.categoria}</td>
         <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
-        <td>R$ ${totalCalculado.toFixed(2).replace(".", ",")}</td>
-        <td>${d.pagas || 0}/${d.parcelas || 1}</td>
-        <td>${proximoVencimento}</td>
+        <td>R$ ${total > 1 ? totalCalculado.toFixed(2).replace(".", ",") : d.valor.toFixed(2).replace(".", ",")}</td>
+        <td>${pagas}/${total}</td>
+        <td>${proximoVenc}</td>
         <td>${status}</td>
         <td>${d.descricao || "-"}</td>
         <td>
-          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${d.parcelas}, ${d.pagas || 0})">📂</button>
+          <button onclick="toggleParcelas(this, ${d.id_despesa_fixa}, ${total}, ${pagas}, '${d.vencimento}', ${d.valor})">📂</button>
           <button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button>
         </td>
       `;
-
       tabela.appendChild(tr);
     });
   } catch (err) {
@@ -144,7 +143,7 @@ async function excluirDespesa(id) {
   }
 }
 
-function toggleParcelas(botao, id, total, pagas) {
+function toggleParcelas(botao, id, total, pagas, vencimentoInicial, valorParcela) {
   const tr = botao.closest("tr");
   const existe = tr.nextElementSibling?.classList.contains("linha-parcelas");
 
@@ -157,17 +156,26 @@ function toggleParcelas(botao, id, total, pagas) {
   novaLinha.classList.add("linha-parcelas");
 
   let checkboxes = "";
+  const dataBase = new Date(vencimentoInicial);
+
   for (let i = 1; i <= total; i++) {
+    const venc = new Date(dataBase);
+    venc.setMonth(dataBase.getMonth() + (i - 1));
+    const vencFormatado = venc.toLocaleDateString("pt-BR", { timeZone: "UTC" });
     const checked = i <= pagas ? "checked" : "";
+
     checkboxes += `
-      <div>
-        <input type="checkbox" id="p${id}_${i}" ${checked} onchange="atualizarParcela(${id}, ${i}, this.checked)" />
-        <label for="p${id}_${i}">Parcela ${i}</label>
+      <div style="margin-bottom: 8px;">
+        <input type="checkbox" id="p${id}_${i}" ${checked}
+          onchange="atualizarParcela(${id}, ${i}, this.checked)" />
+        <label for="p${id}_${i}">
+          Parcela ${i} — ${vencFormatado} — R$ ${valorParcela.toFixed(2).replace(".", ",")}
+        </label>
       </div>
     `;
   }
 
-  novaLinha.innerHTML = `<td colspan="9"><div class="lista-parcelas">${checkboxes}</div></td>`;
+  novaLinha.innerHTML = `<td colspan="8"><div class="lista-parcelas">${checkboxes}</div></td>`;
   tr.insertAdjacentElement("afterend", novaLinha);
 }
 
@@ -184,17 +192,11 @@ async function atualizarParcela(id, numero, marcado) {
     ? Math.max(novaPagas, numero)
     : Math.min(novaPagas, numero - 1);
 
-  let novoValorTotal = despesa.parcelas > 1 ? (despesa.valor * (despesa.parcelas - novaPagas)) : 0;
-
   try {
     await fetch("/api/despesas_fixas", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...despesa,
-        pagas: novaPagas,
-        valor_total: novoValorTotal
-      })
+      body: JSON.stringify({ ...despesa, pagas: novaPagas })
     });
     carregarDespesas();
   } catch (err) {
