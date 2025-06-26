@@ -1,27 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Despesas Fixas</title>
-  <link rel="stylesheet" href="../css/global.css" />
-  <link rel="stylesheet" href="../css/despesas-fixas.css" />
 </head>
 <body>
-  <div class="container">
-    <h2>Despesas Fixas</h2>
+  <h1>Cadastro de Despesa Fixa</h1>
+  <form id="form-despesa">
+    <input type="number" placeholder="ID Usuário" id="id_usuario" required><br>
+    <input type="number" placeholder="Valor" id="valor" required><br>
+    <input type="text" placeholder="Categoria" id="categoria"><br>
+    <input type="text" placeholder="Descrição" id="descricao"><br>
+    <input type="number" placeholder="Ciclo" id="ciclo"><br>
+    <button type="submit">Salvar</button>
+  </form>
 
-    <form id="form-despesa-fixa">
-      <input type="text" id="categoria" placeholder="Categoria" required />
-      <input type="text" id="descricao" placeholder="Descrição" required />
-      <input type="number" id="valor" placeholder="Valor" required step="0.01" />
-      <input type="number" id="ciclo" placeholder="Ciclo (em dias)" required />
-      <button type="submit">Cadastrar</button>
-    </form>
-
-    <div id="lista-despesas"></div>
-  </div>
-
-  <script src="../js/despesas-fixas.js"></script>
+  <script src="despesas-fixas.js"></script>
 </body>
 </html>

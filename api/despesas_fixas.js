@@ -6,81 +6,52 @@ export default async function handler(req, res) {
   try {
     if (req.method === "GET") {
       const response = await fetch(baseURL);
-      const contentType = response.headers.get("content-type");
-
-      if (contentType && contentType.includes("application/json")) {
-        const data = await response.json();
-        return res.status(200).json(data);
-      } else {
-        const texto = await response.text();
-        console.error("Resposta bruta do ORDS (GET):", texto);
-        return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: texto });
-      }
+      const data = await response.json();
+      return res.status(200).json(data);
     }
 
-    else if (req.method === "POST") {
-      try {
-        const rawBody = req.body;
-        const body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+    if (req.method === "POST") {
+      const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-        const corpoLimpo = {
-          id_usuario: body.id_usuario,
-          valor: body.valor,
-          categoria: body.categoria,
-          descricao: body.descricao,
-          ciclo: body.ciclo
-        };
+      const corpo = {
+        id_usuario: body.id_usuario,
+        valor: body.valor,
+        categoria: body.categoria,
+        descricao: body.descricao,
+        ciclo: body.ciclo
+      };
 
-        console.log("➡️ Enviando ao ORDS:", JSON.stringify(corpoLimpo, null, 2));
+      console.log("➡️ Enviando ao ORDS:", JSON.stringify(corpo, null, 2));
 
-        const response = await fetch(baseURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(corpoLimpo)
-        });
-
-        const text = await response.text();
-        console.log("📦 Resposta bruta do ORDS (POST):", text);
-
-        try {
-          const json = JSON.parse(text);
-          if (!response.ok) {
-            return res.status(response.status).json({ erro: "Erro ao cadastrar despesa", detalhes: json });
-          }
-          return res.status(201).json(json);
-        } catch (e) {
-          return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
-        }
-
-      } catch (erro) {
-        console.error("❌ Erro no handler de despesas fixas:", erro);
-        return res.status(500).json({ erro: "Erro interno no servidor", detalhes: erro.message });
-      }
-    }
-
-    else if (req.method === "DELETE") {
-      const id = req.query.id;
-      if (!id) return res.status(400).json({ erro: "ID não informado para exclusão" });
-
-      const response = await fetch(`${baseURL}/${id}`, {
-        method: "DELETE"
+      const response = await fetch(baseURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corpo)
       });
 
-      if (!response.ok) {
-        const erro = await response.text();
-        return res.status(response.status).json({ erro: "Erro ao excluir despesa", detalhes: erro });
+      const text = await response.text();
+      try {
+        const json = JSON.parse(text);
+        return response.ok
+          ? res.status(201).json(json)
+          : res.status(response.status).json({ erro: "Erro ao salvar", detalhes: json });
+      } catch {
+        return res.status(500).json({ erro: "Resposta inesperada do ORDS", detalhes: text });
       }
-
-      return res.status(204).end();
     }
 
-    else {
-      res.setHeader("Allow", ["GET", "POST", "DELETE"]);
-      return res.status(405).end(`Método ${req.method} não permitido`);
+    if (req.method === "DELETE") {
+      const id = req.query.id;
+      const response = await fetch(`${baseURL}/${id}`, { method: "DELETE" });
+      return response.ok
+        ? res.status(204).end()
+        : res.status(response.status).json({ erro: "Erro ao excluir", detalhes: await response.text() });
     }
 
+    res.setHeader("Allow", ["GET", "POST", "DELETE"]);
+    return res.status(405).end(`Método ${req.method} não permitido`);
   } catch (erro) {
-    console.error("❌ Erro geral no handler de despesas fixas:", erro);
-    return res.status(500).json({ erro: "Erro interno no servidor", detalhes: erro.message });
+    console.error("Erro geral:", erro);
+    return res.status(500).json({ erro: "Erro interno", detalhes: erro.message });
   }
 }
