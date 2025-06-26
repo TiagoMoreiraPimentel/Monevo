@@ -28,13 +28,16 @@ export default async function handler(req, res) {
 
         console.log("Enviando ao ORDS:", JSON.stringify(corpoLimpo, null, 2));
 
+        console.log("➡️ Iniciando POST para ORDS...");
         const response = await fetch(baseURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(corpoLimpo)
         });
+        console.log("✅ Resposta recebida do ORDS.");
 
         const text = await response.text();
+        console.log("📦 Resposta bruta do ORDS (POST):", text);
 
         try {
           const json = JSON.parse(text);
@@ -47,8 +50,8 @@ export default async function handler(req, res) {
         }
 
       } catch (erro) {
-        console.error("Erro no handler de despesas fixas:", erro);
-        return res.status(500).json({ erro: "Erro interno no servidor", detalhes: erro.message });
+        console.error("❌ Erro no bloco interno POST:", erro);
+        return res.status(500).json({ erro: "Erro interno no servidor (POST)", detalhes: erro.message });
       }
     }
 
@@ -74,7 +77,7 @@ export default async function handler(req, res) {
     }
 
   } catch (erro) {
-    console.error("Erro no handler de despesas fixas:", erro);
+    console.error("🔥 Erro geral no handler:", erro);
     return res.status(500).json({ erro: "Erro interno no servidor", detalhes: erro.message });
   }
 }
