@@ -30,6 +30,7 @@ function carregarResumo() {
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
       renderizarGraficoConta(transacoes);
       carregarGraficoSaldosTags(usuario.id);
+      carregarTicketsTags();
     });
 }
 
