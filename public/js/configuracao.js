@@ -175,6 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const r = await fetch(`${BASE_URL}?id_usuario=${usuario.id}`);
       const json = await r.json();
 
+      console.log("📦 Dados carregados:", json);
+
       configuracoes = (json.items || []).map(item => ({
         nome_categoria: item.nome_categoria,
         porcentagem: parseFloat(item.porcentagem),
