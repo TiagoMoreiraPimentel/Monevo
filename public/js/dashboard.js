@@ -364,7 +364,7 @@ async function carregarTicketsTags() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+window.onload = () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
     alert("Acesso negado. Faça login.");
@@ -385,25 +385,23 @@ document.addEventListener("DOMContentLoaded", () => {
     botaoAdmin.style.display = "none";
   }
 
-  // ✅ Selecionar mês atual
-  document.getElementById("mes").value = String(new Date().getMonth() + 1).padStart(2, "0");
+  const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
+  document.getElementById("mes").value = mesAtual;
 
-  // ✅ Selecionar ano atual, mesmo que ainda não esteja nas opções
   const anoAtual = String(new Date().getFullYear());
   const selectAno = document.getElementById("ano");
-  const optionExiste = [...selectAno.options].some(opt => opt.value === anoAtual);
-  if (!optionExiste) {
-    const novaOption = document.createElement("option");
-    novaOption.value = anoAtual;
-    novaOption.text = anoAtual;
-    selectAno.appendChild(novaOption);
+  const existe = [...selectAno.options].some(o => o.value === anoAtual);
+  if (!existe) {
+    const nova = document.createElement("option");
+    nova.value = anoAtual;
+    nova.text = anoAtual;
+    selectAno.appendChild(nova);
   }
   selectAno.value = anoAtual;
 
-  // ✅ Aplicar filtro imediatamente
   carregarResumo();
   carregarTicketsTags();
-});
+};
 
 window.toggleSidebar = function () {
   document.getElementById("sidebar").classList.toggle("expanded");
@@ -417,7 +415,6 @@ function logout() {
 function toggleGrafico(botao) {
   const conteudo = botao.nextElementSibling;
   const aberto = conteudo.style.display === "block";
-
   conteudo.style.display = aberto ? "none" : "block";
   botao.textContent = (aberto ? "▶️" : "🔽") + " " + botao.textContent.slice(2);
 }
