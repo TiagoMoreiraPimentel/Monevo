@@ -30,6 +30,15 @@ export default async function handler(req, res) {
       });
 
       const text = await response.text();
+      console.log("Resposta bruta do ORDS:", text); // <-- já tem, mas realoque aqui
+
+      if (!response.ok) {
+        return res.status(response.status).json({
+          erro: "Erro ao cadastrar despesa",
+          statusCode: response.status,
+          detalhes: text
+        });
+      }
 
       // Tenta fazer parse como JSON. Se falhar, retorna erro mais informativo.
       try {
