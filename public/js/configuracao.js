@@ -67,7 +67,7 @@ function adicionarLinhaTabela({ nome_categoria, porcentagem, dia_renovacao }) {
     <td class="nome">${nome_categoria}</td>
     <td><input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100"></td>
     <td><input class="renovacao" type="number" value="${dia_renovacao || ""}" min="1" max="31"></td>
-    <td><button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">Remover</button></td>
+    <td><button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️ Excluir</button></td>
   `;
   document.querySelector("#tabelaDistribuicao tbody").appendChild(tr);
 }
@@ -81,7 +81,7 @@ function adicionarCard({ nome_categoria, porcentagem, dia_renovacao }) {
       <p><strong>Categoria:</strong> <span class="nome">${nome_categoria}</span></p>
       <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100">%</p>
       <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${dia_renovacao || ""}" min="1" max="31"></p>
-      <button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">Remover</button>
+      <button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️ Excluir</button>
     </div>
   `;
   document.getElementById("cardsDistribuicao").appendChild(div);
