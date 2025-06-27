@@ -67,24 +67,35 @@ function adicionarLinhaTabela({ nome_categoria, porcentagem, dia_renovacao }) {
     <td class="nome">${nome_categoria}</td>
     <td><input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100"></td>
     <td><input class="renovacao" type="number" value="${dia_renovacao || ""}" min="1" max="31"></td>
-    <td><button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️ Excluir</button></td>
+    <td><button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️</button></td>
   `;
   document.querySelector("#tabelaDistribuicao tbody").appendChild(tr);
 }
 
 function adicionarCard({ nome_categoria, porcentagem, dia_renovacao }) {
-  const div = document.createElement("div");
-  div.classList.add("card");
+  const card = document.createElement("div");
+  card.classList.add("transaction-card");
 
-  div.innerHTML = `
-    <div class="card-body">
-      <p><strong>Categoria:</strong> <span class="nome">${nome_categoria}</span></p>
-      <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100">%</p>
-      <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${dia_renovacao || ""}" min="1" max="31"></p>
-      <button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️ Excluir</button>
+  card.innerHTML = `
+    <div class="transaction-header">
+      <div>
+        <div class="transaction-amount" style="font-size: 1rem; font-weight: 600; color: var(--cor-texto);">
+          Categoria: <span class="nome" style="font-weight: normal;">${nome_categoria}</span>
+        </div>
+        <div class="transaction-date">Renovação: ${dia_renovacao ? "Dia " + dia_renovacao : "-"}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️</button>
+    </div>
+
+    <div class="transaction-details">
+      <div class="transaction-detail">
+        <span class="detail-label">Porcentagem:</span>
+        <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" style="width: 80px; padding: 4px; border-radius: 6px; border: 1px solid #ccc; text-align: center;" />
+      </div>
     </div>
   `;
-  document.getElementById("cardsDistribuicao").appendChild(div);
+
+  document.getElementById("cardsDistribuicao").appendChild(card);
 }
 
 function removerTag(nome) {
