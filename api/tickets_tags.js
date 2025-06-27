@@ -11,6 +11,14 @@ export default async function handler(req, res) {
     const inicioDia = new Date(hoje.setHours(0, 0, 0, 0));
     const fimDia = new Date(hoje.setHours(23, 59, 59, 999));
 
+    // Função para comparar apenas as datas (sem hora)
+    function diferencaEmDias(data1, data2) {
+      const umDiaMs = 1000 * 60 * 60 * 24;
+      const d1 = new Date(data1.getFullYear(), data1.getMonth(), data1.getDate());
+      const d2 = new Date(data2.getFullYear(), data2.getMonth(), data2.getDate());
+      return Math.floor((d2 - d1) / umDiaMs);
+    }
+
     // Buscar configs
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
     const configData = await configResp.json();
@@ -36,16 +44,14 @@ export default async function handler(req, res) {
 
       const hojeZerado = new Date();
       hojeZerado.setHours(0, 0, 0, 0);
-      // Montar próxima data de renovação com base no dia informado
+
+      // Próxima data de renovação
       let renovacao = new Date(hojeZerado.getFullYear(), hojeZerado.getMonth(), diaRenovacao);
-      // Se a renovação já passou este mês, mover para o mês seguinte
       if (renovacao < hojeZerado) {
         renovacao.setMonth(renovacao.getMonth() + 1);
       }
-      // Calcular a diferença em dias (corrigido, sem hora)
-      const diffMs = renovacao - hojeZerado;
-      const diasRestantes = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
+      const diasRestantes = diferencaEmDias(hojeZerado, renovacao);
 
       const saldoAtual = saldos
         .filter(s => s.tag_distribuicao === tag)
