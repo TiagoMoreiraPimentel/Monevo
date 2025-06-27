@@ -33,6 +33,20 @@ function carregarResumo() {
       document.getElementById("total-despesas").textContent = formatarValorBR(totalDespesas);
       document.getElementById("saldo").textContent = formatarValorBR(saldo);
 
+      // NOVO: Carregar despesas fixas do endpoint existente
+      fetch(`/api/despesas_fixas?id_usuario=${usuario.id}`)
+        .then((res) => res.json())
+        .then((dados) => {
+          const totalFixas = dados.reduce((soma, item) => soma + (parseFloat(item.valor_total) || 0), 0);
+          const campoFixas = document.getElementById("total-fixas");
+          if (campoFixas) {
+            campoFixas.textContent = `Total de despesas fixas: ${formatarValorBR(totalFixas)}`;
+          }
+        })
+        .catch((erro) => {
+          console.error("Erro ao carregar despesas fixas:", erro);
+        });
+
       renderizarGraficoCategoriasDespesas(despesas);
       renderizarGraficoCategoriasReceitas(receitas);
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
