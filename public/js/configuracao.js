@@ -77,19 +77,14 @@ function adicionarCard({ nome_categoria, porcentagem, dia_renovacao }) {
   card.className = "card";
 
   card.innerHTML = `
-    <div class="card-body">
-      <p><strong>Categoria:</strong><br><span class="nome">${nome_categoria}</span></p>
-      <hr class="divider">
-      <p><strong>Porcentagem:</strong><br>
-        <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" />
-      </p>
-      <hr class="divider">
-      <p><strong>Renovação:</strong><br>${dia_renovacao ? "Dia " + dia_renovacao : "-"}</p>
-      <hr class="divider">
-      <div style="text-align: center; margin-top: 0.5rem;">
-        <button onclick="removerTag('${nome_categoria}')">Remover</button>
-      </div>
-    </div>
+    <p><strong>Categoria:</strong> <span class="nome">${nome_categoria}</span></p>
+    <hr class="divider">
+    <p><strong>Porcentagem:</strong></p>
+    <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" />
+    <hr class="divider">
+    <p><strong>Renovação:</strong> ${dia_renovacao ? "Dia " + dia_renovacao : "-"}</p>
+    <hr class="divider">
+    <button class="btn-remover" onclick="removerTag('${nome_categoria}')">Remover</button>
   `;
 
   document.getElementById("cardsDistribuicao").appendChild(card);

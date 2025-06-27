@@ -144,38 +144,31 @@ form button:hover {
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .cards-container .card:hover {
   transform: translateY(-2px);
 }
 
-.cards-container .card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.cards-container .card-body p {
+.cards-container .card p {
   margin: 0;
   font-size: 0.95rem;
   color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.cards-container .card-body strong {
-  color: #111;
+.cards-container .divider {
+  border: none;
+  border-top: 1px solid #cce4e9;
+  margin: 0.4rem 0;
 }
 
-.cards-container input[type="number"] {
-  width: 100%;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-top: 4px;
-}
-
-.cards-container button {
+.cards-container .btn-remover {
   align-self: flex-end;
   background-color: #d9534f;
   color: white;
@@ -184,22 +177,13 @@ form button:hover {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  margin-top: 0.5rem;
   font-size: 0.85rem;
   transition: background-color 0.2s ease;
+  margin-top: 0.5rem;
 }
 
-.cards-container button:hover {
+.cards-container .btn-remover:hover {
   background-color: #c9302c;
-}
-
-/* Footer */
-.footer {
-  text-align: center;
-  margin-top: auto;
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: #666;
 }
 
 /* ---------- Responsivo ---------- */
@@ -230,4 +214,12 @@ form button:hover {
   #tabelaDistribuicao {
     display: table;
   }
+
+  .divider {
+  border: none;
+  border-top: 1px solid #cce4e9;
+  margin: 0.5rem 0;
 }
+
+}
+
