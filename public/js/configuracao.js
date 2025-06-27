@@ -1,173 +1,154 @@
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  console.log("Usuário logado:", usuario);
+
   if (!usuario) {
     alert("Acesso negado. Faça login.");
     window.location.href = "../telas/login.html";
     return;
   }
 
-  console.log("Usuário logado:", usuario);
+  carregarDespesas();
 
-  carregarDistribuicoes();
+  const inputValor = document.getElementById("valor");
+  if (inputValor) {
+    inputValor.addEventListener("input", () => {
+      let valor = inputValor.value.replace(/\D/g, "");
+      valor = (parseInt(valor, 10) / 100).toFixed(2);
+      inputValor.value = parseFloat(valor).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    });
+  }
 
-  document.getElementById("form-distribuicao").addEventListener("submit", async (e) => {
+  document.getElementById("form-despesa-fixa").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nomeCategoria = document.getElementById("nomeCategoria").value.trim();
-    const porcentagem = parseFloat(document.getElementById("porcentagem").value);
-    const diaRenovacao = parseInt(document.getElementById("diaRenovacao").value);
+    const categoria = document.getElementById("categoria").value.trim();
+    const ciclo = parseInt(document.getElementById("ciclo").value);
+    const descricao = document.getElementById("descricao").value.trim();
+    const valorFormatado = document.getElementById("valor").value;
+    const valor = parseFloat(valorFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
+    const data_lancamento_raw = document.getElementById("data_lancamento").value;
+    const vencimento_raw = document.getElementById("vencimento").value;
 
-    if (!nomeCategoria || isNaN(porcentagem)) {
-      console.warn("Campos obrigatórios não preenchidos corretamente.");
+    console.log("Valores capturados:", { categoria, ciclo, descricao, valor, data_lancamento_raw, vencimento_raw });
+
+    if (!categoria || isNaN(valor) || isNaN(ciclo) || !data_lancamento_raw || !vencimento_raw) {
+      mostrarMensagem("Preencha todos os campos obrigatórios corretamente.");
       return;
     }
 
-    const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-    const existe = linhas.some(tr => tr.cells[0].innerText === nomeCategoria);
-    if (existe) {
-      alert("Essa categoria já foi adicionada.");
-      return;
-    }
+    const data_lancamento = new Date(data_lancamento_raw).toISOString();
+    const vencimento = new Date(vencimento_raw).toISOString();
 
-    const nova = {
-      nome_categoria: nomeCategoria,
-      porcentagem,
-      dia_renovacao: isNaN(diaRenovacao) ? null : diaRenovacao
+    const novaDespesa = {
+      id_usuario: usuario.id,
+      categoria,
+      valor,
+      descricao,
+      ciclo,
+      data_lancamento,
+      vencimento
     };
 
-    console.log("Nova distribuição adicionada:", nova);
+    console.log("Enviando nova despesa fixa:", novaDespesa);
 
-    adicionarDistribuicaoNaTela(nova);
-    atualizarSoma();
-    document.getElementById("form-distribuicao").reset();
-  });
+    try {
+      const res = await fetch("/api/despesas_fixas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novaDespesa)
+      });
 
-  document.getElementById("salvarConfig").addEventListener("click", async () => {
-    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-    if (!usuario) return;
+      console.log("Resposta POST:", res.status);
 
-    const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-    const configuracoes = linhas.map(tr => {
-      const tds = tr.querySelectorAll("td");
-      return {
-        nome_categoria: tds[0].innerText,
-        porcentagem: parseFloat(tds[1].innerText.replace("%", "")),
-        dia_renovacao: parseInt(tds[2].innerText) || null
-      };
-    });
-
-    console.log("Configurações salvas:", configuracoes);
-
-    salvarDistribuicoes(usuario.id, configuracoes);
+      if (res.ok) {
+        mostrarMensagem("Despesa fixa cadastrada com sucesso.");
+        e.target.reset();
+        carregarDespesas();
+      } else {
+        const erro = await res.json();
+        console.error("Erro ao cadastrar:", erro);
+        mostrarMensagem(erro.erro || "Erro ao cadastrar.");
+      }
+    } catch (err) {
+      console.error("Erro de conexão ao cadastrar:", err);
+      mostrarMensagem("Erro de conexão com o servidor.");
+    }
   });
 });
 
-async function buscarDistribuicoes(id_usuario) {
+function mostrarMensagem(msg) {
+  console.log("Mensagem:", msg);
+  const el = document.getElementById("mensagem");
+  if (el) el.innerText = msg;
+}
+
+async function carregarDespesas() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const tabela = document.getElementById("tabela-despesas");
+
+  console.log("Carregando despesas para usuário ID:", usuario.id);
+
   try {
-    const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${id_usuario}`);
-    const json = await res.json();
-    console.log("Distribuições recebidas do backend:", json.items);
-    return json.items || [];
+    const res = await fetch("/api/despesas_fixas");
+    console.log("Resposta GET despesas:", res.status);
+
+    const despesas = await res.json();
+    console.log("Dados recebidos do backend:", despesas);
+
+    const minhas = despesas.filter(d => d.id_usuario === usuario.id);
+    console.log("Despesas filtradas do usuário:", minhas);
+
+    tabela.innerHTML = "";
+
+    minhas.forEach(d => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${d.categoria}</td>
+        <td>R$ ${d.valor.toFixed(2).replace(".", ",")}</td>
+        <td>${d.ciclo} dias</td>
+        <td>${formatarData(d.data_lancamento)}</td>
+        <td>${formatarData(d.vencimento)}</td>
+        <td>${d.descricao || "-"}</td>
+        <td><button onclick="excluirDespesa(${d.id_despesa_fixa})">Excluir</button></td>
+      `;
+      tabela.appendChild(tr);
+    });
   } catch (err) {
-    console.error("Erro ao buscar distribuições:", err);
-    return [];
+    console.error("Erro ao carregar despesas:", err);
+    mostrarMensagem("Erro ao carregar despesas.");
   }
 }
 
-async function salvarDistribuicoes(id_usuario, configuracoes) {
-  try {
-    console.log("Enviando para backend:", { id_usuario, configuracoes });
+function formatarData(dataISO) {
+  if (!dataISO) return "-";
+  const data = new Date(dataISO);
+  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
 
-    const res = await fetch("/api/distribuicao_valor_config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_usuario, configuracoes })
+async function excluirDespesa(id) {
+  if (!confirm("Deseja excluir esta despesa fixa?")) return;
+
+  console.log("Solicitando exclusão da despesa:", id);
+
+  try {
+    const res = await fetch(`/api/despesas_fixas?id=${id}`, {
+      method: "DELETE"
     });
 
+    console.log("Resposta DELETE:", res.status);
+
     if (res.ok) {
-      alert("Configurações salvas com sucesso!");
-      carregarDistribuicoes();
+      mostrarMensagem("Despesa excluída.");
+      carregarDespesas();
     } else {
-      const erro = await res.text();
-      console.warn("Erro ao salvar configurações:", erro);
-      alert("Erro ao salvar: " + erro);
+      mostrarMensagem("Erro ao excluir.");
     }
   } catch (err) {
-    console.error("Erro ao salvar configurações:", err);
-    alert("Erro ao salvar configurações.");
+    console.error("Erro de conexão ao excluir:", err);
+    mostrarMensagem("Erro de conexão.");
   }
-}
-
-async function carregarDistribuicoes() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario) return;
-
-  const distribuicoes = await buscarDistribuicoes(usuario.id);
-
-  console.log("Distribuições a carregar na tela:", distribuicoes);
-
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  const cards = document.getElementById("cardsDistribuicao");
-
-  tabela.innerHTML = "";
-  cards.innerHTML = "";
-
-  distribuicoes.forEach(d => {
-    adicionarDistribuicaoNaTela(d);
-  });
-
-  atualizarSoma();
-}
-
-function adicionarDistribuicaoNaTela(d) {
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  const cards = document.getElementById("cardsDistribuicao");
-
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${d.nome_categoria}</td>
-    <td>${d.porcentagem}%</td>
-    <td>${d.dia_renovacao || "-"}</td>
-    <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
-  `;
-  tabela.appendChild(tr);
-
-  const card = document.createElement("div");
-  card.classList.add("card");
-  card.innerHTML = `
-    <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
-    <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
-    <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
-    <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
-  `;
-  cards.appendChild(card);
-}
-
-function removerTag(nome) {
-  const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-  const novas = linhas.filter(tr => tr.cells[0].innerText !== nome);
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  tabela.innerHTML = "";
-  novas.forEach(tr => tabela.appendChild(tr));
-
-  const cards = [...document.querySelectorAll("#cardsDistribuicao .card")];
-  const novosCards = cards.filter(c => !c.innerHTML.includes(nome));
-  const container = document.getElementById("cardsDistribuicao");
-  container.innerHTML = "";
-  novosCards.forEach(c => container.appendChild(c));
-
-  atualizarSoma();
-}
-
-function atualizarSoma() {
-  const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-  const distribuicoes = linhas.map(tr => ({
-    porcentagem: parseFloat(tr.cells[1].innerText.replace("%", ""))
-  }));
-
-  const total = distribuicoes.reduce((acc, d) => acc + d.porcentagem, 0);
-  console.log("Total atual:", total);
-
-  document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
-  document.getElementById("salvarConfig").disabled = total !== 100;
 }
