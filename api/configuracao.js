@@ -8,9 +8,9 @@ export default async function handler(req, res) {
     try {
       const resposta = await fetch(BASE_CONFIG);
       const json = await resposta.json();
-      const configuracoes = (json.items || []).filter(c => c.ID_USUARIO == id_usuario);
+      const configuracoes = (json.items || []).filter(c => c.id_usuario == id_usuario);
 
-      console.log(`🔍 GET: Encontradas ${configuracoes.length} configurações para ID_USUARIO=${id_usuario}`);
+      console.log(`🔍 GET: Encontradas ${configuracoes.length} configurações para id_usuario=${id_usuario}`);
       return res.status(200).json({ items: configuracoes });
     } catch (error) {
       console.error("❌ Erro ao buscar configurações:", error);
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      console.log(`📡 POST: Buscando todas as configurações no ORDS para ID_USUARIO=${id_usuario}...`);
+      console.log(`📡 POST: Buscando todas as configurações no ORDS para id_usuario=${id_usuario}...`);
       const resposta = await fetch(BASE_CONFIG);
       const jsonTodas = await resposta.json();
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       console.log("🧾 Todos os registros:", JSON.stringify(jsonTodas.items, null, 2));
 
       // Filtra todas as configurações do usuário para exclusão
-      const antigas = (jsonTodas.items || []).filter(c => c.ID_USUARIO == id_usuario);
+      const antigas = (jsonTodas.items || []).filter(c => c.id_usuario == id_usuario);
 
       if (antigas.length === 0) {
         console.warn("⚠️ Nenhuma configuração antiga encontrada para exclusão.");
@@ -42,28 +42,28 @@ export default async function handler(req, res) {
       }
 
       for (const existente of antigas) {
-        const deleteUrl = BASE_CONFIG + existente.ID_DISTRIBUICAO;
-        console.log(`🧨 Tentando remover ID_DISTRIBUICAO=${existente.ID_DISTRIBUICAO} → ${deleteUrl}`);
+        const deleteUrl = BASE_CONFIG + existente.id_distribuicao;
+        console.log(`🧨 Tentando remover id_distribuicao=${existente.id_distribuicao} → ${deleteUrl}`);
 
         try {
           const rDelete = await fetch(deleteUrl, { method: "DELETE" });
-          console.log(`✅ DELETE status para ID ${existente.ID_DISTRIBUICAO}: ${rDelete.status}`);
+          console.log(`✅ DELETE status para id_distribuicao ${existente.id_distribuicao}: ${rDelete.status}`);
 
           if (!rDelete.ok) {
             const erroTexto = await rDelete.text();
-            console.error(`❌ Falha no DELETE ID ${existente.ID_DISTRIBUICAO}: ${rDelete.status} - ${erroTexto}`);
+            console.error(`❌ Falha no DELETE id_distribuicao ${existente.id_distribuicao}: ${rDelete.status} - ${erroTexto}`);
           }
         } catch (err) {
-          console.error(`🔥 Erro inesperado no DELETE ID ${existente.ID_DISTRIBUICAO}:`, err);
+          console.error(`🔥 Erro inesperado no DELETE id_distribuicao ${existente.id_distribuicao}:`, err);
         }
       }
 
       for (const config of configuracoes) {
         const nova = {
-          ID_USUARIO: id_usuario,
-          NOME_CATEGORIA: config.nome_categoria,
-          PORCENTAGEM: config.porcentagem,
-          DIA_RENOVACAO: config.dia_renovacao || null
+          id_usuario: id_usuario,
+          nome_categoria: config.nome_categoria,
+          porcentagem: config.porcentagem,
+          dia_renovacao: config.dia_renovacao || null
         };
 
         console.log("💾 Inserindo nova configuração:", nova);
@@ -74,11 +74,11 @@ export default async function handler(req, res) {
           body: JSON.stringify(nova)
         });
 
-        console.log(`✅ POST status para categoria ${nova.NOME_CATEGORIA}: ${rPost.status}`);
+        console.log(`✅ POST status para categoria ${nova.nome_categoria}: ${rPost.status}`);
 
         if (!rPost.ok) {
           const erro = await rPost.text();
-          console.error(`❌ Erro no POST para categoria ${nova.NOME_CATEGORIA}: ${erro}`);
+          console.error(`❌ Erro no POST para categoria ${nova.nome_categoria}: ${erro}`);
         }
       }
 
