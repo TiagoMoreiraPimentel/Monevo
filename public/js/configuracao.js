@@ -59,8 +59,16 @@ async function buscarDistribuicoes(id_usuario) {
   try {
     const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${id_usuario}`);
     const json = await res.json();
-    console.log("Distribuições recebidas do backend:", json.items);
-    return json.items || [];
+    console.log("Resposta bruta do backend:", json);
+
+    // Ajuste aqui: verifique se json é array ou objeto
+    if (Array.isArray(json)) {
+      return json;
+    } else if (Array.isArray(json.items)) {
+      return json.items;
+    } else {
+      return [];
+    }
   } catch (err) {
     console.error("Erro ao buscar distribuições:", err);
     return [];
