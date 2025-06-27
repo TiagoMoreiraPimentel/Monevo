@@ -80,7 +80,7 @@ function carregarGraficoSaldosTags(idUsuario, dataAtual) {
     .then((r) => r.json())
     .then((dados) => {
       const labels = dados.map(d => d.tag);
-      const valores = dados.map(d => parseFloat(d.saldo) || 0);
+      const valores = dados.map(d => parseFloat(d.saldo_restante) || 0);
       const ticketsHoje = dados.map(d => parseFloat(d.ticket_hoje) || 0);
       const maxValor = Math.max(...valores, 0);
 

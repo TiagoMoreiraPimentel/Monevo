@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const saldoFormatado = document.getElementById("saldo").value;
     const saldo = parseFloat(saldoFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
 
-    if (!nome || isNaN(saldo)) {
+    if (!nome || saldoFormatado.trim() === "" || isNaN(saldo)) {
       mostrarMensagem("Preencha todos os campos corretamente.");
       return;
     }
