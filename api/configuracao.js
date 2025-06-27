@@ -13,7 +13,6 @@ export default async function handler(req, res) {
       const json = await resposta.json();
       const configuracoes = (json.items || []).filter(c => c.id_usuario == id_usuario);
 
-      // ✅ Formato esperado pelo frontend: { items: [...] }
       return res.status(200).json({ items: configuracoes });
     } catch (error) {
       console.error("Erro ao buscar configurações:", error);
@@ -29,14 +28,14 @@ export default async function handler(req, res) {
     }
 
     try {
-      // 🔍 Buscar apenas as TAGs do usuário logado
-      const query = `?q={"id_usuario":${id_usuario}}`;
-      const todas = await fetch(BASE_CONFIG + query).then(r => r.json());
-      const antigas = todas.items || [];
+      // 🔍 Buscar TAGs do usuário
+      const todas = await fetch(BASE_CONFIG).then(r => r.json());
+      const antigas = (todas.items || []).filter(c => c.id_usuario == id_usuario && c.id_distribuicao);
 
       // 🧹 Remover as antigas
       for (const existente of antigas) {
-        await fetch(BASE_CONFIG + existente.id_distribuicao_config, {
+        console.log("🧨 Removendo ID:", existente.id_distribuicao);
+        await fetch(BASE_CONFIG + existente.id_distribuicao, {
           method: "DELETE"
         });
       }
@@ -50,7 +49,7 @@ export default async function handler(req, res) {
           dia_renovacao: config.dia_renovacao || null
         };
 
-        console.log("💾 Inserindo config:", nova); // LOG PARA TESTES
+        console.log("💾 Inserindo config:", nova);
 
         await fetch(BASE_CONFIG, {
           method: "POST",
