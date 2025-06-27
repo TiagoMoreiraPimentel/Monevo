@@ -112,15 +112,18 @@ async function carregarContas() {
 
     tabela.innerHTML = "";
     minhasContas.forEach(conta => {
-      const tr = document.createElement("tr");
+      // Corrigir o tipo para exibição correta
+      const tipoFormatado =
+        conta.tipo === "Corrente" ? "Conta Corrente" : conta.tipo;
 
+      const tr = document.createElement("tr");
       tr.innerHTML = `
         <td data-label="Nome"><input type="text" value="${conta.nome_conta}" data-id="${conta.id_conta}" data-campo="nome_conta"></td>
         <td data-label="Tipo">
           <select data-id="${conta.id_conta}" data-campo="tipo">
-            <option value="Carteira" ${conta.tipo === "Carteira" ? "selected" : ""}>Carteira</option>
-            <option value="Conta Corrente" ${conta.tipo === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
-            <option value="Poupança" ${conta.tipo === "Poupança" ? "selected" : ""}>Poupança</option>
+            <option value="Carteira" ${tipoFormatado === "Carteira" ? "selected" : ""}>Carteira</option>
+            <option value="Conta Corrente" ${tipoFormatado === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
+            <option value="Poupança" ${tipoFormatado === "Poupança" ? "selected" : ""}>Poupança</option>
           </select>
         </td>
         <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
@@ -128,7 +131,6 @@ async function carregarContas() {
           <button onclick="excluirConta('${conta.id_conta}')">Excluir</button>
         </td>
       `;
-
       tabela.appendChild(tr);
     });
   } catch (err) {
