@@ -191,41 +191,39 @@ async function carregarTransacoes(idUsuario) {
     minhas.forEach(t => {
       const dataFormatada = t.data_transacao.slice(0, 10).split("-").reverse().join("/");
       const conta = mapaContas[t.id_conta] || "Conta desconhecida";
+      const valorFormatado = Number(t.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
+      const badgeClass = t.tipo === "Despesa" ? "badge badge-danger" : "badge badge-success";
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${dataFormatada}</td>
         <td>${conta}</td>
-        <td>${t.tipo}</td>
-        <td>R$ ${Number(t.valor).toFixed(2)}</td>
+        <td><span class="${badgeClass}">${t.tipo.toUpperCase()}</span></td>
+        <td class="${t.tipo === "Despesa" ? "valor-despesa" : "valor-receita"}">R$ ${valorFormatado}</td>
         <td>${t.categoria}</td>
         <td title="${t.descricao || ''}">
-          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || ""}
+          ${t.descricao?.length > 30 ? t.descricao.slice(0, 30) + "..." : t.descricao || "-"}
         </td>
-        <td><button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button></td>
+        <td><button class="btn btn-danger" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">🗑️</button></td>
       `;
       tabela.appendChild(tr);
 
       const card = document.createElement("div");
       card.classList.add("transaction-card");
 
-      const valorFormatado = Number(t.valor).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-
-      const corValor = t.tipo === "Despesa" ? "despesa" : "receita";
-
       card.innerHTML = `
         <div class="transaction-header">
-          <span class="transaction-amount ${corValor}">${valorFormatado}</span>
+          <span class="transaction-amount ${t.tipo === "Despesa" ? "despesa" : "receita"}">R$ ${valorFormatado}</span>
           <span class="transaction-date">${dataFormatada}</span>
         </div>
-        <div class="transaction-detail"><strong>Conta:</strong> ${conta}</div>
-        <div class="transaction-detail"><strong>Tipo:</strong> <span class="tag tipo-${t.tipo.toLowerCase()}">${t.tipo}</span></div>
-        <div class="transaction-detail"><strong>Categoria:</strong> ${t.categoria}</div>
-        <div class="transaction-detail"><strong>Descrição:</strong> ${t.descricao || ""}</div>
-        <button class="btn btn-danger" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">🗑️ Excluir Transação</button>
+        <div class="transaction-details">
+          <div class="transaction-detail"><span class="detail-label">Conta:</span><span class="detail-value">${conta}</span></div>
+          <div class="transaction-detail"><span class="detail-label">Tipo:</span><span class="detail-value">${t.tipo}</span></div>
+          <div class="transaction-detail"><span class="detail-label">Categoria:</span><span class="detail-value">${t.categoria}</span></div>
+          <div class="transaction-detail"><span class="detail-label">Descrição:</span><span class="detail-value">${t.descricao || "-"}</span></div>
+        </div>
+        <button class="btn btn-danger" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">🗑️ Excluir</button>
       `;
       listaMobile.appendChild(card);
     });

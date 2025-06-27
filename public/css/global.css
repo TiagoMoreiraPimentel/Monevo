@@ -5,6 +5,18 @@
   --cor-erro: #114b79;
   --cor-fundo: #e9ecef;
   --cor-texto: #1C1C1C;
+  --primary: #00B37E;
+  --primary-dark: #008B65;
+  --primary-light: #b1f0d4;
+  --success: #38A169;
+  --danger: #E53E3E;
+  --surface: #fff;
+  --border: #e2e8f0;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --transition: all 0.2s ease-in-out;
+  --text-primary: #1a202c;
+  --text-secondary: #718096;
 }
 
 body {
