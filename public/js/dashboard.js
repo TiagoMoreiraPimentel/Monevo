@@ -47,7 +47,7 @@ function carregarResumo() {
 
           const campoFixas = document.getElementById("total-fixas");
           if (campoFixas) {
-            campoFixas.textContent = totalRestanteFixas.toLocaleString("pt-BR", {
+            campoFixas.textContent = totalRestante.toLocaleString("pt-BR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
             });
