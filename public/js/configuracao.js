@@ -19,10 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const porcentagem = parseFloat(document.getElementById("porcentagem").value);
       const diaRenovacao = parseInt(document.getElementById("diaRenovacao").value);
 
-      if (!nomeCategoria || isNaN(porcentagem)) {
-        mostrarMensagem("Preencha todos os campos corretamente.");
-        return;
-      }
+      if (!nomeCategoria || isNaN(porcentagem)) return;
 
       const distribuicoes = await buscarDistribuicoes(usuario.id);
 
@@ -39,7 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const salvarBtn = document.getElementById("salvarConfig");
   if (salvarBtn) {
     salvarBtn.addEventListener("click", async () => {
+      const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+      if (!usuario) return;
+
       const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
+
       const configuracoes = linhas.map(tr => {
         const tds = tr.querySelectorAll("td");
         return {
@@ -54,16 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function mostrarMensagem(msg) {
-  console.log("Mensagem:", msg);
-  document.getElementById("mensagem")?.innerText = msg;
-}
-
 async function buscarDistribuicoes(id_usuario) {
   try {
     const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${id_usuario}`);
     const json = await res.json();
-    console.log("Distribuições recebidas do backend:", json);
+    console.log("Distribuições recebidas do backend:", json.items);
     return json.items || [];
   } catch (err) {
     console.error("Erro ao buscar distribuições:", err);
@@ -96,12 +92,17 @@ async function carregarDistribuicoes() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) return;
 
+  console.log("Carregando distribuições para o usuário ID:", usuario.id);
   const distribuicoes = await buscarDistribuicoes(usuario.id);
   console.log("Distribuições a carregar na tela:", distribuicoes);
 
   const tabela = document.querySelector("#tabelaDistribuicao tbody");
   const cards = document.getElementById("cardsDistribuicao");
-  if (!tabela || !cards) return;
+
+  if (!tabela || !cards) {
+    console.error("Elementos da tabela ou dos cards não encontrados!");
+    return;
+  }
 
   tabela.innerHTML = "";
   cards.innerHTML = "";
@@ -164,7 +165,5 @@ function atualizarSoma(distribuicoes = null) {
   document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
 
   const salvarBtn = document.getElementById("salvarConfig");
-  if (salvarBtn) {
-    salvarBtn.disabled = total !== 100;
-  }
+  if (salvarBtn) salvarBtn.disabled = total !== 100;
 }
