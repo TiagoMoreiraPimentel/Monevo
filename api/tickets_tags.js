@@ -3,9 +3,10 @@ export default async function handler(req, res) {
     const id_usuario = Number(req.query.id_usuario);
     if (!id_usuario) return res.status(400).json({ erro: "ID de usuário ausente." });
 
+    // Pega data enviada do front ou usa data BRT do servidor
     const dataParam = req.query.data_atual;
     const hojeZerado = dataParam
-      ? new Date(`${dataParam}T00:00:00-03:00`)  // Data local do usuário (BRT)
+      ? new Date(`${dataParam}T00:00:00-03:00`)
       : new Date(new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }));
     hojeZerado.setHours(0, 0, 0, 0);
 
@@ -58,6 +59,7 @@ export default async function handler(req, res) {
       const saldoOriginal = saldoAtual + gastoHoje;
       const saldoRestante = saldoOriginal - gastoHoje;
 
+      // Protege contra valores inválidos de renovação
       if (isNaN(diaRenovacao) || diaRenovacao < 1 || diaRenovacao > 31) {
         return {
           tag,

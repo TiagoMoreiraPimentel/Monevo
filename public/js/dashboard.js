@@ -341,7 +341,7 @@ async function carregarTicketsTags() {
 
   try {
     const hoje = new Date();
-    const dataAtual = hoje.toISOString().split("T")[0]; // "2025-06-26"
+    const dataAtual = hoje.toISOString().split("T")[0];
     const res = await fetch(`/api/tickets_tags?id_usuario=${usuario.id}&data_atual=${dataAtual}`);
     if (!res.ok) {
       const erroTexto = await res.text();
