@@ -29,17 +29,19 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Apaga as configurações antigas
-      const todas = await fetch(BASE_CONFIG).then(r => r.json());
-      const antigas = todas.items.filter(c => c.id_usuario == id_usuario);
+      // 🔍 Buscar apenas as TAGs do usuário logado
+      const query = `?q={"id_usuario":${id_usuario}}`;
+      const todas = await fetch(BASE_CONFIG + query).then(r => r.json());
+      const antigas = todas.items || [];
 
+      // 🧹 Remover as antigas
       for (const existente of antigas) {
         await fetch(BASE_CONFIG + existente.id_distribuicao_config, {
           method: "DELETE"
         });
       }
 
-      // Insere as novas
+      // 💾 Inserir as novas
       for (const config of configuracoes) {
         const nova = {
           id_usuario,
@@ -47,6 +49,8 @@ export default async function handler(req, res) {
           porcentagem: config.porcentagem,
           dia_renovacao: config.dia_renovacao || null
         };
+
+        console.log("💾 Inserindo config:", nova); // LOG PARA TESTES
 
         await fetch(BASE_CONFIG, {
           method: "POST",
