@@ -34,9 +34,18 @@ export default async function handler(req, res) {
       const tag = cfg.nome_categoria;
       const diaRenovacao = cfg.dia_renovacao;
 
-      const hojeDia = new Date().getDate();
-      let diasRestantes = diaRenovacao - hojeDia;
-      if (diasRestantes < 0) diasRestantes += 30;
+      const hojeZerado = new Date();
+      hojeZerado.setHours(0, 0, 0, 0);
+      // Montar próxima data de renovação com base no dia informado
+      let renovacao = new Date(hojeZerado.getFullYear(), hojeZerado.getMonth(), diaRenovacao);
+      // Se a renovação já passou este mês, mover para o mês seguinte
+      if (renovacao < hojeZerado) {
+        renovacao.setMonth(renovacao.getMonth() + 1);
+      }
+      // Calcular a diferença em dias (corrigido, sem hora)
+      const diffMs = renovacao - hojeZerado;
+      const diasRestantes = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
 
       const saldoAtual = saldos
         .filter(s => s.tag_distribuicao === tag)
