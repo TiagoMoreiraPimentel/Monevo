@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const form = document.getElementById("form-distribuicao");
   if (form) {
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const nomeCategoria = document.getElementById("nomeCategoria").value.trim();
@@ -19,13 +19,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!nomeCategoria || isNaN(porcentagem)) return;
 
-      adicionarTagNaTela({
+      const distribuicoes = await buscarDistribuicoes(usuario.id);
+
+      distribuicoes.push({
         nome_categoria: nomeCategoria,
         porcentagem,
         dia_renovacao: isNaN(diaRenovacao) ? null : diaRenovacao
       });
 
-      form.reset();
+      salvarDistribuicoes(usuario.id, distribuicoes);
     });
   }
 
@@ -37,45 +39,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
 
-      const configuracoes = linhas.map(tr => {
-        const tds = tr.querySelectorAll("td");
-        return {
-          nome_categoria: tds[0].innerText,
-          porcentagem: parseFloat(tds[1].innerText.replace("%", "")),
-          dia_renovacao: parseInt(tds[2].innerText) || null
-        };
+      const mapaUnico = new Map();
+
+      linhas.forEach(tr => {
+        const nome = tr.querySelector(".nome").innerText;
+        const porcentagem = parseFloat(tr.querySelector(".porcentagem").value);
+        const dia = parseInt(tr.querySelector(".renovacao").value) || null;
+
+        if (!mapaUnico.has(nome)) {
+          mapaUnico.set(nome, { nome_categoria: nome, porcentagem, dia_renovacao: dia });
+        } else {
+          const existente = mapaUnico.get(nome);
+          if (!existente.dia_renovacao && dia) {
+            existente.dia_renovacao = dia;
+          }
+        }
       });
+
+      const configuracoes = Array.from(mapaUnico.values());
 
       salvarDistribuicoes(usuario.id, configuracoes);
     });
   }
 });
-
-function adicionarTagNaTela(d) {
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  const cards = document.getElementById("cardsDistribuicao");
-
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${d.nome_categoria}</td>
-    <td>${d.porcentagem}%</td>
-    <td>${d.dia_renovacao || "-"}</td>
-    <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
-  `;
-  tabela.appendChild(tr);
-
-  const card = document.createElement("div");
-  card.classList.add("card");
-  card.innerHTML = `
-    <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
-    <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
-    <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
-    <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
-  `;
-  cards.appendChild(card);
-
-  atualizarSoma();
-}
 
 async function buscarDistribuicoes(id_usuario) {
   try {
@@ -120,12 +106,33 @@ async function carregarDistribuicoes() {
   tabela.innerHTML = "";
   cards.innerHTML = "";
 
-  distribuicoes.forEach(d => adicionarTagNaTela(d));
+  distribuicoes.forEach(d => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="nome">${d.nome_categoria}</td>
+      <td><input class="porcentagem" type="number" value="${d.porcentagem}" min="0" max="100" step="1" style="width: 60px">%</td>
+      <td><input class="renovacao" type="number" value="${d.dia_renovacao || ""}" min="1" max="31" style="width: 50px"></td>
+      <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
+    `;
+    tabela.appendChild(tr);
+
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.innerHTML = `
+      <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
+      <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
+      <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
+      <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
+    `;
+    cards.appendChild(card);
+  });
+
+  atualizarSoma(distribuicoes);
 }
 
 function removerTag(nome) {
   const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-  const novas = linhas.filter(tr => tr.cells[0].innerText !== nome);
+  const novas = linhas.filter(tr => tr.querySelector(".nome").innerText !== nome);
 
   const tabela = document.querySelector("#tabelaDistribuicao tbody");
   tabela.innerHTML = "";
@@ -144,7 +151,7 @@ function atualizarSoma(distribuicoes = null) {
   if (!distribuicoes) {
     const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
     distribuicoes = linhas.map(tr => ({
-      porcentagem: parseFloat(tr.cells[1].innerText.replace("%", ""))
+      porcentagem: parseFloat(tr.querySelector(".porcentagem").value)
     }));
   }
 
