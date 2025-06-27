@@ -151,9 +151,9 @@ export default async function handler(req, res) {
 
   if (req.method === "DELETE") {
     try {
-      const distRes = await fetch(BASE_DISTRIBUICAO);
+      const distRes = await fetch(`${BASE_DISTRIBUICAO}?q={"id_transacao":${id}}`);
       const distJson = await distRes.json();
-      const vinculadas = distJson.items.filter(d => d.id_transacao == id);
+      const vinculadas = distJson.items || [];
 
       for (const d of vinculadas) {
         await fetch(`${BASE_DISTRIBUICAO}${d.id_distribuicao_valor}`, {
