@@ -7,17 +7,25 @@ export default async function handler(req, res) {
     const BASE_VALOR = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
     const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
 
-    const hoje = new Date();
-    const inicioDia = new Date(hoje.setHours(0, 0, 0, 0));
-    const fimDia = new Date(hoje.setHours(23, 59, 59, 999));
+    // Função para criar data em fuso horário do Brasil (BRT)
+    const getHojeBRT = () => {
+      const agora = new Date();
+      const brt = new Date(agora.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }));
+      return new Date(brt.getFullYear(), brt.getMonth(), brt.getDate());
+    };
 
-    // Função para comparar apenas as datas (sem hora)
-    function diferencaEmDias(data1, data2) {
+    // Função para calcular diferença de dias entre duas datas (sem considerar hora)
+    const diferencaEmDias = (data1, data2) => {
       const umDiaMs = 1000 * 60 * 60 * 24;
       const d1 = new Date(data1.getFullYear(), data1.getMonth(), data1.getDate());
       const d2 = new Date(data2.getFullYear(), data2.getMonth(), data2.getDate());
       return Math.floor((d2 - d1) / umDiaMs);
-    }
+    };
+
+    const hojeZerado = getHojeBRT();
+    const inicioDia = new Date(hojeZerado);
+    const fimDia = new Date(hojeZerado);
+    fimDia.setHours(23, 59, 59, 999);
 
     // Buscar configs
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
@@ -42,10 +50,7 @@ export default async function handler(req, res) {
       const tag = cfg.nome_categoria;
       const diaRenovacao = cfg.dia_renovacao;
 
-      const hojeZerado = new Date();
-      hojeZerado.setHours(0, 0, 0, 0);
-
-      // Próxima data de renovação
+      // Próxima data de renovação com base no BRT
       let renovacao = new Date(hojeZerado.getFullYear(), hojeZerado.getMonth(), diaRenovacao);
       if (renovacao < hojeZerado) {
         renovacao.setMonth(renovacao.getMonth() + 1);
