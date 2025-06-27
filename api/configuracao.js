@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     try {
       const resposta = await fetch(BASE_CONFIG);
       const json = await resposta.json();
-      const configuracoes = (json.items || []).filter(c => c.id_usuario == id_usuario);
+      const configuracoes = (json.items || []).filter(c => c.ID_USUARIO == id_usuario);
 
       return res.status(200).json({ items: configuracoes });
     } catch (error) {
@@ -29,37 +29,39 @@ export default async function handler(req, res) {
 
     try {
       // 🔍 Buscar TAGs do usuário
-      const todas = await fetch(BASE_CONFIG);
-      const jsonTodas = await todas.json();
-      const antigas = (jsonTodas.items || []).filter(c => c.id_usuario == id_usuario && c.id_distribuicao);
+      const resposta = await fetch(BASE_CONFIG);
+      const jsonTodas = await resposta.json();
+      const antigas = (jsonTodas.items || []).filter(c =>
+        c.ID_USUARIO == id_usuario && c.ID_DISTRIBUICAO
+      );
 
       console.log("🔍 Configurações existentes do usuário:", antigas.map(c => ({
-        id: c.id_distribuicao,
-        nome_categoria: c.nome_categoria,
-        porcentagem: c.porcentagem,
-        dia_renovacao: c.dia_renovacao
+        id: c.ID_DISTRIBUICAO,
+        nome_categoria: c.NOME_CATEGORIA,
+        porcentagem: c.PORCENTAGEM,
+        dia_renovacao: c.DIA_RENOVACAO
       })));
 
       // 🧹 Remover as antigas
       for (const existente of antigas) {
-        const deleteUrl = BASE_CONFIG + existente.id_distribuicao;
-        console.log("🧨 Removendo ID:", existente.id_distribuicao, "→", deleteUrl);
+        const deleteUrl = BASE_CONFIG + existente.ID_DISTRIBUICAO;
+        console.log("🧨 Removendo ID:", existente.ID_DISTRIBUICAO, "→", deleteUrl);
 
         const rDelete = await fetch(deleteUrl, { method: "DELETE" });
         console.log("✅ DELETE status:", rDelete.status);
         if (!rDelete.ok) {
           const erro = await rDelete.text();
-          console.error("❌ Falha ao deletar ID:", existente.id_distribuicao, "→", erro);
+          console.error("❌ Falha ao deletar ID:", existente.ID_DISTRIBUICAO, "→", erro);
         }
       }
 
       // 💾 Inserir as novas
       for (const config of configuracoes) {
         const nova = {
-          id_usuario,
-          nome_categoria: config.nome_categoria,
-          porcentagem: config.porcentagem,
-          dia_renovacao: config.dia_renovacao || null
+          ID_USUARIO: id_usuario,
+          NOME_CATEGORIA: config.nome_categoria,
+          PORCENTAGEM: config.porcentagem,
+          DIA_RENOVACAO: config.dia_renovacao || null
         };
 
         console.log("🚀 Inserindo nova TAG:", nova);
@@ -74,7 +76,7 @@ export default async function handler(req, res) {
 
         if (!rPost.ok) {
           const erro = await rPost.text();
-          console.error("❌ Falha ao inserir TAG:", nova.nome_categoria, "→", erro);
+          console.error("❌ Falha ao inserir TAG:", nova.NOME_CATEGORIA, "→", erro);
         }
       }
 
