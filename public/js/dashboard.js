@@ -62,13 +62,16 @@ function carregarResumo() {
       renderizarGraficoCategoriasReceitas(receitas);
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
       renderizarGraficoConta(transacoes);
-      carregarGraficoSaldosTags(usuario.id);
+      const hoje = new Date();
+      const dataAtual = hoje.toISOString().split("T")[0];
+      carregarGraficoSaldosTags(usuario.id, dataAtual);
       carregarTicketsTags();
     });
 }
 
-function carregarGraficoSaldosTags(idUsuario) {
-  fetch(`/api/tickets_tags?id_usuario=${idUsuario}`)
+function carregarGraficoSaldosTags(idUsuario, dataAtual) {
+  console.log("📅 Enviando dataAtual para API:", dataAtual); // <--- TESTE
+  fetch(`/api/tickets_tags?id_usuario=${idUsuario}&data_atual=${dataAtual}`)
     .then((r) => r.json())
     .then((dados) => {
       const labels = dados.map(d => d.tag);
