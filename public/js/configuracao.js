@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const form = document.getElementById("form-distribuicao");
   if (form) {
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
 
       const nomeCategoria = document.getElementById("nomeCategoria").value.trim();
@@ -19,15 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!nomeCategoria || isNaN(porcentagem)) return;
 
-      const distribuicoes = await buscarDistribuicoes(usuario.id);
-
-      distribuicoes.push({
+      adicionarTagNaTela({
         nome_categoria: nomeCategoria,
         porcentagem,
         dia_renovacao: isNaN(diaRenovacao) ? null : diaRenovacao
       });
 
-      salvarDistribuicoes(usuario.id, distribuicoes);
+      form.reset();
     });
   }
 
@@ -52,6 +50,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+function adicionarTagNaTela(d) {
+  const tabela = document.querySelector("#tabelaDistribuicao tbody");
+  const cards = document.getElementById("cardsDistribuicao");
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${d.nome_categoria}</td>
+    <td>${d.porcentagem}%</td>
+    <td>${d.dia_renovacao || "-"}</td>
+    <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
+  `;
+  tabela.appendChild(tr);
+
+  const card = document.createElement("div");
+  card.classList.add("card");
+  card.innerHTML = `
+    <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
+    <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
+    <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
+    <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
+  `;
+  cards.appendChild(card);
+
+  atualizarSoma();
+}
 
 async function buscarDistribuicoes(id_usuario) {
   try {
@@ -96,28 +120,7 @@ async function carregarDistribuicoes() {
   tabela.innerHTML = "";
   cards.innerHTML = "";
 
-  distribuicoes.forEach(d => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d.nome_categoria}</td>
-      <td>${d.porcentagem}%</td>
-      <td>${d.dia_renovacao || "-"}</td>
-      <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
-    `;
-    tabela.appendChild(tr);
-
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.innerHTML = `
-      <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
-      <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
-      <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
-      <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
-    `;
-    cards.appendChild(card);
-  });
-
-  atualizarSoma(distribuicoes);
+  distribuicoes.forEach(d => adicionarTagNaTela(d));
 }
 
 function removerTag(nome) {
