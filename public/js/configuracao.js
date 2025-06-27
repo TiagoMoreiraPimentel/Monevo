@@ -8,106 +8,159 @@ document.addEventListener("DOMContentLoaded", () => {
 
   carregarDistribuicoes();
 
-  const form = document.getElementById("form-distribuicao");
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.getElementById("btnAdicionar").addEventListener("click", (e) => {
+    e.preventDefault();
+    adicionarTag();
+  });
 
-      const nomeCategoria = document.getElementById("nomeCategoria").value.trim();
-      const porcentagem = parseFloat(document.getElementById("porcentagem").value);
-      const diaRenovacao = parseInt(document.getElementById("diaRenovacao").value);
-
-      if (!nomeCategoria || isNaN(porcentagem)) return;
-
-      const jaExiste = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")]
-        .some(tr => tr.querySelector("td.nome")?.innerText === nomeCategoria);
-      if (jaExiste) {
-        alert("Essa categoria já existe.");
-        return;
-      }
-
-      // Adiciona linha na tabela
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="nome">${nomeCategoria}</td>
-        <td><input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" style="width: 60px">%</td>
-        <td><input class="renovacao" type="number" value="${isNaN(diaRenovacao) ? "" : diaRenovacao}" min="1" max="31" style="width: 50px"></td>
-        <td><button onclick="removerTag('${nomeCategoria}')">Remover</button></td>
-      `;
-      document.querySelector("#tabelaDistribuicao tbody").appendChild(tr);
-
-      // Adiciona card no mobile
-      const card = document.createElement("div");
-      card.classList.add("card");
-      card.innerHTML = `
-        <p><strong>Categoria:</strong> <span class="nome">${nomeCategoria}</span></p>
-        <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" style="width: 60px">%</p>
-        <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${isNaN(diaRenovacao) ? "" : diaRenovacao}" min="1" max="31" style="width: 50px"></p>
-        <button onclick="removerTag('${nomeCategoria}')">Remover</button>
-      `;
-      document.getElementById("cardsDistribuicao").appendChild(card);
-
-      atualizarSoma();
-      form.reset();
-    });
-  }
-
-  const salvarBtn = document.getElementById("salvarConfig");
-  if (salvarBtn) {
-    salvarBtn.addEventListener("click", async () => {
-      const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-      if (!usuario) return;
-
-      const configuracoes = [];
-
-      // Coletar da tabela (desktop)
-      const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-      linhas.forEach(tr => {
-        const nome = tr.querySelector("td.nome")?.innerText;
-        const porcentagem = parseFloat(tr.querySelector("input.porcentagem")?.value);
-        const renovacao = parseInt(tr.querySelector("input.renovacao")?.value) || null;
-
-        if (nome && !isNaN(porcentagem)) {
-          configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: renovacao });
-        }
-      });
-
-      // Coletar dos cards (mobile)
-      const cards = [...document.querySelectorAll("#cardsDistribuicao .card")];
-      cards.forEach(card => {
-        const nome = card.querySelector(".nome")?.innerText;
-        const porcentagem = parseFloat(card.querySelector("input.porcentagem")?.value);
-        const renovacao = parseInt(card.querySelector("input.renovacao")?.value) || null;
-
-        // Evita duplicar TAGs já coletadas da tabela
-        const jaAdicionada = configuracoes.some(c => c.nome_categoria === nome);
-        if (nome && !isNaN(porcentagem) && !jaAdicionada) {
-          configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: renovacao });
-        }
-      });
-
-      console.log("🚀 Configurações enviadas para o banco:", configuracoes);
-      salvarDistribuicoes(usuario.id, configuracoes);
-    });
-  }
+  document.getElementById("salvarConfig").addEventListener("click", () => {
+    salvarConfiguracoes();
+  });
 });
 
-async function buscarDistribuicoes(id_usuario) {
+async function carregarDistribuicoes() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario) return;
+
   try {
-    const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${id_usuario}`);
+    const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${usuario.id}`);
     const json = await res.json();
-    return Array.isArray(json) ? json : Array.isArray(json.items) ? json.items : [];
-  } catch {
-    return [];
+    const distribuicoes = Array.isArray(json) ? json : json.items || [];
+
+    renderizarTabela(distribuicoes);
+    renderizarCards(distribuicoes);
+    atualizarSoma(distribuicoes);
+  } catch (error) {
+    console.error("Erro ao carregar distribuições:", error);
   }
 }
 
-async function salvarDistribuicoes(id_usuario, configuracoes) {
+function adicionarTag() {
+  const nome = document.getElementById("nomeCategoria").value.trim();
+  const porcentagem = parseFloat(document.getElementById("porcentagem").value);
+  const dia = parseInt(document.getElementById("diaRenovacao").value);
+
+  if (!nome || isNaN(porcentagem)) {
+    alert("Preencha corretamente os campos.");
+    return;
+  }
+
+  const jaExiste = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")]
+    .some(tr => tr.querySelector("td.nome")?.innerText === nome);
+  if (jaExiste) {
+    alert("Essa TAG já existe.");
+    return;
+  }
+
+  const nova = { nome_categoria: nome, porcentagem, dia_renovacao: isNaN(dia) ? null : dia };
+
+  adicionarLinhaTabela(nova);
+  adicionarCard(nova);
+
+  atualizarSoma();
+  document.getElementById("form-distribuicao").reset();
+}
+
+function adicionarLinhaTabela({ nome_categoria, porcentagem, dia_renovacao }) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td class="nome">${nome_categoria}</td>
+    <td><input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100"></td>
+    <td><input class="renovacao" type="number" value="${dia_renovacao || ""}" min="1" max="31"></td>
+    <td><button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">Remover</button></td>
+  `;
+  document.querySelector("#tabelaDistribuicao tbody").appendChild(tr);
+}
+
+function adicionarCard({ nome_categoria, porcentagem, dia_renovacao }) {
+  const div = document.createElement("div");
+  div.classList.add("card");
+
+  div.innerHTML = `
+    <div class="card-body">
+      <p><strong>Categoria:</strong> <span class="nome">${nome_categoria}</span></p>
+      <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100">%</p>
+      <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${dia_renovacao || ""}" min="1" max="31"></p>
+      <button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">Remover</button>
+    </div>
+  `;
+  document.getElementById("cardsDistribuicao").appendChild(div);
+}
+
+function removerTag(nome) {
+  const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
+  const novas = linhas.filter(tr => tr.querySelector("td.nome")?.innerText !== nome);
+  const tabela = document.querySelector("#tabelaDistribuicao tbody");
+  tabela.innerHTML = "";
+  novas.forEach(tr => tabela.appendChild(tr));
+
+  const cards = [...document.querySelectorAll("#cardsDistribuicao .card")];
+  const novos = cards.filter(card => !card.innerHTML.includes(nome));
+  const container = document.getElementById("cardsDistribuicao");
+  container.innerHTML = "";
+  novos.forEach(c => container.appendChild(c));
+
+  atualizarSoma();
+}
+
+function renderizarTabela(distribuicoes) {
+  const tbody = document.querySelector("#tabelaDistribuicao tbody");
+  tbody.innerHTML = "";
+  distribuicoes.forEach(adicionarLinhaTabela);
+}
+
+function renderizarCards(distribuicoes) {
+  const container = document.getElementById("cardsDistribuicao");
+  container.innerHTML = "";
+  distribuicoes.forEach(adicionarCard);
+}
+
+function atualizarSoma(distribuicoes = null) {
+  if (!distribuicoes) {
+    const porcentagens = [...document.querySelectorAll("input.porcentagem")];
+    distribuicoes = porcentagens.map(p => ({ porcentagem: parseFloat(p.value) || 0 }));
+  }
+  const total = distribuicoes.reduce((acc, d) => acc + d.porcentagem, 0);
+  document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
+  document.getElementById("salvarConfig").disabled = total !== 100;
+}
+
+function coletarConfiguracoes() {
+  const configuracoes = [];
+  const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
+  linhas.forEach(tr => {
+    const nome = tr.querySelector("td.nome")?.innerText;
+    const porcentagem = parseFloat(tr.querySelector("input.porcentagem")?.value);
+    const renovacao = parseInt(tr.querySelector("input.renovacao")?.value) || null;
+    if (nome && !isNaN(porcentagem)) {
+      configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: renovacao });
+    }
+  });
+
+  const cards = [...document.querySelectorAll("#cardsDistribuicao .card")];
+  cards.forEach(card => {
+    const nome = card.querySelector(".nome")?.innerText;
+    const porcentagem = parseFloat(card.querySelector("input.porcentagem")?.value);
+    const renovacao = parseInt(card.querySelector("input.renovacao")?.value) || null;
+    if (nome && !isNaN(porcentagem) && !configuracoes.some(c => c.nome_categoria === nome)) {
+      configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: renovacao });
+    }
+  });
+
+  return configuracoes;
+}
+
+async function salvarConfiguracoes() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario) return;
+
+  const configuracoes = coletarConfiguracoes();
+
   try {
     const res = await fetch("/api/configuracao", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_usuario, configuracoes })
+      body: JSON.stringify({ id_usuario: usuario.id, configuracoes })
     });
 
     if (res.ok) {
@@ -117,76 +170,8 @@ async function salvarDistribuicoes(id_usuario, configuracoes) {
       const erro = await res.text();
       alert("Erro ao salvar: " + erro);
     }
-  } catch {
+  } catch (err) {
     alert("Erro ao salvar configurações.");
+    console.error(err);
   }
-}
-
-async function carregarDistribuicoes() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario) return;
-
-  const distribuicoes = await buscarDistribuicoes(usuario.id);
-
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  const cards = document.getElementById("cardsDistribuicao");
-  if (!tabela || !cards) return;
-
-  tabela.innerHTML = "";
-  cards.innerHTML = "";
-
-  distribuicoes.forEach(d => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="nome">${d.nome_categoria}</td>
-      <td><input class="porcentagem" type="number" value="${d.porcentagem}" min="0" max="100" style="width: 60px">%</td>
-      <td><input class="renovacao" type="number" value="${d.dia_renovacao || ""}" min="1" max="31" style="width: 50px"></td>
-      <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
-    `;
-    tabela.appendChild(tr);
-
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.innerHTML = `
-      <p><strong>Categoria:</strong> <span class="nome">${d.nome_categoria}</span></p>
-      <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${d.porcentagem}" min="0" max="100" style="width: 60px">%</p>
-      <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${d.dia_renovacao || ""}" min="1" max="31" style="width: 50px"></p>
-      <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
-    `;
-    cards.appendChild(card);
-  });
-
-  atualizarSoma(distribuicoes);
-}
-
-function removerTag(nome) {
-  const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-  const novas = linhas.filter(tr => tr.querySelector("td.nome").innerText !== nome);
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  tabela.innerHTML = "";
-  novas.forEach(tr => tabela.appendChild(tr));
-
-  const cards = [...document.querySelectorAll("#cardsDistribuicao .card")];
-  const novosCards = cards.filter(c => !c.innerHTML.includes(nome));
-  const container = document.getElementById("cardsDistribuicao");
-  container.innerHTML = "";
-  novosCards.forEach(c => container.appendChild(c));
-
-  atualizarSoma();
-}
-
-function atualizarSoma(distribuicoes = null) {
-  if (!distribuicoes) {
-    const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-    distribuicoes = linhas.map(tr => {
-      const valor = parseFloat(tr.querySelector("input.porcentagem")?.value) || 0;
-      return { porcentagem: valor };
-    });
-  }
-
-  const total = distribuicoes.reduce((acc, d) => acc + d.porcentagem, 0);
-  document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
-
-  const salvarBtn = document.getElementById("salvarConfig");
-  if (salvarBtn) salvarBtn.disabled = total !== 100;
 }

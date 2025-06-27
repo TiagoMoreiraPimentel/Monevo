@@ -1,0 +1,188 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f3f3f3;
+  margin: 0;
+  padding: 0;
+}
+
+.conteudo {
+  width: 100%;
+  max-width: 700px;
+  background: white;
+  padding: 2rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ccc;
+  margin: 2rem auto;
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 2rem;
+}
+
+.inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.inputs input {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form button {
+  padding: 0.5rem 1rem;
+  background-color: #008b65;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #006e4f;
+}
+
+#tabelaDistribuicao {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+#tabelaDistribuicao th,
+#tabelaDistribuicao td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+#tabelaDistribuicao th {
+  background-color: #e0f3ec;
+}
+
+#tabelaDistribuicao input[type="number"] {
+  width: 80px;
+  padding: 0.3rem;
+  text-align: center;
+}
+
+.soma {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+#salvarConfig {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #008b65;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#salvarConfig:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-voltar {
+  margin-bottom: 1rem;
+  background-color: #ccc;
+  color: #333;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-voltar:hover {
+  background-color: #bbb;
+}
+
+/* ---------- Estilo dos Cards de TAG para Mobile ---------- */
+.cards-container {
+  display: none;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.card {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.card p {
+  margin: 0.3rem 0;
+}
+
+.card button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.card button:hover {
+  background-color: #c9302c;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 600px) {
+  .inputs {
+    flex-direction: column;
+  }
+
+  .conteudo {
+    padding: 1rem;
+    margin-top: 3rem;
+  }
+
+  #tabelaDistribuicao {
+    display: none;
+  }
+
+  .cards-container {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 601px) {
+  .cards-container {
+    display: none;
+  }
+
+  #tabelaDistribuicao {
+    display: table;
+  }
+}
