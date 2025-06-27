@@ -32,9 +32,8 @@ export default async function handler(req, res) {
       console.log(`📋 Total retornado do ORDS: ${jsonTodas.items?.length || 0}`);
       console.log("🧾 Todos os registros:", JSON.stringify(jsonTodas.items, null, 2));
 
-      const antigas = (jsonTodas.items || []).filter(c => 
-        c.ID_USUARIO == id_usuario && c.ID_DISTRIBUICAO
-      );
+      // Filtra todas as configurações do usuário para exclusão
+      const antigas = (jsonTodas.items || []).filter(c => c.ID_USUARIO == id_usuario);
 
       if (antigas.length === 0) {
         console.warn("⚠️ Nenhuma configuração antiga encontrada para exclusão.");
