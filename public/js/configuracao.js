@@ -10,18 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   carregarDespesas();
 
-  const inputValor = document.getElementById("valor");
-  if (inputValor) {
-    inputValor.addEventListener("input", () => {
-      let valor = inputValor.value.replace(/\D/g, "");
-      valor = (parseInt(valor, 10) / 100).toFixed(2);
-      inputValor.value = parseFloat(valor).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    });
-  }
-
   document.getElementById("form-despesa-fixa").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -93,7 +81,7 @@ async function carregarDespesas() {
   console.log("Carregando despesas para usuário ID:", usuario.id);
 
   try {
-    const res = await fetch("/api/despesas_fixas");
+    const res = await fetch(`/api/despesas_fixas?id_usuario=${usuario.id}`);
     console.log("Resposta GET despesas:", res.status);
 
     const despesas = await res.json();
