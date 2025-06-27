@@ -4,7 +4,6 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { id_usuario } = req.query;
     if (!id_usuario) return res.status(400).json({ erro: "ID do usuário é obrigatório" });
-
     const url = `${BASE}?q={"ID_USUARIO":${id_usuario}}`;
     const r = await fetch(url);
     const json = await r.json();

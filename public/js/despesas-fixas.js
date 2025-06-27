@@ -192,7 +192,7 @@ function toggleParcelas(botao, id, total, pagas, vencimentoInicial, valorParcela
 
 async function atualizarParcela(id, numero, marcado) {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  const res = await fetch("/api/despesas_fixas");
+  const res = await fetch(`/api/despesas_fixas?id_usuario=${usuario.id}`);
   const todas = await res.json();
   const despesa = todas.find(d => d.id_usuario === usuario.id && d.id_despesa_fixa === id);
   if (!despesa) return;
