@@ -12,116 +12,182 @@
   <div id="menu-container"></div>
 
   <main class="main-content">
-    <section class="conteudo">
-      <h1>Minhas Transações</h1>
-
-      <button id="btn-toggle-form">Cadastrar Nova Transação</button>
-
-      <form id="form-transacao" class="hidden">
-        <label for="conta">Conta:</label>
-        <select id="conta" required>
-          <option value="">Selecione uma conta</option>
-        </select>
-
-        <label for="tipo">Tipo:</label>
-        <select id="tipo" required>
-          <option value="">Selecione</option>
-          <option value="Receita">Receita</option>
-          <option value="Despesa">Despesa</option>
-        </select>
-
-        <div id="container-tag" class="hidden">
-          <label for="tag-distribuicao">Tag de Distribuição:</label>
-          <select id="tag-distribuicao">
-            <option value="">Selecione uma tag</option>
-          </select>
-        </div>
-
-        <label for="valor">Valor:</label>
-        <input type="text" id="valor" required placeholder="R$ 0,00">
-
-        <label for="data">Data:</label>
-        <input type="date" id="data" required>
-
-        <label for="categoria">Categoria:</label>
-        <select id="categoria" required>
-          <option value="">Selecione</option>
-          <option value="Salário">Salário</option>
-          <option value="Renda Extra">Renda Extra</option>
-          <option value="Alimentação">Alimentação</option>
-          <option value="Lazer">Lazer</option>
-          <option value="Farmácia">Farmácia</option>
-          <option value="Emergência">Emergência</option>
-          <option value="Saldo Inicial">Saldo Inicial</option>
-        </select>
-
-        <label for="descricao">Descrição:</label>
-        <textarea id="descricao" rows="2"></textarea>
-
-        <button type="submit">Registrar Transação</button>
-      </form>
-
-      <p id="mensagem" style="color: rgb(73, 170, 79); margin-top: 10px;"></p>
-
-      <button id="btn-toggle-filtros">Filtrar Transações</button>
-      <div id="filtros-container" class="hidden">
-        <label>Data:</label>
-        <input type="date" id="filtro-data">
-
-        <label>Conta:</label>
-        <select id="filtro-conta"></select>
-
-        <label>Tipo:</label>
-        <select id="filtro-tipo">
-          <option value="">Todos</option>
-          <option value="Receita">Receita</option>
-          <option value="Despesa">Despesa</option>
-        </select>
-
-        <div id="campo-tag" class="hidden">
-          <label for="tag-distribuicao">Tag de Distribuição:</label>
-          <select id="tag-distribuicao" name="tag-distribuicao">
-            <option value="">Selecione uma tag</option>
-          </select>
-        </div>
-
-        <label>Categoria:</label>
-        <select id="filtro-categoria">
-          <option value="">Todas</option>
-          <option>Salário</option>
-          <option>Renda Extra</option>
-          <option>Alimentação</option>
-          <option>Lazer</option>
-          <option>Farmácia</option>
-          <option>Emergência</option>
-          <option>Saldo Inicial</option>
-        </select>
-
-        <button id="btn-aplicar-filtro">Aplicar Filtro</button>
+    <div class="container">
+      <div class="fade-in">
+        <h1 class="page-title">Minhas Transações</h1>
+        <p class="page-subtitle">Gerencie suas receitas e despesas de forma inteligente</p>
       </div>
 
-      <h2>Histórico</h2>
-      <table id="tabela-desktop">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Conta</th>
-            <th>Tipo</th>
-            <th>Valor</th>
-            <th>Categoria</th>
-            <th>Descrição</th>
-          </tr>
-        </thead>
-        <tbody id="tabela-transacoes"></tbody>
-      </table>
+      <div class="grid grid-cols-1" style="gap: 2rem;">
+        <!-- Card do Formulário -->
+        <div class="card slide-up">
+          <div class="card-header">
+            <h3>Nova Transação</h3>
+          </div>
+          <div class="card-body">
+            <button id="btn-toggle-form" class="btn btn-primary">
+              <span>+</span> Cadastrar Nova Transação
+            </button>
 
-      <div id="lista-transacoes-mobile"></div>
-    </section>
+            <form id="form-transacao" class="hidden" style="margin-top: 2rem;">
+              <div class="grid grid-cols-2">
+                <div class="form-group">
+                  <label for="conta" class="form-label">Conta</label>
+                  <select id="conta" class="form-control" required></select>
+                </div>
 
-    <footer class="footer">
-      <p>Monevo © 2025 - Todos os direitos reservados</p>
-    </footer>
+                <div class="form-group">
+                  <label for="tipo" class="form-label">Tipo</label>
+                  <select id="tipo" class="form-control" required>
+                    <option value="">Selecione</option>
+                    <option value="Receita">Receita</option>
+                    <option value="Despesa">Despesa</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="container-tag" class="form-group hidden">
+                <label for="tag-distribuicao" class="form-label">Tag de Distribuição</label>
+                <select id="tag-distribuicao" class="form-control">
+                  <option value="">Selecione uma tag</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-2">
+                <div class="form-group">
+                  <label for="valor" class="form-label">Valor</label>
+                  <input type="text" id="valor" class="form-control" required placeholder="R$ 0,00">
+                </div>
+
+                <div class="form-group">
+                  <label for="data" class="form-label">Data</label>
+                  <input type="date" id="data" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="categoria" class="form-label">Categoria</label>
+                <select id="categoria" class="form-control" required>
+                  <option value="">Selecione</option>
+                  <option value="Salário">Salário</option>
+                  <option value="Renda Extra">Renda Extra</option>
+                  <option value="Alimentação">Alimentação</option>
+                  <option value="Lazer">Lazer</option>
+                  <option value="Farmácia">Farmácia</option>
+                  <option value="Emergência">Emergência</option>
+                  <option value="Saldo Inicial">Saldo Inicial</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="descricao" class="form-label">Descrição</label>
+                <textarea id="descricao" rows="3" class="form-control" placeholder="Adicione uma descrição (opcional)"></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                <span>💾</span> Registrar Transação
+              </button>
+            </form>
+
+            <p id="mensagem" style="color: var(--success); margin-top: 10px;"></p>
+          </div>
+        </div>
+
+        <!-- Card dos Filtros -->
+        <div class="card slide-up">
+          <div class="card-header">
+            <h3>Filtros</h3>
+          </div>
+          <div class="card-body">
+            <button id="btn-toggle-filtros" class="btn btn-outline">
+              <span>🔍</span> Filtrar Transações
+            </button>
+
+            <div id="filtros-container" class="hidden" style="margin-top: 2rem;">
+              <div class="grid grid-cols-3">
+                <div class="form-group">
+                  <label class="form-label">Data</label>
+                  <input type="date" id="filtro-data" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Conta</label>
+                  <select id="filtro-conta" class="form-control"></select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Tipo</label>
+                  <select id="filtro-tipo" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="Receita">Receita</option>
+                    <option value="Despesa">Despesa</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="campo-tag" class="form-group hidden">
+                <label class="form-label">Tag de Distribuição</label>
+                <select id="tag-distribuicao-filtro" class="form-control">
+                  <option value="">Selecione uma tag</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Categoria</label>
+                <select id="filtro-categoria" class="form-control">
+                  <option value="">Todas</option>
+                  <option value="Salário">Salário</option>
+                  <option value="Renda Extra">Renda Extra</option>
+                  <option value="Alimentação">Alimentação</option>
+                  <option value="Lazer">Lazer</option>
+                  <option value="Farmácia">Farmácia</option>
+                  <option value="Emergência">Emergência</option>
+                  <option value="Saldo Inicial">Saldo Inicial</option>
+                </select>
+              </div>
+
+              <button id="btn-aplicar-filtro" class="btn btn-primary">
+                <span>✓</span> Aplicar Filtro
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card do Histórico -->
+        <div class="card slide-up">
+          <div class="card-header">
+            <h3>Histórico de Transações</h3>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="table" id="tabela-desktop">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Conta</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Categoria</th>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tabela-transacoes"></tbody>
+              </table>
+            </div>
+
+            <div class="transaction-cards" id="lista-transacoes-mobile"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Monevo © 2025 - Todos os direitos reservados</p>
+    </div>
+  </footer>
 
   <script src="../js/menu.js"></script>
   <script src="../js/transacoes.js"></script>
