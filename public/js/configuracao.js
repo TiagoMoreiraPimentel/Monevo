@@ -74,23 +74,20 @@ function adicionarLinhaTabela({ nome_categoria, porcentagem, dia_renovacao }) {
 
 function adicionarCard({ nome_categoria, porcentagem, dia_renovacao }) {
   const card = document.createElement("div");
-  card.classList.add("transaction-card");
+  card.className = "card";
 
   card.innerHTML = `
-    <div class="transaction-header">
-      <div>
-        <div class="transaction-amount" style="font-size: 1rem; font-weight: 600; color: var(--cor-texto);">
-          Categoria: <span class="nome" style="font-weight: normal;">${nome_categoria}</span>
-        </div>
-        <div class="transaction-date">Renovação: ${dia_renovacao ? "Dia " + dia_renovacao : "-"}</div>
-      </div>
-      <button class="btn btn-danger btn-sm" onclick="removerTag('${nome_categoria}')">🗑️</button>
-    </div>
-
-    <div class="transaction-details">
-      <div class="transaction-detail">
-        <span class="detail-label">Porcentagem:</span>
-        <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" style="width: 80px; padding: 4px; border-radius: 6px; border: 1px solid #ccc; text-align: center;" />
+    <div class="card-body">
+      <p><strong>Categoria:</strong><br><span class="nome">${nome_categoria}</span></p>
+      <hr class="divider">
+      <p><strong>Porcentagem:</strong><br>
+        <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" />
+      </p>
+      <hr class="divider">
+      <p><strong>Renovação:</strong><br>${dia_renovacao ? "Dia " + dia_renovacao : "-"}</p>
+      <hr class="divider">
+      <div style="text-align: center; margin-top: 0.5rem;">
+        <button onclick="removerTag('${nome_categoria}')">Remover</button>
       </div>
     </div>
   `;
