@@ -79,42 +79,33 @@ async function salvarDistribuicoes(id_usuario, configuracoes) {
   }
 }
 
-async function carregarDistribuicoes() {
+async function carregarDistribuicao() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario) return;
 
-  const distribuicoes = await buscarDistribuicoes(usuario.id);
+  try {
+    const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${usuario.id}`);
+    const dados = await res.json();
 
-  const tabela = document.querySelector("#tabelaDistribuicao tbody");
-  const cards = document.getElementById("cardsDistribuicao");
+    console.log("Usuário:", usuario.id);
+    console.log("Resposta da API:", dados);
 
-  tabela.innerHTML = "";
-  cards.innerHTML = "";
+    const tbody = document.querySelector("#tabelaDistribuicao tbody");
+    tbody.innerHTML = "";
 
-  distribuicoes.forEach(d => {
-    // Tabela (desktop)
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d.nome_categoria}</td>
-      <td>${d.porcentagem}%</td>
-      <td>${d.dia_renovacao || "-"}</td>
-      <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
-    `;
-    tabela.appendChild(tr);
+    dados.items.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.nome_categoria}</td>
+        <td>${item.porcentagem}%</td>
+        <td>${item.dia_renovacao || "-"}</td>
+        <td><button>Remover</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
 
-    // Card (mobile)
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.innerHTML = `
-      <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
-      <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
-      <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
-      <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
-    `;
-    cards.appendChild(card);
-  });
-
-  atualizarSoma(distribuicoes);
+  } catch (err) {
+    console.error("Erro ao carregar distribuição:", err);
+  }
 }
 
 function removerTag(nome) {
