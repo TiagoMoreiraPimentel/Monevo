@@ -65,7 +65,10 @@ function carregarResumo() {
       const hojeBRT = new Date(
         new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
       );
-      const dataAtual = hojeBRT.toISOString().split("T")[0];
+      const dataAtual = hojeBRT.getFullYear() + "-" +
+        String(hojeBRT.getMonth() + 1).padStart(2, "0") + "-" +
+        String(hojeBRT.getDate()).padStart(2, "0");
+      console.log("📅 Enviando dataAtual para API (BRT):", dataAtual);
       carregarGraficoSaldosTags(usuario.id, dataAtual);
       carregarTicketsTags();
     });
