@@ -9,10 +9,9 @@ export default async function handler(req, res) {
     }
 
     try {
-      const resposta = await fetch(BASE_CONFIG);
+      const resposta = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
       const json = await resposta.json();
-
-      const configuracoes = (json.items || []).filter(c => c.id_usuario == id_usuario);
+      const configuracoes = json.items || [];
 
       // ✅ Formato esperado pelo frontend: { items: [...] }
       return res.status(200).json({ items: configuracoes });
