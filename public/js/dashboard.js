@@ -47,7 +47,10 @@ function carregarResumo() {
 
           const campoFixas = document.getElementById("total-fixas");
           if (campoFixas) {
-            campoFixas.textContent = `Despesas fixas restantes: ${formatarValorBR(totalRestante)}`;
+            campoFixas.textContent = totalRestanteFixas.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
           }
         })
         .catch((erro) => {
