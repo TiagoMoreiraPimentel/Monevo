@@ -104,7 +104,7 @@ async function buscarDistribuicoes(id_usuario) {
 
 async function salvarDistribuicoes(id_usuario, configuracoes) {
   try {
-    const res = await fetch("/api/distribuicao_valor_config", {
+    const res = await fetch("/api/configuracao", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id_usuario, configuracoes })
