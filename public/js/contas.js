@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const inputSaldo = document.getElementById("saldo");
 
+  inputSaldo.value = (0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+
   // Formatar valor enquanto digita
   inputSaldo.addEventListener("input", () => {
     let valor = inputSaldo.value.replace(/\D/g, "");
@@ -25,15 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nome = document.getElementById("nome").value.trim();
     const tipo = document.getElementById("tipo").value;
-    
-    const saldoFormatado = document.getElementById("saldo").value.trim();
-    const saldoNumerico = saldoFormatado
-      .replace(/\s/g, "")
-      .replace("R$", "")
-      .replace(/\./g, "")
-      .replace(",", ".")
-      .trim();
-    const saldo = saldoNumerico === "" ? NaN : parseFloat(saldoNumerico);
+    const saldoFormatado = document.getElementById("saldo").value;
+    const saldo = parseFloat(saldoFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
 
     if (!nome || isNaN(saldo)) {
       mostrarMensagem("Preencha todos os campos corretamente.");
