@@ -19,15 +19,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!nomeCategoria || isNaN(porcentagem)) return;
 
-      const distribuicoes = await buscarDistribuicoes(usuario.id);
+      const jaExiste = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")]
+        .some(tr => tr.querySelector("td.nome")?.innerText === nomeCategoria);
+      if (jaExiste) {
+        alert("Essa categoria já existe.");
+        return;
+      }
 
-      distribuicoes.push({
-        nome_categoria: nomeCategoria,
-        porcentagem,
-        dia_renovacao: isNaN(diaRenovacao) ? null : diaRenovacao
-      });
+      // Adiciona linha na tabela
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="nome">${nomeCategoria}</td>
+        <td><input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" style="width: 60px">%</td>
+        <td><input class="renovacao" type="number" value="${isNaN(diaRenovacao) ? "" : diaRenovacao}" min="1" max="31" style="width: 50px"></td>
+        <td><button onclick="removerTag('${nomeCategoria}')">Remover</button></td>
+      `;
+      document.querySelector("#tabelaDistribuicao tbody").appendChild(tr);
 
-      salvarDistribuicoes(usuario.id, distribuicoes);
+      // Adiciona card no mobile
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.innerHTML = `
+        <p><strong>Categoria:</strong> <span class="nome">${nomeCategoria}</span></p>
+        <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${porcentagem}" min="0" max="100" style="width: 60px">%</p>
+        <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${isNaN(diaRenovacao) ? "" : diaRenovacao}" min="1" max="31" style="width: 50px"></p>
+        <button onclick="removerTag('${nomeCategoria}')">Remover</button>
+      `;
+      document.getElementById("cardsDistribuicao").appendChild(card);
+
+      atualizarSoma();
+      form.reset();
     });
   }
 
@@ -37,27 +58,35 @@ document.addEventListener("DOMContentLoaded", () => {
       const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
       if (!usuario) return;
 
+      const configuracoes = [];
+
+      // Coletar da tabela (desktop)
       const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-
-      const mapaUnico = new Map();
-
       linhas.forEach(tr => {
-        const nome = tr.querySelector(".nome").innerText;
-        const porcentagem = parseFloat(tr.querySelector(".porcentagem").value);
-        const dia = parseInt(tr.querySelector(".renovacao").value) || null;
+        const nome = tr.querySelector("td.nome")?.innerText;
+        const porcentagem = parseFloat(tr.querySelector("input.porcentagem")?.value);
+        const renovacao = parseInt(tr.querySelector("input.renovacao")?.value) || null;
 
-        if (!mapaUnico.has(nome)) {
-          mapaUnico.set(nome, { nome_categoria: nome, porcentagem, dia_renovacao: dia });
-        } else {
-          const existente = mapaUnico.get(nome);
-          if (!existente.dia_renovacao && dia) {
-            existente.dia_renovacao = dia;
-          }
+        if (nome && !isNaN(porcentagem)) {
+          configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: renovacao });
         }
       });
 
-      const configuracoes = Array.from(mapaUnico.values());
+      // Coletar dos cards (mobile)
+      const cards = [...document.querySelectorAll("#cardsDistribuicao .card")];
+      cards.forEach(card => {
+        const nome = card.querySelector(".nome")?.innerText;
+        const porcentagem = parseFloat(card.querySelector("input.porcentagem")?.value);
+        const renovacao = parseInt(card.querySelector("input.renovacao")?.value) || null;
 
+        // Evita duplicar TAGs já coletadas da tabela
+        const jaAdicionada = configuracoes.some(c => c.nome_categoria === nome);
+        if (nome && !isNaN(porcentagem) && !jaAdicionada) {
+          configuracoes.push({ nome_categoria: nome, porcentagem, dia_renovacao: renovacao });
+        }
+      });
+
+      console.log("🚀 Configurações enviadas para o banco:", configuracoes);
       salvarDistribuicoes(usuario.id, configuracoes);
     });
   }
@@ -110,7 +139,7 @@ async function carregarDistribuicoes() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="nome">${d.nome_categoria}</td>
-      <td><input class="porcentagem" type="number" value="${d.porcentagem}" min="0" max="100" step="1" style="width: 60px">%</td>
+      <td><input class="porcentagem" type="number" value="${d.porcentagem}" min="0" max="100" style="width: 60px">%</td>
       <td><input class="renovacao" type="number" value="${d.dia_renovacao || ""}" min="1" max="31" style="width: 50px"></td>
       <td><button onclick="removerTag('${d.nome_categoria}')">Remover</button></td>
     `;
@@ -119,9 +148,9 @@ async function carregarDistribuicoes() {
     const card = document.createElement("div");
     card.classList.add("card");
     card.innerHTML = `
-      <p><strong>Categoria:</strong> ${d.nome_categoria}</p>
-      <p><strong>Porcentagem:</strong> ${d.porcentagem}%</p>
-      <p><strong>Renovação:</strong> ${d.dia_renovacao || "-"}</p>
+      <p><strong>Categoria:</strong> <span class="nome">${d.nome_categoria}</span></p>
+      <p><strong>Porcentagem:</strong> <input class="porcentagem" type="number" value="${d.porcentagem}" min="0" max="100" style="width: 60px">%</p>
+      <p><strong>Renovação:</strong> <input class="renovacao" type="number" value="${d.dia_renovacao || ""}" min="1" max="31" style="width: 50px"></p>
       <button onclick="removerTag('${d.nome_categoria}')">Remover</button>
     `;
     cards.appendChild(card);
@@ -132,8 +161,7 @@ async function carregarDistribuicoes() {
 
 function removerTag(nome) {
   const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-  const novas = linhas.filter(tr => tr.querySelector(".nome").innerText !== nome);
-
+  const novas = linhas.filter(tr => tr.querySelector("td.nome").innerText !== nome);
   const tabela = document.querySelector("#tabelaDistribuicao tbody");
   tabela.innerHTML = "";
   novas.forEach(tr => tabela.appendChild(tr));
@@ -150,9 +178,10 @@ function removerTag(nome) {
 function atualizarSoma(distribuicoes = null) {
   if (!distribuicoes) {
     const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-    distribuicoes = linhas.map(tr => ({
-      porcentagem: parseFloat(tr.querySelector(".porcentagem").value)
-    }));
+    distribuicoes = linhas.map(tr => {
+      const valor = parseFloat(tr.querySelector("input.porcentagem")?.value) || 0;
+      return { porcentagem: valor };
+    });
   }
 
   const total = distribuicoes.reduce((acc, d) => acc + d.porcentagem, 0);
