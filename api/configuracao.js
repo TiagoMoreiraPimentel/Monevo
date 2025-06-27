@@ -14,6 +14,8 @@ export default async function handler(req, res) {
       const configuracoes = json.items || [];
 
       // ✅ Formato esperado pelo frontend: { items: [...] }
+      console.log("Distribuições filtradas para o usuário:", configuracoes);
+      res.setHeader("Content-Type", "application/json");
       return res.status(200).json({ items: configuracoes });
     } catch (error) {
       console.error("Erro ao buscar configurações:", error);
@@ -31,6 +33,7 @@ export default async function handler(req, res) {
     try {
       // Apaga as configurações antigas
       const todas = await fetch(BASE_CONFIG).then(r => r.json());
+      console.log("Resposta bruta do ORDS:", json);
       const antigas = todas.items.filter(c => c.id_usuario == id_usuario);
 
       for (const existente of antigas) {
