@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // ✅ Só executa essa parte depois que o menu foi carregado
       const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-      const botaoAdmin = document.getElementById("botao-usuarios");
+      const botaoAdmin = document.getElementById("admin-only");
 
       if (!usuario || !botaoAdmin) return;
 
