@@ -62,8 +62,10 @@ function carregarResumo() {
       renderizarGraficoCategoriasReceitas(receitas);
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
       renderizarGraficoConta(transacoes);
-      const hoje = new Date();
-      const dataAtual = hoje.toISOString().split("T")[0];
+      const hojeBRT = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
+      );
+      const dataAtual = hojeBRT.toISOString().split("T")[0];
       carregarGraficoSaldosTags(usuario.id, dataAtual);
       carregarTicketsTags();
     });
