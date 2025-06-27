@@ -408,14 +408,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const saudacao = document.getElementById("saudacao");
   if (saudacao) saudacao.textContent = `Olá, ${usuario.nome}`;
 
-  const botaoAdmin = document.getElementById("admin-only");
-  if (usuario.nivel_acesso === "ADMINISTRADOR" && botaoAdmin) {
-    botaoAdmin.classList.remove("hidden");
-    botaoAdmin.addEventListener("click", () => {
-      window.location.href = "../telas/admin-usuarios.html";
-    });
-  }
-
   const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
   const campoMes = document.getElementById("mes");
   if (campoMes) campoMes.value = mesAtual;
