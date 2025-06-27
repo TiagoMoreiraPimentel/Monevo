@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectConta = document.getElementById("conta");
   const inputValor = document.getElementById("valor");
 
+  // Máscara automática de moeda brasileira
   inputValor.addEventListener("input", () => {
     let valor = inputValor.value.replace(/\D/g, "");
     valor = (parseInt(valor, 10) / 100).toFixed(2);
@@ -207,25 +208,15 @@ async function carregarTransacoes(idUsuario) {
       tabela.appendChild(tr);
 
       const card = document.createElement("div");
-      card.classList.add("transaction-card");
-
-      const valorFormatado = Number(t.valor).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-
-      const corValor = t.tipo === "Despesa" ? "despesa" : "receita";
-
+      card.classList.add("card-transacao");
       card.innerHTML = `
-        <div class="transaction-header">
-          <span class="transaction-amount ${corValor}">${valorFormatado}</span>
-          <span class="transaction-date">${dataFormatada}</span>
-        </div>
-        <div class="transaction-detail"><strong>Conta:</strong> ${conta}</div>
-        <div class="transaction-detail"><strong>Tipo:</strong> <span class="tag tipo-${t.tipo.toLowerCase()}">${t.tipo}</span></div>
-        <div class="transaction-detail"><strong>Categoria:</strong> ${t.categoria}</div>
-        <div class="transaction-detail"><strong>Descrição:</strong> ${t.descricao || ""}</div>
-        <button class="btn btn-danger" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">🗑️ Excluir Transação</button>
+        <p><strong>Data:</strong> ${dataFormatada}</p>
+        <p><strong>Conta:</strong> ${conta}</p>
+        <p><strong>Tipo:</strong> ${t.tipo}</p>
+        <p><strong>Valor:</strong> R$ ${Number(t.valor).toFixed(2)}</p>
+        <p><strong>Categoria:</strong> ${t.categoria}</p>
+        <p><strong>Descrição:</strong><br>${t.descricao || ""}</p>
+        <button class="btn-excluir" onclick="excluirTransacao('${t.id_transacao}', ${idUsuario})">Excluir</button>
       `;
       listaMobile.appendChild(card);
     });
