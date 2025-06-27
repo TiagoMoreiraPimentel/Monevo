@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  console.log("Usuário logado:", usuario);
-
   if (!usuario) {
     alert("Acesso negado. Faça login.");
     window.location.href = "../telas/login.html";
@@ -59,18 +57,8 @@ async function buscarDistribuicoes(id_usuario) {
   try {
     const res = await fetch(`/api/distribuicao_valor_config?id_usuario=${id_usuario}`);
     const json = await res.json();
-    console.log("Resposta bruta do backend:", json);
-
-    // Ajuste aqui: verifique se json é array ou objeto
-    if (Array.isArray(json)) {
-      return json;
-    } else if (Array.isArray(json.items)) {
-      return json.items;
-    } else {
-      return [];
-    }
-  } catch (err) {
-    console.error("Erro ao buscar distribuições:", err);
+    return Array.isArray(json) ? json : Array.isArray(json.items) ? json.items : [];
+  } catch {
     return [];
   }
 }
@@ -90,8 +78,7 @@ async function salvarDistribuicoes(id_usuario, configuracoes) {
       const erro = await res.text();
       alert("Erro ao salvar: " + erro);
     }
-  } catch (err) {
-    console.error("Erro ao salvar configurações:", err);
+  } catch {
     alert("Erro ao salvar configurações.");
   }
 }
@@ -100,23 +87,16 @@ async function carregarDistribuicoes() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) return;
 
-  console.log("Carregando distribuições para o usuário ID:", usuario.id);
   const distribuicoes = await buscarDistribuicoes(usuario.id);
-  console.log("Distribuições a carregar na tela:", distribuicoes);
 
   const tabela = document.querySelector("#tabelaDistribuicao tbody");
   const cards = document.getElementById("cardsDistribuicao");
-
-  if (!tabela || !cards) {
-    console.error("Elementos da tabela ou dos cards não encontrados!");
-    return;
-  }
+  if (!tabela || !cards) return;
 
   tabela.innerHTML = "";
   cards.innerHTML = "";
 
   distribuicoes.forEach(d => {
-    // Tabela (desktop)
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${d.nome_categoria}</td>
@@ -126,7 +106,6 @@ async function carregarDistribuicoes() {
     `;
     tabela.appendChild(tr);
 
-    // Card (mobile)
     const card = document.createElement("div");
     card.classList.add("card");
     card.innerHTML = `
@@ -161,15 +140,12 @@ function removerTag(nome) {
 function atualizarSoma(distribuicoes = null) {
   if (!distribuicoes) {
     const linhas = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")];
-    distribuicoes = linhas.map(tr => {
-      return {
-        porcentagem: parseFloat(tr.cells[1].innerText.replace("%", ""))
-      };
-    });
+    distribuicoes = linhas.map(tr => ({
+      porcentagem: parseFloat(tr.cells[1].innerText.replace("%", ""))
+    }));
   }
 
   const total = distribuicoes.reduce((acc, d) => acc + d.porcentagem, 0);
-  console.log("Total atual:", total);
   document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
 
   const salvarBtn = document.getElementById("salvarConfig");

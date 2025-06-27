@@ -118,8 +118,8 @@ form button:hover {
   margin-bottom: 1rem;
 }
 
-.tag-card {
-  width: 45%;
+.card {
+  width: 100%;
   border: 1px solid #ccc;
   border-radius: 12px;
   padding: 12px;
@@ -128,33 +128,11 @@ form button:hover {
   box-sizing: border-box;
 }
 
-.tag-card strong {
-  display: block;
-  font-size: 1rem;
-  color: #008b65;
-  margin-bottom: 0.5rem;
+.card p {
+  margin: 0.3rem 0;
 }
 
-.tag-card div {
-  margin-bottom: 8px;
-}
-
-.tag-card label {
-  font-size: 0.85rem;
-  color: #555;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.tag-card input {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-
-.tag-card button {
+.card button {
   background-color: #d9534f;
   color: white;
   border: none;
@@ -162,9 +140,10 @@ form button:hover {
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
+  margin-top: 0.5rem;
 }
 
-.tag-card button:hover {
+.card button:hover {
   background-color: #c9302c;
 }
 
@@ -194,10 +173,7 @@ form button:hover {
 
   .cards-container {
     display: flex;
-  }
-
-  .tag-card {
-    width: 100%;
+    flex-direction: column;
   }
 }
 
