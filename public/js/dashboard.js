@@ -340,7 +340,9 @@ async function carregarTicketsTags() {
   if (!usuario) return;
 
   try {
-    const res = await fetch(`/api/tickets_tags?id_usuario=${usuario.id}`);
+    const hoje = new Date();
+    const dataAtual = hoje.toISOString().split("T")[0]; // "2025-06-26"
+    const res = await fetch(`/api/tickets_tags?id_usuario=${usuario.id}&data_atual=${dataAtual}`);
     if (!res.ok) {
       const erroTexto = await res.text();
       throw new Error(`Erro do servidor: ${erroTexto}`);
