@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ items: configuracoes });
     } catch (error) {
-      console.error("Erro ao buscar configurações:", error);
+      console.error("❌ Erro ao buscar configurações:", error);
       return res.status(500).send("Erro ao buscar configurações.");
     }
   }
@@ -28,19 +28,24 @@ export default async function handler(req, res) {
     }
 
     try {
-      // 🔍 Buscar TAGs do usuário
-      const todas = await fetch(BASE_CONFIG).then(r => r.json());
+      // 🔍 Buscar todas as TAGs
+      const resposta = await fetch(BASE_CONFIG);
+      const todas = await resposta.json();
       const antigas = (todas.items || []).filter(c => c.id_usuario == id_usuario && c.id_distribuicao);
+
+      console.log("📦 Configurações antigas encontradas:", antigas.map(t => ({
+        id: t.id_distribuicao,
+        nome: t.nome_categoria
+      })));
 
       // 🧹 Remover as antigas
       for (const existente of antigas) {
-        console.log("🧨 Removendo ID:", existente.id_distribuicao);
-        await fetch(BASE_CONFIG + existente.id_distribuicao, {
-          method: "DELETE"
-        });
+        const deleteUrl = BASE_CONFIG + existente.id_distribuicao;
+        console.log("🧨 Removendo:", deleteUrl);
+        await fetch(deleteUrl, { method: "DELETE" });
       }
 
-      // 💾 Inserir as novas
+      // 💾 Inserir novas configurações
       for (const config of configuracoes) {
         const nova = {
           id_usuario,
@@ -49,18 +54,23 @@ export default async function handler(req, res) {
           dia_renovacao: config.dia_renovacao || null
         };
 
-        console.log("💾 Inserindo config:", nova);
+        console.log("🚀 Inserindo nova TAG:", nova);
 
-        await fetch(BASE_CONFIG, {
+        const response = await fetch(BASE_CONFIG, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(nova)
         });
+
+        if (!response.ok) {
+          const erroDetalhado = await response.text();
+          console.error("❌ Erro ao inserir:", nova, "->", erroDetalhado);
+        }
       }
 
-      return res.status(201).send("Configurações salvas.");
+      return res.status(201).send("Configurações salvas com sucesso.");
     } catch (error) {
-      console.error("Erro ao salvar configurações:", error);
+      console.error("❌ Erro ao salvar configurações:", error);
       return res.status(500).send("Erro ao salvar configurações.");
     }
   }
