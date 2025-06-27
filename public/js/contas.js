@@ -25,10 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nome = document.getElementById("nome").value.trim();
     const tipo = document.getElementById("tipo").value;
-    const saldoFormatado = document.getElementById("saldo").value;
-    const saldo = parseFloat(saldoFormatado.replace(/[^\d,-]/g, "").replace(",", "."));
+    
+    const saldoFormatado = document.getElementById("saldo").value.trim();
+    const saldoNumerico = saldoFormatado
+      .replace(/\s/g, "")
+      .replace("R$", "")
+      .replace(/\./g, "")
+      .replace(",", ".")
+      .trim();
+    const saldo = saldoNumerico === "" ? NaN : parseFloat(saldoNumerico);
 
-    if (!nome || saldoFormatado.trim() === "" || isNaN(saldo)) {
+    if (!nome || isNaN(saldo)) {
       mostrarMensagem("Preencha todos os campos corretamente.");
       return;
     }
