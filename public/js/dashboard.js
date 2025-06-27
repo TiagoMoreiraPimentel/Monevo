@@ -33,20 +33,28 @@ function carregarResumo() {
       document.getElementById("total-despesas").textContent = formatarValorBR(totalDespesas);
       document.getElementById("saldo").textContent = formatarValorBR(saldo);
 
-      // NOVO: Carregar despesas fixas do endpoint existente
+      // NOVO: Calcular total restante das despesas fixas (parcelas não pagas)
       fetch(`/api/despesas_fixas?id_usuario=${usuario.id}`)
         .then((res) => res.json())
         .then((dados) => {
-          const totalFixas = dados.reduce((soma, item) => soma + (parseFloat(item.valor_total) || 0), 0);
+          const totalRestante = dados.reduce((soma, item) => {
+            const parcelas = item.parcelas || 1;
+            const pagas = item.pagas || 0;
+            const restantes = Math.max(parcelas - pagas, 0);
+            const valorParcela = parseFloat(item.valor) || 0;
+            return soma + (restantes * valorParcela);
+          }, 0);
+
           const campoFixas = document.getElementById("total-fixas");
           if (campoFixas) {
-            campoFixas.textContent = `Total de despesas fixas: ${formatarValorBR(totalFixas)}`;
+            campoFixas.textContent = `Despesas fixas restantes: ${formatarValorBR(totalRestante)}`;
           }
         })
         .catch((erro) => {
-          console.error("Erro ao carregar despesas fixas:", erro);
+          console.error("Erro ao calcular valor restante das despesas fixas:", erro);
         });
 
+      // Gráficos e dados complementares
       renderizarGraficoCategoriasDespesas(despesas);
       renderizarGraficoCategoriasReceitas(receitas);
       renderizarGraficoLinhas(totalReceitas, totalDespesas);
