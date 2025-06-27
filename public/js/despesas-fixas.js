@@ -76,7 +76,7 @@ async function carregarDespesas() {
   const tabela = document.getElementById("tabela-despesas");
 
   try {
-    const res = await fetch("/api/despesas_fixas");
+    const res = await fetch(`/api/despesas_fixas?id_usuario=${usuario.id}`);
     const despesas = await res.json();
     const minhas = despesas.filter(d => d.id_usuario === usuario.id);
 
