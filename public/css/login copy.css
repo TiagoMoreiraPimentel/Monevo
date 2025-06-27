@@ -1,0 +1,90 @@
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  justify-content: flex-start;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.logo img {
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.container {
+  max-width: 400px;
+  width: 100%;
+  padding: 1rem;
+}
+
+.card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--cor-primaria);
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  border: none;
+  background-color: var(--cor-primaria);
+  color: white;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: var(--cor-primaria-hover);
+}
+
+.link-btn {
+  background: none;
+  color: var(--cor-primaria);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 1rem;
+  display: block;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+#mensagem {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: var(--cor-erro);
+  font-weight: bold;
+}

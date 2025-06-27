@@ -4,29 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Monevo - Login</title>
-  <!-- Fonte Inter via Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/login.css" />
 </head>
 <body>
 
-  <main class="container" role="main">
-    <div class="logo" aria-label="Logo Monevo">
+  <div class="container">
+    <div class="logo">
       <img src="../img/logo-monevo.png" alt="Monevo - Gestão Financeira" />
     </div>
 
     <!-- Tela de Login -->
-    <form id="login-form" class="card" autocomplete="on" aria-label="Formulário de Login">
+    <form id="login-form" class="card">
       <h2>Login</h2>
 
       <label for="login-email">E-mail</label>
-      <input type="email" id="login-email" name="login-email" required autocomplete="username" placeholder="seu@email.com" />
+      <input type="email" id="login-email" required />
 
       <label for="login-senha">Senha</label>
-      <input type="password" id="login-senha" name="login-senha" required autocomplete="current-password" placeholder="Sua senha" />
+      <input type="password" id="login-senha" required />
 
       <button type="submit">Fazer Login</button>
       <button type="button" id="btn-esqueci-senha" class="link-btn">Esqueci a senha</button>
@@ -34,25 +30,26 @@
     </form>
 
     <!-- Tela de Cadastro -->
-    <form id="cadastro-form" class="card hidden" autocomplete="on" aria-label="Formulário de Cadastro">
+    <form id="cadastro-form" class="card hidden">
       <h2>Criar Conta</h2>
 
       <label for="cad-nome">Nome</label>
-      <input type="text" id="cad-nome" name="cad-nome" required placeholder="Seu nome completo" />
+      <input type="text" id="cad-nome" required />
 
       <label for="cad-email">E-mail</label>
-      <input type="email" id="cad-email" name="cad-email" required autocomplete="email" placeholder="seu@email.com" />
+      <input type="email" id="cad-email" required />
 
       <label for="cad-senha">Senha</label>
-      <input type="password" id="cad-senha" name="cad-senha" required autocomplete="new-password" placeholder="Crie uma senha" />
+      <input type="password" id="cad-senha" required />
 
       <button type="button" id="btn-criar-conta">Criar Conta</button>
       <button type="button" id="btn-voltar-login" class="link-btn">Voltar para login</button>
     </form>
 
-    <p id="mensagem" aria-live="polite"></p>
-  </main>
+    <p id="mensagem"></p>
+  </div>
 
+  <!-- Rodapé padrão -->
   <footer>
     <p>Monevo © 2025 — Todos os direitos reservados</p>
   </footer>

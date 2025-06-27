@@ -10,106 +10,120 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <script src="../js/dashboard.js" defer></script>
+  <script src="../js/menu.js" defer></script>
 </head>
 <body>
-  <!-- ✅ Menu novo carregado dinamicamente -->
   <div id="menu-container"></div>
 
   <main class="main-content">
-    <header class="header-bar">
-      <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
-      <span id="saudacao">Olá, usuário</span>
-      <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
-    </header>
-
-    <section class="conteudo">
-      <h2>Resumo Financeiro</h2>
-
-      <div class="filtros-relatorio">
-        <label for="mes">Mês:</label>
-        <select id="mes">
-          <option value="01">Janeiro</option>
-          <option value="02">Fevereiro</option>
-          <option value="03">Março</option>
-          <option value="04">Abril</option>
-          <option value="05">Maio</option>
-          <option value="06">Junho</option>
-          <option value="07">Julho</option>
-          <option value="08">Agosto</option>
-          <option value="09">Setembro</option>
-          <option value="10">Outubro</option>
-          <option value="11">Novembro</option>
-          <option value="12">Dezembro</option>
-        </select>
-
-        <label for="ano">Ano:</label>
-        <select id="ano">
-          <option value="2021">2021</option>
-          <option value="2022">2022</option>
-          <option value="2023">2023</option>
-          <option value="2024">2024</option>
-          <option value="2025" selected>2025</option>
-        </select>
-
-        <button onclick="carregarResumo()">Aplicar Filtro</button>
+    <div class="card card-body fade-in" style="margin: 2rem auto 3rem auto; max-width: 860px;">
+      <div class="topo-dashboard" style="display:flex; justify-content:flex-end; padding: 0.5rem 2rem 0 2rem; align-items: flex-start;">
+        <span id="saudacao" class="saudacao-usuario">Olá, usuário</span>
       </div>
-
-      <div class="resumo-valores">
-        <p><strong>Total Receitas:</strong> R$ <span id="total-receitas">0,00</span></p>
-        <p><strong>Total Despesas:</strong> R$ <span id="total-despesas">0,00</span></p>
-        <p><strong>Total Despesas Fixas:</strong> R$ <span id="total-fixas">0,00</span></p>
-        <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
+      <div class="logo-centralizada" style="display: flex; justify-content: center; margin-top: 1rem;">
+        <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" style="width: 150px;" />
       </div>
+      <h2 class="page-title" style="text-align: center; margin-top: 0.5rem;">Resumo Financeiro</h2>
+    </div>
 
-      <div class="grafico-box">
-        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Saldo Disponível por Tag</button>
-        <div class="grafico-conteudo">
-          <canvas id="grafico-saldos-tags"></canvas>
+    <section class="conteudo dashboard-content" style="max-width: 860px; margin: 0 auto;">
+      <div class="card card-body fade-in" style="margin-bottom: 3rem;">
+        <form class="filtros-relatorio" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
+          <div class="filtro-item">
+            <label for="mes" class="form-label">Mês:</label>
+            <select id="mes" class="form-control">
+              <option value="01">Janeiro</option>
+              <option value="02">Fevereiro</option>
+              <option value="03">Março</option>
+              <option value="04">Abril</option>
+              <option value="05">Maio</option>
+              <option value="06">Junho</option>
+              <option value="07">Julho</option>
+              <option value="08">Agosto</option>
+              <option value="09">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+          </div>
+
+          <div class="filtro-item">
+            <label for="ano" class="form-label">Ano:</label>
+            <select id="ano" class="form-control">
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025" selected>2025</option>
+            </select>
+          </div>
+
+          <button type="button" class="btn btn-primary" onclick="carregarResumo()">Aplicar Filtro</button>
+        </form>
+
+        <div class="resumo-container">
+          <div class="resumo-card">
+            <span class="resumo-titulo">Total Receitas:</span>
+            <span id="total-receitas" class="resumo-valor">R$ 0,00</span>
+          </div>
+          <div class="resumo-card">
+            <span class="resumo-titulo">Total Despesas:</span>
+            <span id="total-despesas" class="resumo-valor">R$ 0,00</span>
+          </div>
+          <div class="resumo-card">
+            <span class="resumo-titulo">Despesas Fixas:</span>
+            <span id="total-fixas" class="resumo-valor">R$ 0,00</span>
+          </div>
+          <div class="resumo-card">
+            <span class="resumo-titulo">Saldo:</span>
+            <span id="saldo" class="resumo-valor">R$ 0,00</span>
+          </div>
         </div>
       </div>
 
-      <div class="grafico-box">
-        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Ticket Diário por TAG</button>
-        <div class="grafico-conteudo">
-          <div id="tabela-ticket-tags"></div>
+      <div class="graficos-container">
+        <div class="grafico-box card fade-in">
+          <button class="spoiler-titulo btn btn-outline" onclick="toggleGrafico(this)"><span class="icon">&#9654;</span> Saldo Disponível por Tag</button>
+          <div class="grafico-conteudo hidden"><canvas id="grafico-saldos-tags"></canvas></div>
         </div>
-      </div>
 
-      <div class="grafico-box">
-        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Total de Despesas por Categoria</button>
-        <div class="grafico-conteudo">
-          <canvas id="grafico-despesas"></canvas>
+        <div class="grafico-box card fade-in">
+          <button class="spoiler-titulo btn btn-outline" onclick="toggleGrafico(this)"><span class="icon">&#9654;</span> Ticket Diário por TAG</button>
+          <div class="grafico-conteudo hidden"><div id="tabela-ticket-tags" class="tabela-scroll"></div></div>
         </div>
-      </div>
 
-      <div class="grafico-box">
-        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Total de Receitas por Categoria</button>
-        <div class="grafico-conteudo">
-          <canvas id="grafico-receitas"></canvas>
+        <div class="grafico-box card fade-in">
+          <button class="spoiler-titulo btn btn-outline" onclick="toggleGrafico(this)"><span class="icon">&#9654;</span> Total de Despesas por Categoria</button>
+          <div class="grafico-conteudo hidden"><canvas id="grafico-despesas"></canvas></div>
         </div>
-      </div>
 
-      <div class="grafico-box">
-        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Receitas vs Despesas</button>
-        <div class="grafico-conteudo">
-          <canvas id="grafico-linhas"></canvas>
+        <div class="grafico-box card fade-in">
+          <button class="spoiler-titulo btn btn-outline" onclick="toggleGrafico(this)"><span class="icon">&#9654;</span> Total de Receitas por Categoria</button>
+          <div class="grafico-conteudo hidden"><canvas id="grafico-receitas"></canvas></div>
         </div>
-      </div>
 
-      <div class="grafico-box">
-        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Saldo Disponível por Tipo de Conta</button>
-        <div class="grafico-conteudo">
-          <canvas id="grafico-conta"></canvas>
+        <div class="grafico-box card fade-in">
+          <button class="spoiler-titulo btn btn-outline" onclick="toggleGrafico(this)"><span class="icon">&#9654;</span> Receitas vs Despesas</button>
+          <div class="grafico-conteudo hidden"><canvas id="grafico-linhas"></canvas></div>
+        </div>
+
+        <div class="grafico-box card fade-in">
+          <button class="spoiler-titulo btn btn-outline" onclick="toggleGrafico(this)"><span class="icon">&#9654;</span> Saldo Disponível por Tipo de Conta</button>
+          <div class="grafico-conteudo hidden"><canvas id="grafico-conta"></canvas></div>
         </div>
       </div>
     </section>
 
-    <footer>
-      &copy; 2025 Monevo. Todos os direitos reservados.
-    </footer>
+    <footer class="footer">&copy; 2025 Monevo. Todos os direitos reservados.</footer>
   </main>
 
-  <!-- ✅ Script do menu -->
-  <script src="../js/menu.js"></script>
+  <script>
+    function toggleGrafico(botao) {
+      const conteudo = botao.nextElementSibling;
+      const icon = botao.querySelector(".icon");
+      conteudo.classList.toggle("hidden");
+      botao.classList.toggle("ativo");
+    }
+  </script>
 </body>
 </html>

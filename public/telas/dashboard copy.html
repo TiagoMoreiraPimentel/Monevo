@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monevo - Painel Principal</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/menu.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="../js/dashboard.js" defer></script>
+</head>
+<body>
+  <!-- ✅ Menu novo carregado dinamicamente -->
+  <div id="menu-container"></div>
+
+  <main class="main-content">
+    <header class="header-bar">
+      <img src="../img/logo-monevo.png" alt="Monevo" class="logo-header" />
+      <span id="saudacao">Olá, usuário</span>
+      <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    </header>
+
+    <section class="conteudo">
+      <h2>Resumo Financeiro</h2>
+
+      <div class="filtros-relatorio">
+        <label for="mes">Mês:</label>
+        <select id="mes">
+          <option value="01">Janeiro</option>
+          <option value="02">Fevereiro</option>
+          <option value="03">Março</option>
+          <option value="04">Abril</option>
+          <option value="05">Maio</option>
+          <option value="06">Junho</option>
+          <option value="07">Julho</option>
+          <option value="08">Agosto</option>
+          <option value="09">Setembro</option>
+          <option value="10">Outubro</option>
+          <option value="11">Novembro</option>
+          <option value="12">Dezembro</option>
+        </select>
+
+        <label for="ano">Ano:</label>
+        <select id="ano">
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025" selected>2025</option>
+        </select>
+
+        <button onclick="carregarResumo()">Aplicar Filtro</button>
+      </div>
+
+      <div class="resumo-valores">
+        <p><strong>Total Receitas:</strong> R$ <span id="total-receitas">0,00</span></p>
+        <p><strong>Total Despesas:</strong> R$ <span id="total-despesas">0,00</span></p>
+        <p><strong>Total Despesas Fixas:</strong> R$ <span id="total-fixas">0,00</span></p>
+        <p><strong>Saldo:</strong> R$ <span id="saldo">0,00</span></p>
+      </div>
+
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Saldo Disponível por Tag</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-saldos-tags"></canvas>
+        </div>
+      </div>
+
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Ticket Diário por TAG</button>
+        <div class="grafico-conteudo">
+          <div id="tabela-ticket-tags"></div>
+        </div>
+      </div>
+
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Total de Despesas por Categoria</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-despesas"></canvas>
+        </div>
+      </div>
+
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Total de Receitas por Categoria</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-receitas"></canvas>
+        </div>
+      </div>
+
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Receitas vs Despesas</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-linhas"></canvas>
+        </div>
+      </div>
+
+      <div class="grafico-box">
+        <button class="spoiler-titulo" onclick="toggleGrafico(this)">▶️ Saldo Disponível por Tipo de Conta</button>
+        <div class="grafico-conteudo">
+          <canvas id="grafico-conta"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      &copy; 2025 Monevo. Todos os direitos reservados.
+    </footer>
+  </main>
+
+  <!-- ✅ Script do menu -->
+  <script src="../js/menu.js"></script>
+</body>
+</html>

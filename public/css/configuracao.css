@@ -618,59 +618,52 @@ html {
       white-space: nowrap;
       z-index: 1000;
     }
-    .cards-container {
-      display: none;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2rem;
+    .transaction-cards .card {
+      background: var(--surface);
+      border-radius: var(--border-radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+      margin-bottom: 1.5rem;
     }
 
-    .cards-container .card {
-      background-color: #ffffff;
-      border-radius: 12px;
-      padding: 1rem;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .cards-container .card:hover {
-      transform: translateY(-2px);
-    }
-
-    .cards-container .card p {
-      margin: 0;
+    .transaction-cards .card p {
+      margin-bottom: 0.75rem;
       font-size: 0.95rem;
-      color: #333;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      border-bottom: 1px solid var(--primary-light);
+      padding-bottom: 0.5rem;
     }
 
-    .cards-container .divider {
-      border: none;
-      border-top: 1px solid #cce4e9;
-      margin: 0.4rem 0;
+    .transaction-cards .card p:last-of-type {
+      border-bottom: none;
+      margin-bottom: 1rem;
     }
 
-    .cards-container .btn-remover {
-      align-self: flex-end;
-      background-color: #d9534f;
+    .transaction-cards .card input {
+      margin-top: 0.25rem;
+      width: 100px;
+    }
+
+    .transaction-cards .card button {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--danger), #c53030);
       color: white;
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 0.85rem;
-      transition: background-color 0.2s ease;
-      margin-top: 0.5rem;
+      transition: var(--transition);
     }
 
-    .cards-container .btn-remover:hover {
-      background-color: #c9302c;
+    .transaction-cards .card button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 768px) {
+      .page-title {
+        margin-top: 2.5rem;
+      }
     }
 

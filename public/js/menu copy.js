@@ -8,23 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const sidebar = document.getElementById("sidebar");
 
       if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener("click", () => {
-        sidebar.classList.toggle("expanded");
-        document.body.classList.toggle("sidebar-open", sidebar.classList.contains("expanded"));
-      });
-
-      // Fecha ao clicar fora no mobile
-      document.addEventListener("click", (e) => {
-        if (
-          sidebar.classList.contains("expanded") &&
-          !sidebar.contains(e.target) &&
-          !toggleBtn.contains(e.target)
-        ) {
-          sidebar.classList.remove("expanded");
-          document.body.classList.remove("sidebar-open");
-        }
-      });
-    }
+        toggleBtn.addEventListener("click", () => {
+          sidebar.classList.toggle("expanded");
+        });
+      }
 
       // ✅ Só executa essa parte depois que o menu foi carregado
       const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));

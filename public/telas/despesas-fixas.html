@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Despesas Fixas - Monevo</title>
+  <!-- Fonte Inter via Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/global.css" />
   <link rel="stylesheet" href="../css/menu.css" />
   <link rel="stylesheet" href="../css/despesas-fixas.css" />
@@ -11,73 +15,75 @@
   <script defer src="../js/despesas-fixas.js"></script>
 </head>
 <body>
-  <div class="layout">
-    <div id="menu-container"></div>
+  <div id="menu-container"></div>
 
-    <main class="container">
-      <h1 class="titulo-secao">Despesas Fixas</h1>
+  <main class="main-content container fade-in">
+    <h1 class="page-title">Despesas Fixas</h1>
+    <p class="page-subtitle">Gerencie e acompanhe suas despesas recorrentes de maneira simples e visual.</p>
 
-      <form id="form-despesa-fixa" class="formulario">
-        <div class="linha-campos">
-          <div class="campo-com-label">
-            <label for="categoria">Categoria</label>
-            <input type="text" id="categoria" placeholder="Ex: Aluguel" required />
-          </div>
-          <div class="campo-com-label">
-            <label for="valor">Valor da Parcela (R$)</label>
-            <input type="text" id="valor" placeholder="R$ 0,00" required />
-          </div>
-        </div>
-
-        <div class="linha-campos">
-          <div class="campo-com-label">
-            <label for="data_lancamento">Data de Lançamento</label>
-            <input type="date" id="data_lancamento" required />
-          </div>
-          <div class="campo-com-label">
-            <label for="vencimento">Data da 1ª Parcela</label>
-            <input type="date" id="vencimento" required />
-          </div>
-        </div>
-
-        <div class="linha-campos">
-          <div class="campo-com-label">
-            <label for="parcelas">Qtd. de Parcelas</label>
-            <input type="number" id="parcelas" placeholder="Ex: 3" min="1" required />
-          </div>
-          <div class="campo-com-label">
-            <label for="descricao">Descrição (opcional)</label>
-            <input type="text" id="descricao" placeholder="Detalhes da despesa" />
-          </div>
-        </div>
-
-        <button type="submit" class="botao-primario">Cadastrar Despesa Fixa</button>
-      </form>
-
-      <p id="mensagem" class="mensagem-status"></p>
-
-      <!-- Tabela desktop -->
-      <div class="tabela-container" id="despesas-desktop">
-        <table>
-          <thead>
-            <tr>
-              <th>Categoria</th>
-              <th>Valor Parcela</th>
-              <th>Valor Total</th>
-              <th>Progresso</th>
-              <th>Próximo Vencimento</th>
-              <th>Status</th>
-              <th>Descrição</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-despesas"></tbody>
-        </table>
+    <div class="card slide-up" style="max-width: 700px; margin: 0 auto 2.5rem auto;">
+      <div class="card-header">
+        <strong>Nova Despesa Fixa</strong>
       </div>
+      <div class="card-body">
+        <form id="form-despesa-fixa" autocomplete="off">
+          <div class="grid grid-cols-2" style="gap:1.2rem;">
+            <div class="form-group">
+              <label for="categoria" class="form-label">Categoria</label>
+              <input type="text" id="categoria" name="categoria" class="form-control" placeholder="Ex: Aluguel" required />
+            </div>
+            <div class="form-group">
+              <label for="valor" class="form-label">Valor da Parcela (R$)</label>
+              <input type="text" id="valor" name="valor" class="form-control" placeholder="R$ 0,00" required />
+            </div>
+            <div class="form-group">
+              <label for="data_lancamento" class="form-label">Data de Lançamento</label>
+              <input type="date" id="data_lancamento" name="data_lancamento" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="vencimento" class="form-label">Data da 1ª Parcela</label>
+              <input type="date" id="vencimento" name="vencimento" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="parcelas" class="form-label">Qtd. de Parcelas</label>
+              <input type="number" id="parcelas" name="parcelas" class="form-control" placeholder="Ex: 3" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="descricao" class="form-label">Descrição (opcional)</label>
+              <input type="text" id="descricao" name="descricao" class="form-control" placeholder="Detalhes da despesa" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.5rem;">Cadastrar Despesa Fixa</button>
+        </form>
+        <p id="mensagem" class="message" style="margin-top:1rem;"></p>
+      </div>
+    </div>
 
-      <!-- Cards mobile -->
-      <div class="cards-container" id="despesas-mobile"></div>
-    </main>
-  </div>
+    <!-- Tabela desktop -->
+    <div class="table-container slide-up" id="despesas-desktop">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th>Valor Parcela</th>
+            <th>Valor Total</th>
+            <th>Progresso</th>
+            <th>Próximo Vencimento</th>
+            <th>Status</th>
+            <th>Descrição</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-despesas"></tbody>
+      </table>
+    </div>
+
+    <!-- Cards mobile -->
+    <div class="cards-container transaction-cards" id="despesas-mobile"></div>
+  </main>
+
+  <footer class="footer">
+    <p>Monevo © 2025 - Todos os direitos reservados</p>
+  </footer>
 </body>
 </html>

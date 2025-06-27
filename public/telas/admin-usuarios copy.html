@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administração de Usuários - Monevo</title>
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/menu.css" />
+  <link rel="stylesheet" href="../css/admin-usuarios.css" />
+</head>
+<body>
+  <div id="menu-container"></div>
+
+  <main class="main-content">
+    <section class="conteudo">
+      <h1>Administração de Usuários</h1>
+
+      <div class="tabela-responsiva">
+        <table id="tabela-usuarios">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Nível de Acesso</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela">
+            <!-- Linhas serão inseridas via JS -->
+          </tbody>
+        </table>
+      </div>
+      <div id="lista-usuarios-mobile" class="lista-mobile"></div>
+    </section>
+
+    <footer class="footer">
+      <p>Monevo © 2025 - Todos os direitos reservados</p>
+    </footer>
+  </main>
+
+  <script src="../js/menu.js"></script>
+  <script type="module" src="/js/admin-usuarios.js"></script>
+</body>
+</html>

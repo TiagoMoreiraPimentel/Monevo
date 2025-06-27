@@ -1,14 +1,26 @@
-<!-- Botão FORA da sidebar -->
-<button class="toggle-btn">☰</button>
-
+<button class="toggle-btn" aria-label="Abrir menu lateral">☰</button>
 <nav class="sidebar" id="sidebar">
   <div class="menu-opcoes">
-    <button onclick="window.location.href = '/telas/dashboard.html'">Inicio</button>
-    <button onclick="window.location.href = '/telas/configuracao.html'">Configuração</button>
-    <button onclick="window.location.href = '/telas/contas.html'">Contas</button>
-    <button id="admin-only" onclick="window.location.href = '/telas/admin-usuarios.html'">Usuários</button>
-    <button onclick="window.location.href = '/telas/transacoes.html'">Transações</button>
-    <button onclick="window.location.href = '/telas/despesas-fixas.html'">Despesas Fixas</button>
-    <button onclick="localStorage.clear(); window.location.href = '/telas/login.html'">Sair</button>
+    <button class="menu-link" onclick="window.location.href = '/telas/dashboard.html'">
+      <span class="menu-icone">🏠</span> <span class="menu-texto">Início</span>
+    </button>
+    <button class="menu-link" onclick="window.location.href = '/telas/configuracao.html'">
+      <span class="menu-icone">⚙️</span> <span class="menu-texto">Configuração</span>
+    </button>
+    <button class="menu-link" onclick="window.location.href = '/telas/contas.html'">
+      <span class="menu-icone">💳</span> <span class="menu-texto">Contas</span>
+    </button>
+    <button class="menu-link" id="admin-only" onclick="window.location.href = '/telas/admin-usuarios.html'">
+      <span class="menu-icone">🧑‍💼</span> <span class="menu-texto">Usuários</span>
+    </button>
+    <button class="menu-link" onclick="window.location.href = '/telas/transacoes.html'">
+      <span class="menu-icone">💸</span> <span class="menu-texto">Transações</span>
+    </button>
+    <button class="menu-link" onclick="window.location.href = '/telas/despesas-fixas.html'">
+      <span class="menu-icone">📅</span> <span class="menu-texto">Despesas Fixas</span>
+    </button>
+    <button class="menu-link sair" onclick="localStorage.clear(); window.location.href = '/telas/login.html'">
+      <span class="menu-icone">🚪</span> <span class="menu-texto">Sair</span>
+    </button>
   </div>
 </nav>

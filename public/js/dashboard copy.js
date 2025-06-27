@@ -133,13 +133,13 @@ function carregarGraficoSaldosTags(idUsuario, dataAtual) {
           },
           scales: {
             x: {
+              grid: { display: false },
               ticks: { font: { weight: 'bold' } }
             },
             y: {
               beginAtZero: true,
               suggestedMax: maxValor + 20,
-              display: true, // Ativa grade no eixo X
-              color: '#ddd',  // (opcional) define cor da grade
+              grid: { display: false },
               ticks: { font: { weight: 'bold' } }
             },
           },
@@ -193,8 +193,7 @@ function renderizarGraficoCategoriasDespesas(transacoes) {
         y: {
           beginAtZero: true,
           suggestedMax: maxValor * 1.2,
-          display: true, // Ativa grade no eixo X
-          color: '#ddd',  // (opcional) define cor da grade
+          grid: { display: false },
           ticks: { font: { weight: 'bold' } }
         },
       },
@@ -247,8 +246,7 @@ function renderizarGraficoCategoriasReceitas(transacoes) {
         y: {
           beginAtZero: true,
           suggestedMax: maxValor * 1.2,
-          display: true, // Ativa grade no eixo X
-          color: '#ddd',  // (opcional) define cor da grade
+          grid: { display: false },
           ticks: { font: { weight: 'bold' } }
         },
       },
@@ -336,8 +334,7 @@ function renderizarGraficoConta(transacoes) {
         y: {
           beginAtZero: true,
           suggestedMax: maxValor,
-          display: true, // Ativa grade no eixo X
-          color: '#ddd',  // (opcional) define cor da grade
+          grid: { display: false },
           ticks: { font: { weight: 'bold' } }
         }
       },
@@ -388,14 +385,14 @@ async function carregarTicketsTags() {
           return `
             <tr>
               <td>${tag.tag}</td>
-                <td>${formatarValorBR(tag.saldo, false)}</td>
-                <td>${formatarValorBR(tag.gasto_hoje, false)}</td>
-                <td>${formatarValorBR(tag.saldo_restante, false)}</td>
-                <td>${tag.dias_restantes}</td>
-                <td>${formatarValorBR(tag.ticket_base, false)}</td>
-                <td style="color: ${cor}; font-weight: bold;">${formatarValorBR(ticketHojeNum, false)}</td>
-                <td>${tag.ticket_ajustado != null ? formatarValorBR(tag.ticket_ajustado, false) : "-"}</td>
-              </tr>
+              <td>${formatarValorBR(tag.saldo)}</td>
+              <td>${formatarValorBR(tag.gasto_hoje)}</td>
+              <td>${formatarValorBR(tag.saldo_restante)}</td>
+              <td>${tag.dias_restantes}</td>
+              <td>${formatarValorBR(tag.ticket_base)}</td>
+              <td style="color: ${cor}; font-weight: bold;">${formatarValorBR(ticketHojeNum)}</td>
+              <td>${formatarValorBR(tag.ticket_ajustado)}</td>
+            </tr>
           `;
         }).join("")}
       </tbody>
@@ -453,10 +450,8 @@ function logout() {
 
 function toggleGrafico(botao) {
   const conteudo = botao.nextElementSibling;
-  botao.classList.toggle("ativo");
-  conteudo.classList.toggle("hidden");
+  const aberto = conteudo.style.display === "block";
+
+  conteudo.style.display = aberto ? "none" : "block";
+  botao.textContent = (aberto ? "▶️" : "🔽") + " " + botao.textContent.slice(2);
 }
-
-
-
-

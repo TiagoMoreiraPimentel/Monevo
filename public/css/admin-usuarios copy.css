@@ -1,0 +1,167 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f8f8f8;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+  color: #000000;
+}
+
+.tabela-responsiva {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+th,
+td {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #008b65;
+  color: white;
+}
+
+select,
+button {
+  padding: 0.4rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button.salvar {
+  background-color: #008b65;
+  color: white;
+  cursor: pointer;
+}
+
+button.salvar:hover {
+  background-color: #006e50;
+}
+
+#btn-voltar-dashboard {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #008b65;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#btn-voltar-dashboard:hover {
+  background-color: #006e50;
+}
+
+.footer {
+  background-color: #008B65;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  border-top: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* VISIBILIDADE POR DISPOSITIVO */
+.lista-mobile {
+  display: none;
+}
+
+/* MOBILE */
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  #btn-voltar-dashboard {
+    width: 100%;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  select,
+  button {
+    font-size: 0.8rem;
+  }
+
+  .footer {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .tabela-responsiva {
+    display: none;
+  }
+
+  .lista-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .card-usuario {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-usuario p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .card-usuario select,
+  .card-usuario button {
+    margin-top: 0.3rem;
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .card-usuario button.salvar {
+    margin-top: 0.5rem;
+    background-color: #008b65;
+    color: white;
+    font-weight: bold;
+  }
+
+  .card-usuario button.salvar:hover {
+    background-color: #006e50;
+  }
+}
+@media (max-width: 768px) {
+  .page-title {
+    margin-top: 3.5rem;
+  }
+}

@@ -9,11 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarContas();
 
   const inputSaldo = document.getElementById("saldo");
+
   inputSaldo.value = (0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL"
   });
 
+  // Formatar valor enquanto digita
   inputSaldo.addEventListener("input", () => {
     let valor = inputSaldo.value.replace(/\D/g, "");
     valor = (parseInt(valor, 10) / 100).toFixed(2);
@@ -96,71 +98,41 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function mostrarMensagem(msg) {
-  const el = document.getElementById("mensagem");
-  el.innerText = msg;
-  el.style.display = msg ? "block" : "none";
+  document.getElementById("mensagem").innerText = msg;
 }
 
 async function carregarContas() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   const tabela = document.getElementById("tabela-contas");
-  const cards = document.getElementById("cards-contas");
 
   try {
     const res = await fetch("/api/contas");
     const contas = await res.json();
     const minhasContas = contas.filter(c => c.id_usuario === usuario.id);
 
-    // --- TABELA (desktop) ---
     tabela.innerHTML = "";
     minhasContas.forEach(conta => {
-      const tipoFormatado = conta.tipo === "Corrente" ? "Conta Corrente" : conta.tipo;
+      // Corrigir o tipo para exibição correta
+      const tipoFormatado =
+        conta.tipo === "Corrente" ? "Conta Corrente" : conta.tipo;
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><input type="text" value="${conta.nome_conta}" data-id="${conta.id_conta}" data-campo="nome_conta" class="form-control"></td>
-        <td>
-          <select data-id="${conta.id_conta}" data-campo="tipo" class="form-control">
+        <td data-label="Nome"><input type="text" value="${conta.nome_conta}" data-id="${conta.id_conta}" data-campo="nome_conta"></td>
+        <td data-label="Tipo">
+          <select data-id="${conta.id_conta}" data-campo="tipo">
             <option value="Carteira" ${tipoFormatado === "Carteira" ? "selected" : ""}>Carteira</option>
             <option value="Conta Corrente" ${tipoFormatado === "Conta Corrente" ? "selected" : ""}>Conta Corrente</option>
             <option value="Poupança" ${tipoFormatado === "Poupança" ? "selected" : ""}>Poupança</option>
           </select>
         </td>
-        <td><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial" class="form-control"></td>
-        <td><button class="btn btn-danger" onclick="excluirConta('${conta.id_conta}')">🗑️</button></td>
+        <td data-label="Saldo"><input type="number" value="${conta.saldo_inicial}" data-id="${conta.id_conta}" data-campo="saldo_inicial"></td>
+        <td data-label="Ações">
+          <button onclick="excluirConta('${conta.id_conta}')">Excluir</button>
+        </td>
       `;
       tabela.appendChild(tr);
     });
-
-    // --- CARDS (mobile) ---
-    cards.innerHTML = "";
-    minhasContas.forEach(conta => {
-      const tipoFormatado = conta.tipo === "Corrente" ? "Conta Corrente" : conta.tipo;
-      const saldoFormatado = Number(conta.saldo_inicial).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-      const card = document.createElement("div");
-      card.className = "transaction-card";
-
-      card.innerHTML = `
-        <div class="transaction-header">
-          <span class="transaction-amount">${saldoFormatado}</span>
-          <span class="transaction-date">${tipoFormatado}</span>
-        </div>
-        <div class="transaction-details">
-          <div class="transaction-detail">
-            <span class="detail-label">Nome:</span>
-            <span class="detail-value">${conta.nome_conta}</span>
-          </div>
-          <div class="transaction-detail">
-            <span class="detail-label">Tipo:</span>
-            <span class="detail-value">${tipoFormatado}</span>
-          </div>
-        </div>
-        <button class="btn btn-danger" onclick="excluirConta('${conta.id_conta}')">🗑️ Excluir</button>
-      `;
-
-      cards.appendChild(card);
-    });
-
   } catch (err) {
     console.error(err);
     mostrarMensagem("Erro ao carregar contas.");
