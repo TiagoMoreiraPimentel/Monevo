@@ -2,7 +2,11 @@ export default async function handler(req, res) {
   const BASE = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_despesas_fixa/";
 
   if (req.method === "GET") {
-    const r = await fetch(BASE);
+    const { id_usuario } = req.query;
+    if (!id_usuario) return res.status(400).json({ erro: "ID do usuário é obrigatório" });
+
+    const url = `${BASE}?q={"ID_USUARIO":${id_usuario}}`;
+    const r = await fetch(url);
     const json = await r.json();
     return res.status(200).json(json.items || []);
   }
