@@ -3,13 +3,14 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     const { id_usuario } = req.query;
-    if (!id_usuario) return res.status(400).send("id_usuario obrigatório.");
+    if (!id_usuario) return res.status(400).send("ID do usuário não informado.");
 
     try {
       const resposta = await fetch(BASE_CONFIG);
       const json = await resposta.json();
       const configuracoes = (json.items || []).filter(c => c.ID_USUARIO == id_usuario);
 
+      console.log(`🔍 GET: Encontradas ${configuracoes.length} configurações para ID_USUARIO=${id_usuario}`);
       return res.status(200).json({ items: configuracoes });
     } catch (error) {
       console.error("❌ Erro ao buscar configurações:", error);
@@ -24,17 +25,16 @@ export default async function handler(req, res) {
     }
 
     try {
-      console.log("📡 Buscando todas as configurações no ORDS...");
+      console.log(`📡 POST: Buscando todas as configurações no ORDS para ID_USUARIO=${id_usuario}...`);
       const resposta = await fetch(BASE_CONFIG);
       const jsonTodas = await resposta.json();
 
-      console.log("📋 Total retornado do ORDS:", jsonTodas.items?.length || 0);
+      console.log(`📋 Total retornado do ORDS: ${jsonTodas.items?.length || 0}`);
       console.log("🧾 Todos os registros:", JSON.stringify(jsonTodas.items, null, 2));
 
       const antigas = (jsonTodas.items || []).filter(c => 
-        c.id_usuario == id_usuario && c.id_distribuicao
+        c.ID_USUARIO == id_usuario && c.ID_DISTRIBUICAO
       );
-
 
       if (antigas.length === 0) {
         console.warn("⚠️ Nenhuma configuração antiga encontrada para exclusão.");
@@ -44,18 +44,18 @@ export default async function handler(req, res) {
 
       for (const existente of antigas) {
         const deleteUrl = BASE_CONFIG + existente.ID_DISTRIBUICAO;
-        console.log("🧨 Tentando remover ID:", existente.ID_DISTRIBUICAO, "→", deleteUrl);
+        console.log(`🧨 Tentando remover ID_DISTRIBUICAO=${existente.ID_DISTRIBUICAO} → ${deleteUrl}`);
 
         try {
           const rDelete = await fetch(deleteUrl, { method: "DELETE" });
-          console.log("✅ DELETE status:", rDelete.status);
+          console.log(`✅ DELETE status para ID ${existente.ID_DISTRIBUICAO}: ${rDelete.status}`);
 
           if (!rDelete.ok) {
             const erroTexto = await rDelete.text();
-            console.error("❌ Falha no DELETE:", rDelete.status, erroTexto);
+            console.error(`❌ Falha no DELETE ID ${existente.ID_DISTRIBUICAO}: ${rDelete.status} - ${erroTexto}`);
           }
         } catch (err) {
-          console.error("🔥 Erro inesperado no DELETE:", err);
+          console.error(`🔥 Erro inesperado no DELETE ID ${existente.ID_DISTRIBUICAO}:`, err);
         }
       }
 
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
           DIA_RENOVACAO: config.dia_renovacao || null
         };
 
-        console.log("💾 Inserindo nova config:", nova);
+        console.log("💾 Inserindo nova configuração:", nova);
 
         const rPost = await fetch(BASE_CONFIG, {
           method: "POST",
@@ -75,11 +75,11 @@ export default async function handler(req, res) {
           body: JSON.stringify(nova)
         });
 
-        console.log("✅ POST status:", rPost.status);
+        console.log(`✅ POST status para categoria ${nova.NOME_CATEGORIA}: ${rPost.status}`);
 
         if (!rPost.ok) {
           const erro = await rPost.text();
-          console.error("❌ Erro no POST da config:", nova.NOME_CATEGORIA, erro);
+          console.error(`❌ Erro no POST para categoria ${nova.NOME_CATEGORIA}: ${erro}`);
         }
       }
 
