@@ -7,14 +7,12 @@ export default async function handler(req, res) {
     const BASE_VALOR = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_distribuicao_valor/";
     const BASE_TRANSACOES = "https://g46a44e87f53b88-pm1g7tnjgm8lrmpr.adb.sa-saopaulo-1.oraclecloudapps.com/ords/admin/monevo_transacao/";
 
-    // Função para criar data em fuso horário do Brasil (BRT)
     const getHojeBRT = () => {
       const agora = new Date();
       const brt = new Date(agora.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }));
       return new Date(brt.getFullYear(), brt.getMonth(), brt.getDate());
     };
 
-    // Função para calcular diferença de dias entre duas datas (sem considerar hora)
     const diferencaEmDias = (data1, data2) => {
       const umDiaMs = 1000 * 60 * 60 * 24;
       const d1 = new Date(data1.getFullYear(), data1.getMonth(), data1.getDate());
@@ -27,17 +25,14 @@ export default async function handler(req, res) {
     const fimDia = new Date(hojeZerado);
     fimDia.setHours(23, 59, 59, 999);
 
-    // Buscar configs
     const configResp = await fetch(`${BASE_CONFIG}?q={"id_usuario":${id_usuario}}`);
     const configData = await configResp.json();
     const configuracoes = configData.items || [];
 
-    // Buscar saldos
     const valorResp = await fetch(`${BASE_VALOR}?q={"id_usuario":${id_usuario}}`);
     const valorData = await valorResp.json();
     const saldos = valorData.items || [];
 
-    // Buscar transações do dia
     const transResp = await fetch(`${BASE_TRANSACOES}?q={"id_usuario":${id_usuario}}`);
     const transData = await transResp.json();
     const transacoes = (transData.items || []).filter(t => {
@@ -48,15 +43,7 @@ export default async function handler(req, res) {
 
     const resposta = configuracoes.map(cfg => {
       const tag = cfg.nome_categoria;
-      const diaRenovacao = cfg.dia_renovacao;
-
-      // Próxima data de renovação com base no BRT
-      let renovacao = new Date(hojeZerado.getFullYear(), hojeZerado.getMonth(), diaRenovacao);
-      if (renovacao < hojeZerado) {
-        renovacao.setMonth(renovacao.getMonth() + 1);
-      }
-
-      const diasRestantes = diferencaEmDias(hojeZerado, renovacao);
+      const diaRenovacao = Number(cfg.dia_renovacao);
 
       const saldoAtual = saldos
         .filter(s => s.tag_distribuicao === tag)
@@ -68,6 +55,27 @@ export default async function handler(req, res) {
 
       const saldoOriginal = saldoAtual + gastoHoje;
       const saldoRestante = saldoOriginal - gastoHoje;
+
+      if (!diaRenovacao || diaRenovacao < 1 || diaRenovacao > 31) {
+        return {
+          tag,
+          saldo: saldoOriginal.toFixed(2),
+          gasto_hoje: gastoHoje.toFixed(2),
+          saldo_restante: saldoRestante.toFixed(2),
+          dia_renovacao: cfg.dia_renovacao,
+          dias_restantes: null,
+          ticket_base: saldoOriginal.toFixed(2),
+          ticket_hoje: saldoRestante.toFixed(2),
+          ticket_ajustado: saldoRestante.toFixed(2)
+        };
+      }
+
+      let renovacao = new Date(hojeZerado.getFullYear(), hojeZerado.getMonth(), diaRenovacao);
+      if (renovacao < hojeZerado) {
+        renovacao.setMonth(renovacao.getMonth() + 1);
+      }
+
+      const diasRestantes = diferencaEmDias(hojeZerado, renovacao);
 
       const ticketBase = diasRestantes > 0 ? saldoOriginal / diasRestantes : saldoOriginal;
       const ticketHoje = ticketBase - gastoHoje;
