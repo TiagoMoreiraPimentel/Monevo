@@ -3,6 +3,8 @@ export default async function handler(req, res) {
     const id_usuario = Number(req.query.id_usuario);
     if (!id_usuario) return res.status(400).json({ erro: "ID de usuário ausente." });
 
+    console.log("📅 Data recebida via query:", req.query.data_atual);
+
     // Pega data enviada do front ou usa data BRT do servidor
     const dataParam = req.query.data_atual;
     const hojeZerado = dataParam
