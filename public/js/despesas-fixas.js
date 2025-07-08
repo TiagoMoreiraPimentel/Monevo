@@ -191,9 +191,9 @@ async function carregarDespesas() {
             <span class="detail-value" style="white-space: pre-wrap;">${d.descricao || "-"}</span>
           </div>
         </div>
-        <div class="acoes-botoes" style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-          <span aria-hidden="true" style="font-size:1.15em;">📂</span>
-          <span aria-hidden="true" style="font-size:1.15em;">🗑️</span>
+        <<div class="acoes-botoes" style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+          <button class="btn btn-outline" onclick="toggleParcelasMobile(this, ${d.id_despesa_fixa}, ${total}, ${pagas}, '${d.vencimento}', ${valorParcela})" title="Ver parcelas">📂</button>
+          <button class="btn btn-danger" onclick="excluirDespesa(${d.id_despesa_fixa})">🗑️</button>
         </div>
       `;
       cards.appendChild(card);

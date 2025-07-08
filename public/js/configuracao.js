@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("cardsDistribuicao").appendChild(card);
 
       atualizarSoma();
+      ativarListenersPorcentagem(); // Ativa escuta nos novos inputs
       form.reset();
     });
   }
@@ -107,7 +108,7 @@ async function salvarDistribuicoes(id_usuario, configuracoes) {
 
     if (res.ok) {
       alert("Configurações salvas com sucesso!");
-      carregarDistribuicoes();
+      carregarDistribuicoes(); // Após salvar, recarrega
     } else {
       const erro = await res.text();
       alert("Erro ao salvar: " + erro);
@@ -152,6 +153,7 @@ async function carregarDistribuicoes() {
   });
 
   atualizarSoma(distribuicoes);
+  ativarListenersPorcentagem(); // Escuta após preenchimento
 }
 
 function removerTag(nome) {
@@ -168,6 +170,7 @@ function removerTag(nome) {
   novosCards.forEach(c => container.appendChild(c));
 
   atualizarSoma();
+  ativarListenersPorcentagem(); // Reaplica escuta após remoção
 }
 
 function atualizarSoma(distribuicoes = null) {
@@ -180,8 +183,55 @@ function atualizarSoma(distribuicoes = null) {
   }
 
   const total = distribuicoes.reduce((acc, d) => acc + d.porcentagem, 0);
-  document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
-
+  const aviso = document.getElementById("somaPorcentagem");
   const salvarBtn = document.getElementById("salvarConfig");
-  if (salvarBtn) salvarBtn.disabled = total !== 100;
+
+  if (aviso) {
+    if (total === 100) {
+      aviso.innerText = "Total: 100% ✅";
+      aviso.classList.remove("message-error");
+      aviso.classList.add("message-success");
+      if (salvarBtn) salvarBtn.disabled = false;
+    } else {
+      aviso.innerText = `Total: ${total}% ❌ A soma deve ser exatamente 100% para salvar.`;
+      aviso.classList.remove("message-success");
+      aviso.classList.add("message-error");
+      if (salvarBtn) salvarBtn.disabled = true;
+    }
+  } else {
+    // Apenas atualiza valor textual se aviso não estiver presente
+    document.getElementById("somaPorcentagem").innerText = `Total: ${total}%`;
+  }
 }
+
+function ativarListenersPorcentagem() {
+  const tabelaInputs = document.querySelectorAll("#tabelaDistribuicao input.porcentagem");
+  const cardInputs = document.querySelectorAll("#cardsDistribuicao input.porcentagem");
+  const aviso = document.getElementById("somaPorcentagem");
+
+  tabelaInputs.forEach(input => {
+    input.removeEventListener("input", atualizarSoma);
+    input.addEventListener("input", () => atualizarSoma());
+  });
+
+  cardInputs.forEach(cardInput => {
+    cardInput.removeEventListener("input", atualizarSoma);
+    cardInput.addEventListener("input", () => {
+      const nome = cardInput.closest(".card").querySelector(".nome")?.innerText;
+      const valor = parseFloat(cardInput.value) || 0;
+
+      // Sincroniza com a tabela oculta
+      const tabelaInput = [...document.querySelectorAll("#tabelaDistribuicao tbody tr")]
+        .find(tr => tr.querySelector("td.nome")?.innerText === nome)
+        ?.querySelector("input.porcentagem");
+
+      if (tabelaInput) tabelaInput.value = valor;
+
+      atualizarSoma();
+    });
+  });
+}
+
+
+
+
